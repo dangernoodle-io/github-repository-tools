@@ -1,0 +1,65 @@
+{
+    "name": "grt-test-repository",
+    "organization": "dangernoodle-io",
+    "settings": {
+        "initialize": true,
+        "hidden": true,
+        "labels": {
+            "label": "#00000"
+        },
+        "teams": {
+            "read": "read",
+            "write": "write",
+            "admin": "admin"
+        },
+        "collaborators": {
+            "user": "read"
+        },
+        "branches": {
+            "primary": "master",
+            "other": [
+                "other"
+            ],
+            "protections": {
+                "master": {
+                    "requireSignedCommits": true,
+                    "includeAdministrators": true,
+                    "requireReviews": {
+                        "requiredReviewers": 1,
+                        "dismissStaleApprovals": true,
+                        "requireCodeOwner": true,
+                        "restrictDismissals": {
+                            "teams": [
+                                "write"
+                            ],
+                            "users": [
+                                "user"
+                            ]
+                        }
+                    },
+                    "requiredStatusChecks": {
+                        "requireUpToDate": true,
+                        "contexts": [
+                            "grt-test-repository"
+                        ]
+                    },
+                    "pushAccess": {
+                        "teams": [
+                            "write"
+                        ],
+                        "users": [
+                            "user"
+                        ]
+                    }
+                }
+            }
+        }
+    },
+    "plugins": {
+        "jenkins": [
+            {
+                "container": "maven"
+            }
+        ]
+    }
+}
