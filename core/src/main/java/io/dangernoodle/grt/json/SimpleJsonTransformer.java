@@ -10,9 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class SimpleJsonTransformer implements JsonTransformer
+public class SimpleJsonTransformer
 {
-    public static final JsonTransformer transformer = new SimpleJsonTransformer();
+    public static final SimpleJsonTransformer transformer = new SimpleJsonTransformer();
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -31,25 +31,21 @@ public class SimpleJsonTransformer implements JsonTransformer
         this.prettyPrinter = builder.setPrettyPrinting().create();
     }
 
-    @Override
     public <T> T deserialize(Reader reader, Class<T> clazz)
     {
         return gson.fromJson(reader, clazz);
     }
 
-    @Override
     public <T> T deserialize(String json, Class<T> clazz)
     {
         return gson.fromJson(json, clazz);
     }
 
-    @Override
     public String prettyPrint(String json)
     {
         return prettyPrinter.toJson(jsonParser.parse(json).getAsJsonObject());
     }
 
-    @Override
     public String serialize(Object object)
     {
         return gson.toJson(object);

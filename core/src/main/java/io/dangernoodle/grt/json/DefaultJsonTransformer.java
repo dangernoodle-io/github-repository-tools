@@ -12,7 +12,7 @@ import io.dangernoodle.grt.Repository.Plugins;
 
 public final class DefaultJsonTransformer extends SimpleJsonTransformer
 {
-    public static final JsonTransformer transformer = new DefaultJsonTransformer();
+    public static final DefaultJsonTransformer transformer = new DefaultJsonTransformer();
 
     DefaultJsonTransformer()
     {
