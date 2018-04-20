@@ -67,7 +67,7 @@ public class RepositoryCommand implements CommandLineDelegate.Command
 
             if (files.size() == 0)
             {
-                throw new IllegalStateException("failed to find file for repository [" + name + "]");
+                throw new IllegalStateException("failed to find repository file [" + name + "]");
             }
 
             if (files.size() > 1)
