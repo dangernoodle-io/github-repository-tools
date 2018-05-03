@@ -1,0 +1,25 @@
+sudo: required
+services:
+- docker
+cache:
+  directories:
+  - "$HOME/.m2"
+env:
+  matrix:
+  - JENKINS_HOME=true
+language: java
+jdk:
+- openjdk8
+branches:
+  only:
+  - master
+before_install:
+- echo "MAVEN_OPTS='-Xmx256m'" > ~/.mavenrc
+- curl -o $HOME/.m2/settings.xml https://raw.githubusercontent.com/dangernoodle-io/dangernoodle-io-build-pom/master/src/main/travis/settings.xml
+install: true
+script:
+- mvn -B -V verify jacoco:report coveralls:report -DskipITs
+notifications:
+  email: false
+  slack:
+    secure: QJnp41r3y+MCTNrxtQbcMDUVHbbIQblY3l8gBoaZIa3hfP83A3HpALVBhin8EUqmDmABFH7sqxJLXili82Q16yVtlGj0odk9ge3erWCqx+6Jb9wBddMZSLGRO50UN2j9hZcrJQC047HxNHAutNLGozd8LB6qcRH7fBNCtKQPBAdTgIey2AMEIsnlFxHUdxDrjZ7kiEAbtj5xXWiHbMxC7WB8915ZElw6OgmKt6PoLyKROcri9v/REaLzSrNsoXUbjNzWjqdQf5dnVjtUq60EuY/CnXYPUcUUW7NDZEFRLEryCetzDZyjXaFvGKvTQ4Hhcnbj58lOuTn3sVy3qihZsNzdOCn5w0TToclrfNsJbUtngwCitT5nTot9csuhAxEaAPZbYApNIzhH6VAurzHLe/PZs5/ctKGfrXc2kG4eASMHLd5TytGwBDoXzjSz6VJpYgJbpF0gJFdm/TXVAWaVvNWHDCYZW2vyHI2hp3gOg7EkjIe0cApVi7FsbkzCOK5I0qI4lLTeBrgo7rhW91AuYptC10h6nX7PNYRoOIDU91JjA1TXEolyYMaUlcAY0cFIdKU8MfWQwh/sFW7bv18yw97KQP/8c5ebUvyz1aBcU8qUfo0OTZoWXccAOy+/qfEZ4CJcr5JUUb95UOPvF8H2bbayYRX/Hj+IsfOx6qAq08I=
