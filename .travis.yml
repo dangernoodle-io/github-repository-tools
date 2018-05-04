@@ -1,9 +1,13 @@
 sudo: required
 services:
 - docker
+cache:
+  directories:
+    - $HOME/.m2/repository
 env:
-  matrix:
+  global:
   - JENKINS_HOME=true
+  - secure: jGqnqD9J6IbY/UL4FbzlS4IMYJKRiAztzNbSx2x1iJXvCAKpNb9G+udBP1N/6GtgJ8GljA/F/jkenlCrI1N/IlBwZIJV6tz4/MI3YzqBFoZsMiMKltytfXf4gQHgRa7bCJNk4EsWqL8SUBqt1d+d2UsXstVmMM0wuoqNtm7hTv32yQqSF21PJ6ITv0sduHOlgzB3JVhGDs9yx+7HBJ6FTM7lNCT1cFsSItwKMK6ni/LVDn5h/2L8QmiR09P1Qh4/luru1OplHqqca/KO0BtyuPfssc2X1KBbg2uVnpYuhK2yJ3SYgkg5RYkVQU4U4MOSp/5TPju1E34KkzyEJMSuKLADJghyrvyzMvMxCpVR+Y5dhoZgGClNR70S8FCKEkltF3mkS81q7Q/jD+nvNM67+Lq29DwjLi6eQMqs0/m2BOQyuZ/CHaRw28dSfeP/3+Q8ladSlsCJf8924JX1KlZY/1X8Di17Q4SFHAdxcVXZWq4bKrhOnnSkWayFN7e6hWs0X61uMlIUWsY0hKJYGsaHSO358HbvpDHCHmMtowP/DI6P2dXnH+kxZduljnxlXS4Q47iW7bz2G31/OKmmLyhvYWOYa66oNvGkTvI6i02o+VX/t1qv/r94UV3VgzeCI+IMyFdaLQZFovr6zPG8M2AnFF6w+HKhSadfUgqPudqOX8E=
 language: java
 jdk:
 - openjdk8
@@ -13,10 +17,9 @@ branches:
 before_install:
 - echo "MAVEN_OPTS='-Xmx256m'" > ~/.mavenrc
 - curl -o $HOME/.m2/settings.xml https://raw.githubusercontent.com/dangernoodle-io/dangernoodle-io-build-pom/master/src/main/travis/settings.xml
-install: true
 script:
 - mvn -B -V verify jacoco:report coveralls:report -DskipITs
 notifications:
   email: false
   slack:
-    secure: bibkNRbYa7ezQEfon8OIWCyaM5R94DQr9pVRldZdKRkdP5U+67k9oZYbo04KNfV6co/TJmB5ALZAolaGsEwb9pAErv43yWWnunz2KTFWYi7P8xTODVu4B8B0F6FZMp7YB1yHgLrrg1Pkg+mzo8Uk3ruGL2haOTpi4xm1P55b/Tfa3HMx3msymz08DMzBRLQpztjJ8veWDBtt09WZ4b/WKEq2ilfybeympPI6a5ITlYez853fQDUNXTpc/m6SD6WwmsAZRX2BCfH1Icd3KqVZ6p0Gn0/hYurjNqQqBleXeW6zAYttKK8bKDCiUMFrJw6vE6X4I4fRD9Y31+3Hy7PFIipTjSa64S8r9N4Bgqy5xLsX0oPewIKnj30qH8lso6m4zbsgc22OWseuxbna/7Wv2HMtlUEZfvu6XGiQUzP/F8ytDWy2QwboOsER7ZQ9FiLyF3bgrru/3ucT7ofm7nZFvTKTAObeYmUM0q+TzkEWaKWh+aC5W+3aHuAyWMg5aL0A6ydgONO7NsBMlHvnleph/xPkE4lQgWcg25Ow9NmdvNAfkZ6GikMXJ7bSp+RnxFitnYskXIR/EDnnVVv3x2VDwFPLMNFt5gmgE6+ThxRKqJHLsBWpmC5lUJZwB9fZIPKWrutZgxbx1c8iSgpp+ts+kO0jH6cW0BeVXT5OS9kDJVA=
+    secure: YT9/He/bgwgm8vvUjokvuOfNx2cfk5EYJ49SMNDx7Qi2O/NwH3Rlmf9IwVp+uyTOqAwZn6fNmbc4aclteZ7kj/FzuOExXtVgJIZk+9vtHuogMoiFNLZj+ukV/MRFFhBuD1OrnbMdf3dWx8NYGpsR8IN+tRK7nhxd/+rEd5D3hrQj+gKBYPMLxj5C78LO35BdBKtUwgKu4Y3JMIvsyQftYsGYaq6bt04Pltszyoxq05ZjEvvGW3s6sNKwKcTyfDWPUyrH+mFHOt3kAi6U0vF5lEcIVSlA8E1YCz2JrKPQPgRa59wkQ5bs85BXRF8suXswQlCb9ckKdO/C2My/BMJzPu7mdxUPRRHJ+9b552HFR3+7LflIC3+HiAvl8TmwntDu3rnGLDZnfg7PswtGVTWfo8Mtw8vJazQaN4/bXvBSbEI5J4gjoUdVBcZMyykg+p7Md7Iq5sktBXcI7aD8GrzGTFYkkRwkjFY2dEcq1Jvhx1zo9ExsPkXo2+cNdLxgnga2aCdYnxJVZlcAjR0TG9J+BcY7TIU3yyIFmKkPVUq/Nc3uMjBhBfdZ3MZqZXArY6qbbovjEmMn5YwHNAGGqnD56JCfTZhMDH0U0K6T0IT285iJkZKQizL/wbLyhwJ13zasXC+1wy5Y7UsI1QmVe1q7TgfmS02ixsZFTi71pwIMGHk=
