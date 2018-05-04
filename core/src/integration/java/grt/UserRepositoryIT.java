@@ -78,8 +78,7 @@ public class UserRepositoryIT
     {
         builder.setName("github-repository-tools-test")
                .setOrganization(getOrganization())
-               .addLabel("skip-build", Color.from("#006b75"))
-               .addCollaborator("dangernoodle-bot", Permission.read);
+               .addLabel("skip-build", Color.from("#006b75"));
     }
 
     private void thenLabelsWereConfigured() throws IOException
