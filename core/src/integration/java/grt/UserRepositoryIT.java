@@ -19,7 +19,6 @@ import org.kohsuke.github.GitHubBuilder;
 import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Color;
-import io.dangernoodle.grt.Repository.Permission;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.internal.GithubWorkflow;
 import io.dangernoodle.grt.internal.RepositoryBuilder;
@@ -57,7 +56,8 @@ public class UserRepositoryIT
         workflow = new GithubWorkflow(new GithubClient(github));
 
         builder.setName("github-repository-tools-test")
-               .setOrganization(getOrganization());
+               .setOrganization(getOrganization())
+               .setInitialize(true);
     }
 
     @Test
@@ -76,9 +76,7 @@ public class UserRepositoryIT
 
     private void givenARepositoryWithLabels() throws IOException
     {
-        builder.setName("github-repository-tools-test")
-               .setOrganization(getOrganization())
-               .addLabel("skip-build", Color.from("#006b75"));
+        builder.addLabel("skip-build", Color.from("#006b75"));
     }
 
     private void thenLabelsWereConfigured() throws IOException
