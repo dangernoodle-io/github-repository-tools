@@ -1,0 +1,153 @@
+{
+    "title": "repository",
+    "type": "object",
+    "properties": {
+        "name": {
+            "description": "repository name",
+            "type": "string"
+        },
+        "organization": {
+            "description": "github organization or username",
+            "type": "string"
+        },
+        "settings": {
+            "type": "object",
+            "properties": {
+                "initialize": {
+                    "description": "initialze the repositry when created",
+                    "type": "boolean"
+                },
+                "hidden": {
+                    "description": "make the repository private",
+                    "type": "boolean"
+                },
+                "labels": {
+                    "descriptions": "labels (name:color key/value pairs)",
+                    "type": "object"
+                },
+                "teams": {
+                    "descriptions": "team (slug:perm key/value pairs) access",
+                    "type": "object"
+                },
+                "collaborators": {
+                    "descriptions": "user (username:perm key/value pairs) access",
+                    "type": "object"
+                },
+                "branches": {
+                    "description": "branches and associated protections",
+                    "type": "object",
+                    "properties": {
+                        "primary": {
+                            "description": "primary branch name (default: master)",
+                            "type": "string"
+                        },
+                        "other": {
+                            "description": "other repository branches to protect",
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "uniqueItems": true
+                        },
+                        "protections": {
+                            "description": "branch protections, with branch name as json key",
+                            "type": "object",
+                            "patternProperties": {
+                                ".*": {
+                                    "$ref": "#/definitions/protection"
+                                }
+                            }
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "plugins": {
+            "description": "plugin configuration, with plugin name as json key",
+            "type": "object"
+        }
+    },
+    "additionalProperties": false,
+    "definitions": {
+        "protection": {
+            "properties": {
+                "requireSignedCommits": {
+                    "description": "require gpg signed commits",
+                    "type": "boolean"
+                },
+                "includeAdministrators": {
+                    "description": "enforce all restrictions for admins",
+                    "type": "boolean"
+                },
+                "requireReviews": {
+                    "type": "object",
+                    "properties": {
+                        "requiredReviewers": {
+                            "description": "number of required reviewers",
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "dismissStaleApprovals": {
+                            "description": "dismiss stale approvals",
+                            "type": "boolean"
+                        },
+                        "requireCodeOwner": {
+                            "description": "require review from code owner",
+                            "type": "boolean"
+                        },
+                        "restrictDismissals": {
+                            "description": "restrict who can dismiss reviews",
+                            "$ref": "#/definitions/access"
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "requiredStatusChecks": {
+                    "type": "object",
+                    "properties": {
+                        "requireUpToDate": {
+                            "description": "require the branch to be up-to-date before merge",
+                            "type": "boolean"
+                        },
+                        "contexts": {
+                            "description": "required status contexts",
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "uniqueItems": true
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "pushAccess": {
+                    "description": "grant push access to teams/users",
+                    "$ref": "#/definitions/access"
+                }
+            },
+            "additionalProperties": false
+        },
+        "access": {
+            "type": "object",
+            "properties": {
+                "teams": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "uniqueItems": true
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "uniqueItems": true
+                }
+            },
+            "additionalProperties": false
+        }
+    }
+}
