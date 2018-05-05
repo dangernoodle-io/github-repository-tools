@@ -55,25 +55,6 @@ public class CommandLineDelegate
         });
     }
 
-    static File findRepositoryFile(String root, int depth, String name) throws IOException, IllegalStateException
-    {
-        List<Path> files = Files.find(Paths.get(root), depth, (path, attrs) -> {
-            return path.getFileName().toString().equals(name + ".json");
-        }).collect(Collectors.toList());
-
-        if (files.size() == 0)
-        {
-            throw new IllegalStateException("failed to find repository file [" + name + "]");
-        }
-
-        if (files.size() > 1)
-        {
-            throw new IllegalStateException("multiple repsository files named [" + name + "] found");
-        }
-
-        return files.get(0).toFile();
-    }
-
     public interface Command
     {
         Class<? extends Executor> getCommandExectorClass();
@@ -123,9 +104,9 @@ public class CommandLineDelegate
         public void execute() throws Exception
         {
             // depth = 1 for the configuration file, it should be at top level of root directory
-            File defaults = CommandLineDelegate.findRepositoryFile(root, 1, "github-repository-tools");
+            File defaults = findRepositoryFile(root, 1, "github-repository-tools");
             // depth = 10 is somewhat arbitrary - can be increased if there is ever a need
-            File overrides = CommandLineDelegate.findRepositoryFile(root, 10, getRepositoryName());
+            File overrides = findRepositoryFile(root, 10, getName());
 
             execute(defaults, overrides);
         }
@@ -133,6 +114,30 @@ public class CommandLineDelegate
         protected abstract void execute(File defaults, File overrides) throws Exception;
 
         protected abstract String getRepositoryName();
+
+        private File findRepositoryFile(String root, int depth, String name) throws IOException, IllegalStateException
+        {
+            List<Path> files = Files.find(Paths.get(root), depth, (path, attrs) -> {
+                return path.getFileName().toString().equals(name + ".json");
+            }).collect(Collectors.toList());
+
+            if (files.size() == 0)
+            {
+                throw new IllegalStateException("failed to find repository file [" + name + "]");
+            }
+
+            if (files.size() > 1)
+            {
+                throw new IllegalStateException("multiple repsository files named [" + name + "] found");
+            }
+
+            return files.get(0).toFile();
+        }
+
+        private String getName()
+        {
+            return getRepositoryName().replace('.', '-');
+        }
     }
 
     private static class Parameters implements Arguments
