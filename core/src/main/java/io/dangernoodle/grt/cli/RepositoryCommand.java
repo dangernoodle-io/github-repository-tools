@@ -1,12 +1,6 @@
 package io.dangernoodle.grt.cli;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -34,48 +28,30 @@ public class RepositoryCommand implements CommandLineDelegate.Command
     }
 
     @ApplicationScoped
-    public static class Executor implements CommandLineDelegate.Executor
+    public static class Executor extends CommandLineDelegate.RepositoryExecutor
     {
-        private final String root;
-
         private final WorkflowExecutor workflow;
 
         @Inject
         public Executor(Arguments arguments, WorkflowExecutor workflow)
         {
-            this.root = arguments.getRoot();
+            super(arguments);
             this.workflow = workflow;
         }
 
         @Override
-        public void execute() throws Exception
+        protected void execute(File defaults, File overrides) throws Exception
         {
-            File defaults = new File(root + File.separator + "configuration.json");
-            File overrides = findRepositoryFile(name);
-
             RepositoryMerger merger = new RepositoryMerger(Repository.load(defaults), Repository.load(overrides));
             Repository repository = merger.merge();
 
             workflow.execute(repository);
         }
 
-        private File findRepositoryFile(String name) throws IOException, IllegalStateException
+        @Override
+        protected String getRepositoryName()
         {
-            List<Path> files = Files.find(Paths.get(root), 10, (path, attrs) -> {
-                return path.getFileName().toString().equals(name + ".json");
-            }).collect(Collectors.toList());
-
-            if (files.size() == 0)
-            {
-                throw new IllegalStateException("failed to find repository file [" + name + "]");
-            }
-
-            if (files.size() > 1)
-            {
-                throw new IllegalStateException("multiple repsository files named [" + name + "] found");
-            }
-
-            return files.get(0).toFile();
+            return name;
         }
     }
 }

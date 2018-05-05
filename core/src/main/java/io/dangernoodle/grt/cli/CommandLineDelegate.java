@@ -1,6 +1,12 @@
 package io.dangernoodle.grt.cli;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -34,7 +40,6 @@ public class CommandLineDelegate
     public Command parse(String... args)
     {
         // TODO: usage, error handling
-
         jCommander.parse(args);
         return (Command) jCommander.getCommands()
                                    .get(jCommander.getParsedCommand())
@@ -48,6 +53,25 @@ public class CommandLineDelegate
             logger.debug("adding discovered command [{}]", command.getClass());
             jCommander.addCommand(command);
         });
+    }
+
+    static File findRepositoryFile(String root, int depth, String name) throws IOException, IllegalStateException
+    {
+        List<Path> files = Files.find(Paths.get(root), depth, (path, attrs) -> {
+            return path.getFileName().toString().equals(name + ".json");
+        }).collect(Collectors.toList());
+
+        if (files.size() == 0)
+        {
+            throw new IllegalStateException("failed to find repository file [" + name + "]");
+        }
+
+        if (files.size() > 1)
+        {
+            throw new IllegalStateException("multiple repsository files named [" + name + "] found");
+        }
+
+        return files.get(0).toFile();
     }
 
     public interface Command
@@ -84,6 +108,31 @@ public class CommandLineDelegate
              */
             return parameters;
         }
+    }
+
+    public static abstract class RepositoryExecutor implements Executor
+    {
+        private final String root;
+
+        public RepositoryExecutor(Arguments arguments)
+        {
+            this.root = arguments.getRoot();
+        }
+
+        @Override
+        public void execute() throws Exception
+        {
+            // depth = 1 for the configuration file, it should be at top level of root directory
+            File defaults = CommandLineDelegate.findRepositoryFile(root, 1, "github-repository-tools");
+            // depth = 10 is somewhat arbitrary - can be increased if there is ever a need
+            File overrides = CommandLineDelegate.findRepositoryFile(root, 10, getRepositoryName());
+
+            execute(defaults, overrides);
+        }
+
+        protected abstract void execute(File defaults, File overrides) throws Exception;
+
+        protected abstract String getRepositoryName();
     }
 
     private static class Parameters implements Arguments
