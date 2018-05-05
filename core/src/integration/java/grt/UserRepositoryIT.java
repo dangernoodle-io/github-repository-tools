@@ -74,7 +74,7 @@ public class UserRepositoryIT
         return github.getMyself().getLogin();
     }
 
-    private void givenARepositoryWithLabels() throws IOException
+    private void givenARepositoryWithLabels()
     {
         builder.addLabel("skip-build", Color.from("#006b75"));
     }

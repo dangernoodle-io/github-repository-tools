@@ -164,7 +164,7 @@ public class RepositoryBuilder
     public String toJson()
     {
         String json = transformer.serialize(repository);
-        System.out.println(transformer.prettyPrint(json));
+        //System.out.println(transformer.prettyPrint(json));
 
         return json;
     }
