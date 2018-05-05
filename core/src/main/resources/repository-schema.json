@@ -67,6 +67,14 @@
         "plugins": {
             "description": "plugin configuration, with plugin name as json key",
             "type": "object"
+        },
+        "workflow": {
+            "description": "workflow steps, if not specified 'github' is added as first step",
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "uniqueItems": true
         }
     },
     "additionalProperties": false,
