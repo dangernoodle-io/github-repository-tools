@@ -61,5 +61,8 @@
                 "container": "maven"
             }
         ]
-    }
+    },
+    "workflow": [
+        "jenkins"
+    ]
 }
