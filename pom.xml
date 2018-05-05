@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.dangernoodle</groupId>
     <artifactId>dangernoodle-io-build-pom</artifactId>
-    <version>3-SNAPSHOT</version>
+    <version>3</version>
   </parent>
 
   <artifactId>github-repository-tools</artifactId>
@@ -24,9 +24,6 @@
   </modules>
 
   <properties>
-    <deployAtEnd>false</deployAtEnd>
-    <installAtEnd>false</installAtEnd>
-
     <hamcrest.version>1.3</hamcrest.version>
     <junit.version>5.2.0-M1</junit.version>
     <logback.version>1.2.1</logback.version>
