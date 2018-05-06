@@ -4,6 +4,7 @@ import java.io.Reader;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import org.slf4j.Logger;
@@ -36,6 +37,11 @@ public class SimpleJsonTransformer
         return gson.fromJson(reader, clazz);
     }
 
+    public Object deserialize(String json)
+    {
+        return gson.fromJson(json, JsonElement.class);
+    }
+    
     public <T> T deserialize(String json, Class<T> clazz)
     {
         return gson.fromJson(json, clazz);

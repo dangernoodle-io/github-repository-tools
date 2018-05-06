@@ -39,6 +39,12 @@ public class RepositoryBuilder
         return this;
     }
 
+    public RepositoryBuilder addPlugin(String key, String rawJson)
+    {
+        computeMapIfAbsent("plugins", repository).put(key, transformer.deserialize(rawJson));
+        return this;
+    }
+
     public RepositoryBuilder addRequiredContext(String branch, String context)
     {
         computeCollectionIfAbsent("contexts", statusChecks(branch)).add(context);

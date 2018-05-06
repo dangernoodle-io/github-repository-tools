@@ -34,9 +34,9 @@ public class Repository
         return organization;
     }
 
-    public String getPluginJson(String plugin)
+    public Map<String, String> getPlugins()
     {
-        return plugins == null ? null : plugins.plugins.get(plugin);
+        return plugins == null ? Collections.emptyMap() : plugins.plugins;
     }
 
     public Settings getSettings()
