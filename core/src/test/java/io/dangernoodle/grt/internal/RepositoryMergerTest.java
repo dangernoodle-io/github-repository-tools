@@ -111,12 +111,24 @@ public class RepositoryMergerTest
     }
 
     @Test
+    public void testGetWorkflow()
+    {
+        givenDefaultWorkflow();
+        whenBuildRepositories();
+        thenDefaultWorkflowReturned();
+       
+        givenOverrideWorkflow();
+        whenBuildRepositories();
+        thenOverrideWorkflowReturned();
+    }
+
+    @Test
     public void testPrimaryBranchDefaultsToMaster()
     {
         whenBuildRepositories();
         thenPrimaryBranchIsMaster();
     }
-
+    
     @Test
     public void testRequiredCheckContextsDefaultOnly()
     {
@@ -168,6 +180,11 @@ public class RepositoryMergerTest
         dBuilder.addRequiredContext("master", "default");
     }
 
+    private void givenDefaultWorkflow()
+    {
+        dBuilder.addWorkflow("default");
+    }
+
     private void givenMergedLabels()
     {
         oBuilder.addLabel("merged", Color.from("#00001"));
@@ -186,6 +203,11 @@ public class RepositoryMergerTest
     private void givenOverrideStatusChecks()
     {
         oBuilder.addRequiredContext("master", "override");
+    }
+
+    private void givenOverrideWorkflow()
+    {
+        oBuilder.addWorkflow("override");
     }
 
     private void thenDefaultLabelsReturned()
@@ -234,6 +256,11 @@ public class RepositoryMergerTest
     {
         assertPluginValues("merged", "{\"merged\":\"true\"}");
     }
+    
+    private void thenDefaultWorkflowReturned()
+    {
+        assertThat(repository.getWorkflow().containsAll(defaults.getWorkflow()), equalTo(true));
+    }
 
     private void thenOverrideColorIsCorrect()
     {
@@ -275,6 +302,12 @@ public class RepositoryMergerTest
         assertThat(rProtection, notNullValue());
         assertThat(rProtection.getRequiredChecks().getContexts().containsAll(oProtection.getRequiredChecks().getContexts()),
                 equalTo(true));
+    }
+
+    private void thenOverrideWorkflowReturned()
+    {
+        assertThat(repository.getWorkflow().containsAll(overrides.getWorkflow()), equalTo(true));
+        assertThat(repository.getWorkflow().containsAll(defaults.getWorkflow()), equalTo(false));
     }
 
     private void thenPrimaryBranchIsMaster()

@@ -46,6 +46,7 @@ public class RepositoryBuilderTest
         assertThat(actual.getOrganization(), equalTo(expected.getOrganization()));
 
         assertThat(actual.getPlugins().get("jenkins"), equalTo(expected.getPlugins().get("jenkins")));
+        assertThat(actual.getWorkflow().containsAll(expected.getWorkflow()), equalTo(true));
         
         Settings aSettings = actual.getSettings();
         Settings eSettings = expected.getSettings();
@@ -118,7 +119,8 @@ public class RepositoryBuilderTest
                .restrictPushAccess("master")
                .addTeamPushAccess("master", "write")
                .addUserPushAccess("master", "user")
-               .addPlugin("jenkins", "[{\"container\": \"maven\"}]");
+               .addPlugin("jenkins", "[{\"container\": \"maven\"}]")
+               .addWorkflow("jenkins");
     }
 
     private void whenSerializeJson()

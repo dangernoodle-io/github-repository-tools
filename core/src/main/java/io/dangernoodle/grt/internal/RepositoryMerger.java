@@ -2,9 +2,11 @@ package io.dangernoodle.grt.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Color;
@@ -59,6 +61,7 @@ public class RepositoryMerger
         mergeBranches();
 
         mergePlugins();
+        mergeWorkflow();
 
         return repoBuilder.build();
     }
@@ -147,6 +150,19 @@ public class RepositoryMerger
     private void mergeAutoInitialize()
     {
         repoBuilder.setInitialize(oSettings.autoInitialize() ? true : dSettings.autoInitialize());
+    }
+
+    private void mergeWorkflow()
+    {
+        Collection<String> workflow = oRepository.getWorkflow();
+        if (workflow == null)
+        {
+            workflow = dRepository.getWorkflow();
+        }
+
+        Optional.ofNullable(workflow)
+                .orElse(Collections.emptyList())
+                .forEach(repoBuilder::addWorkflow);
     }
 
     private void mergeBranches()

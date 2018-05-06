@@ -5,7 +5,6 @@ import static io.dangernoodle.grt.json.DefaultJsonTransformer.transformer;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -46,19 +45,7 @@ public class Repository
 
     public Collection<String> getWorkflow()
     {
-        ArrayList<String> steps = new ArrayList<>();
-
-        if (workflow != null)
-        {
-            steps.addAll(workflow);
-        }
-
-        if (workflow == null || !steps.contains("github"))
-        {
-            steps.add(0, "github");
-        }
-
-        return steps;
+        return workflow;
     }
 
     public static Repository load(File file) throws IOException
