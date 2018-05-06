@@ -70,7 +70,7 @@
         },
         "workflow": {
             "description": "workflow steps, if not specified 'github' is added as first step",
-            "type": "array",
+            "type": ["array", "null"],
             "items": {
                 "type": "string"
             },

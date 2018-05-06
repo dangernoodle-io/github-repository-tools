@@ -9,6 +9,7 @@ import java.io.InputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.dangernoodle.grt.TestFiles;
 import io.dangernoodle.grt.internal.EveritSchemaValidator;
 
 
@@ -16,7 +17,7 @@ public class SchemaValidationTest
 {
     private Exception exception;
     
-    private String toValidate;
+    private TestFiles toValidate;
 
     private EveritSchemaValidator validator;
 
@@ -26,9 +27,12 @@ public class SchemaValidationTest
         validator = new EveritSchemaValidator(() -> getInputStream("/repository-schema.json"));
     }
 
-    private InputStream getInputStream(String path)
+    @Test
+    public void testNullWorkflow() throws Exception
     {
-        return getClass().getResourceAsStream(path);
+        givenANullWorkflow();
+        whenValidateJson();
+        thenJsonIsValid();
     }
     
     @Test
@@ -38,10 +42,20 @@ public class SchemaValidationTest
         whenValidateJson();
         thenJsonIsValid();
     }
+    
+    private InputStream getInputStream(String path)
+    {
+        return getClass().getResourceAsStream(path);
+    }
+    
+    private void givenANullWorkflow()
+    {
+        toValidate = TestFiles.nullWorkflow;
+    }
 
     private void givenAValidJsonFile()
     {
-        toValidate = "/test-files/mockRepository.json";
+        toValidate = TestFiles.mockRepository;
     }
 
     private void thenJsonIsValid()
@@ -53,7 +67,7 @@ public class SchemaValidationTest
     {
         try
         {
-            validator.validate(() -> getInputStream(toValidate));
+            validator.validate(() -> toValidate.getInputStream());
         }
         catch (IOException e)
         {
