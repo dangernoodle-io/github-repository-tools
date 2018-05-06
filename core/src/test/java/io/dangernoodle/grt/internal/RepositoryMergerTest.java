@@ -59,12 +59,27 @@ public class RepositoryMergerTest
         thenDefaultLabelsReturned();
         thenOverrideLabelsReturned();
 
-        // overriding 'default' labels as part of a 'merge' is allowed
+        // overriding 'default' label(s) as part of a 'merge' is allowed
         givenOverrideLabels();
         whenBuildRepositories();
         thenDefaultLabelsReturned();
         thenOverrideLabelsReturned();
         thenOverrideColorIsCorrect();
+    }
+
+    @Test
+    public void testGetMergedPlugin()
+    {
+        givenADefaultPlugin();
+        givenAMergedPlugin();
+        whenBuildRepositories();
+        thenDefaultPluginReturned();
+        thenMergedPluginReturned();
+
+        // overriding 'default' plugin(s) as part of a 'merge' is allowed
+        givenAnOverridenPlugin();
+        whenBuildRepositories();
+        thenOverridenPluginIsReturned();
     }
 
     @Test
@@ -116,6 +131,21 @@ public class RepositoryMergerTest
         givenOverrideStatusChecks();
         whenBuildRepositories();
         thenOverrideStatusCheckesReturned();
+    }
+
+    private void givenADefaultPlugin()
+    {
+        dBuilder.addPlugin("default", "{\"default\": \"true\"}");
+    }
+
+    private void givenAMergedPlugin()
+    {
+        dBuilder.addPlugin("merged", "{\"merged\": \"true\"}");
+    }
+
+    private void givenAnOverridenPlugin()
+    {
+        dBuilder.addPlugin("default", "{\"default\": \"false\"}");
     }
 
     private void givenAnOverrideOrganization()
@@ -170,11 +200,22 @@ public class RepositoryMergerTest
         assertThat(repository.getOrganization(), equalTo(defaults.getOrganization()));
     }
 
+    private void thenDefaultPluginReturned()
+    {
+        assertPluginValues("default", "{\"default\":\"true\"}");
+    }
+    
+    private void assertPluginValues(String key, String json)
+    {
+        assertThat(repository.getPlugins().get(key), notNullValue());
+        assertThat(repository.getPlugins().get(key), equalTo(json));
+    }
+
     private void thenDefaultPushTeamsReturned()
     {
         Protection rProtection = repository.getSettings().getBranches().getProtection("master");
         Protection dProtection = defaults.getSettings().getBranches().getProtection("master");
-        
+
         assertThat(rProtection, notNullValue());
         assertThat(rProtection.getPushTeams().containsAll(dProtection.getPushTeams()), equalTo(true));
     }
@@ -187,6 +228,11 @@ public class RepositoryMergerTest
         assertThat(rProtection, notNullValue());
         assertThat(rProtection.getRequiredChecks().getContexts().containsAll(dProtection.getRequiredChecks().getContexts()),
                 equalTo(true));
+    }
+
+    private void thenMergedPluginReturned()
+    {
+        assertPluginValues("merged", "{\"merged\":\"true\"}");
     }
 
     private void thenOverrideColorIsCorrect()
@@ -202,6 +248,11 @@ public class RepositoryMergerTest
                 equalTo(true));
     }
 
+    private void thenOverridenPluginIsReturned()
+    {
+        assertPluginValues("default", "{\"default\":\"false\"}");
+    }
+
     private void thenOverrideOrganizationReturned()
     {
         assertThat(repository.getOrganization(), equalTo(overrides.getOrganization()));
@@ -211,7 +262,7 @@ public class RepositoryMergerTest
     {
         Protection rProtection = repository.getSettings().getBranches().getProtection("master");
         Protection oProtection = overrides.getSettings().getBranches().getProtection("master");
-        
+
         assertThat(rProtection, notNullValue());
         assertThat(rProtection.getPushTeams().containsAll(oProtection.getPushTeams()), equalTo(true));
     }

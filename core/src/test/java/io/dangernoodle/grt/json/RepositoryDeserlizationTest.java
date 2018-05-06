@@ -67,7 +67,8 @@ public class RepositoryDeserlizationTest
 
     private void thenPluginIsCorrect()
     {
-        assertThat(repository.getPluginJson("jenkins"), notNullValue());
+        assertThat(repository.getPlugins().get("jenkins"), notNullValue());
+        assertThat(repository.getPlugins().get("jenkins"), equalTo("[{\"container\":\"maven\"}]"));
     }
 
     private void thenRepositoryIsCorrect()
@@ -96,7 +97,7 @@ public class RepositoryDeserlizationTest
 
     private void thenWorkflowIsCorrect()
     {
-        //assertThat(repository.getWorkflow(), notNullValue());
+        assertThat(repository.getWorkflow(), notNullValue());
     }
 
     private void whenParseIntoObject()

@@ -58,6 +58,8 @@ public class RepositoryMerger
         mergeColaborators();
         mergeBranches();
 
+        mergePlugins();
+
         return repoBuilder.build();
     }
 
@@ -190,6 +192,12 @@ public class RepositoryMerger
         }
 
         repoBuilder.setOrganization(organization);
+    }
+
+    private void mergePlugins()
+    {
+        Map<String, String> plugins = join(dRepository.getPlugins(), oRepository.getPlugins(), true);
+        plugins.forEach((k, v) -> repoBuilder.addPlugin(k, v.toString()));
     }
 
     private void mergePrivate()

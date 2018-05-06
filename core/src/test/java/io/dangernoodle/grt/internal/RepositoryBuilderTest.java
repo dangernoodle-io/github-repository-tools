@@ -45,6 +45,8 @@ public class RepositoryBuilderTest
         assertThat(actual.getName(), equalTo(expected.getName()));
         assertThat(actual.getOrganization(), equalTo(expected.getOrganization()));
 
+        assertThat(actual.getPlugins().get("jenkins"), equalTo(expected.getPlugins().get("jenkins")));
+        
         Settings aSettings = actual.getSettings();
         Settings eSettings = expected.getSettings();
 
@@ -115,7 +117,8 @@ public class RepositoryBuilderTest
                .addRequiredContext("master", "grt-test-repository")
                .restrictPushAccess("master")
                .addTeamPushAccess("master", "write")
-               .addUserPushAccess("master", "user");
+               .addUserPushAccess("master", "user")
+               .addPlugin("jenkins", "[{\"container\": \"maven\"}]");
     }
 
     private void whenSerializeJson()
