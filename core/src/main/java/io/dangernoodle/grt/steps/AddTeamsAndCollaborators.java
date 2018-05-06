@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GHTeam;
 import org.kohsuke.github.GHUser;
 
 import io.dangernoodle.grt.GithubClient;
@@ -46,9 +47,14 @@ public class AddTeamsAndCollaborators extends GithubWorkflow.Step
             String team = entry.getKey();
             Permission perm = entry.getValue();
 
-            client.getTeam(organization, team)
-                  .add(ghRepo, mapToOrgPermission(perm));
+            GHTeam ghTeam = client.getTeam(organization, team);
+            if (ghTeam == null)
+            {
+                logger.warn("failed to find team using slug [{}]", team);
+                continue;
+            }
 
+            ghTeam.add(ghRepo, mapToOrgPermission(perm));
             logger.info("granted team [{} / {}] repository access", team, perm);
         }
     }
@@ -60,8 +66,14 @@ public class AddTeamsAndCollaborators extends GithubWorkflow.Step
             String user = entry.getKey();
             Permission perm = entry.getValue();
 
-            GHUser ghUser = client.getUser(entry.getKey());
+            GHUser ghUser = client.getUser(user);
 
+            if (ghUser == null)
+            {
+                logger.warn("failed to find user [{}]", user);
+                continue;
+            }
+            
             if (isOrg)
             {
                 // TODO: allow for permission to be set, requires change to github-api
