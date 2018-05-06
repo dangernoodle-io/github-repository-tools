@@ -1,5 +1,6 @@
 package io.dangernoodle.grt.internal;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Function;
@@ -9,12 +10,17 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow;
 
 
 public class WorkflowExecutor
 {
+    private static final Logger logger = LoggerFactory.getLogger(WorkflowExecutor.class);
+
     private final Map<String, Workflow> workflows;
 
     WorkflowExecutor(Collection<Workflow> workflows)
@@ -26,17 +32,35 @@ public class WorkflowExecutor
     public void execute(Repository repository) throws Exception
     {
         Workflow.Context context = new Workflow.Context();
+        Collection<String> steps = getSteps(repository.getWorkflow());
 
-        for (String step : repository.getWorkflow())
+        for (String step : steps)
         {
             if (!workflows.containsKey(step))
             {
-                System.out.println("not found");
+                logger.warn("unable to find Workflow instance for step [{}]", step);
                 continue;
             }
 
             workflows.get(step).execute(repository, context);
         }
+    }
+
+    private Collection<String> getSteps(Collection<String> workflow)
+    {
+        ArrayList<String> steps = new ArrayList<>();
+
+        if (workflow != null)
+        {
+            steps.addAll(workflow);
+        }
+
+        if (workflow == null || !steps.contains("github"))
+        {
+            steps.add(0, "github");
+        }
+
+        return steps;
     }
 
     @ApplicationScoped

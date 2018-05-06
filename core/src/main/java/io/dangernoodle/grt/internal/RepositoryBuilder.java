@@ -2,8 +2,8 @@ package io.dangernoodle.grt.internal;
 
 import static io.dangernoodle.grt.json.DefaultJsonTransformer.transformer;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -78,6 +78,12 @@ public class RepositoryBuilder
     public RepositoryBuilder addUserReviewDismisser(String branch, String user)
     {
         addRestriction("users", "restrictDismissals", reviews(branch), user);
+        return this;
+    }
+
+    public RepositoryBuilder addWorkflow(String workflow)
+    {
+        computeCollectionIfAbsent("workflow", repository).add(workflow);
         return this;
     }
 
@@ -167,14 +173,6 @@ public class RepositoryBuilder
         return this;
     }
 
-    public String toJson()
-    {
-        String json = transformer.serialize(repository);
-        //System.out.println(transformer.prettyPrint(json));
-
-        return json;
-    }
-
     private void addRestriction(String key, String parentKey, Map<String, Object> parent, String team)
     {
         computeCollectionIfAbsent(key, computeMapIfAbsent(parentKey, parent)).add(team);
@@ -188,7 +186,7 @@ public class RepositoryBuilder
     @SuppressWarnings("unchecked")
     private Collection<String> computeCollectionIfAbsent(String key, Map<String, Object> parent)
     {
-        return (Collection<String>) parent.computeIfAbsent(key, k -> new HashSet<>());
+        return (Collection<String>) parent.computeIfAbsent(key, k -> new ArrayList<>());
     }
 
     @SuppressWarnings("unchecked")
