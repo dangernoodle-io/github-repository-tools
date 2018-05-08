@@ -43,7 +43,7 @@ public class FindOrCreateRepository extends GithubWorkflow.Step
 
     private Delegate createDelegate(String organization) throws IOException
     {
-        return organization.equals(client.getMyself().getLogin()) ? createUserDelegate() : createOrgDelegate(organization);
+        return organization.equals(client.getCurrentLogin()) ? createUserDelegate() : createOrgDelegate(organization);
     }
 
     private Delegate createOrgDelegate(String organization)

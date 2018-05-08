@@ -13,45 +13,25 @@ import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHTeam;
 import org.kohsuke.github.GHUser;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
-import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository.Permission;
-import io.dangernoodle.grt.Workflow;
-import io.dangernoodle.grt.internal.RepositoryBuilder;
+import io.dangernoodle.grt.internal.GithubWorkflow;
 
 
-public class AddTeamsAndCollaboratorsTest
+public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
 {
-    @Mock
-    private GithubClient mockClient;
-
-    @Mock
-    private Workflow.Context mockContext;
-
-    @Mock
-    private GHRepository mockGHRepository;
-
     @Mock
     private GHTeam mockGHTeam;
     
     @Mock
     private GHUser mockGHUser;
-    
-    private RepositoryBuilder repoBuilder;
 
-    private AddTeamsAndCollaborators step;
-
+    @Override
     @BeforeEach
-    public void beforeEach()
+    public void beforeEach() throws Exception
     {
-        MockitoAnnotations.initMocks(this);
+        super.beforeEach();
         when(mockContext.get(GHRepository.class)).thenReturn(mockGHRepository);
-        
-        repoBuilder = new RepositoryBuilder();
-        repoBuilder.setName("repository");
-
-        step = new AddTeamsAndCollaborators(mockClient);
     }
     
     @Test
@@ -92,6 +72,12 @@ public class AddTeamsAndCollaboratorsTest
         thenCollaboratorIsAdded();
     }
 
+    @Override
+    protected GithubWorkflow.Step createStep()
+    {
+       return new AddTeamsAndCollaborators(mockClient);
+    }
+
     private void givenACollaborator() throws IOException
     {
         repoBuilder.addCollaborator("user", Permission.write);
@@ -109,13 +95,13 @@ public class AddTeamsAndCollaboratorsTest
         repoBuilder.setOrganization("org");
         when(mockContext.isOrg()).thenReturn(true);
     }
-
+    
     private void givenATeam() throws IOException
     {
         repoBuilder.addTeam("team", Permission.read);
         when(mockClient.getTeam("org", "team")).thenReturn(mockGHTeam);
     }
-    
+
     private void givenATeamThatDoesntExist() throws IOException
     {
         repoBuilder.addTeam("doesnotexist", Permission.write);
@@ -145,10 +131,5 @@ public class AddTeamsAndCollaboratorsTest
     private void thenUserIsNotAdded()
     {
         verifyZeroInteractions(mockGHRepository);
-    }
-
-    private void whenExecuteStep() throws IOException
-    {
-        step.execute(repoBuilder.build(), mockContext);
     }
 }
