@@ -1,6 +1,7 @@
 package io.dangernoodle.grt.cli;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,10 +16,10 @@ import io.dangernoodle.grt.internal.WorkflowExecutor;
 
 
 @ApplicationScoped
-@Parameters(commandNames = "repository", commandDescription = "create or update a repository")
+@Parameters(commandNames = "repository", resourceBundle = "GithubRepositoryTools", commandDescriptionKey = "repository")
 public class RepositoryCommand implements CommandLineDelegate.Command
 {
-    @Parameter(description = "repository name", required = true)
+    @Parameter(descriptionKey = "repoName", required = true)
     private static String name;
 
     @Override
@@ -42,7 +43,7 @@ public class RepositoryCommand implements CommandLineDelegate.Command
         @Override
         protected void execute(File defaults, File overrides) throws Exception
         {
-            RepositoryMerger merger = new RepositoryMerger(Repository.load(defaults), Repository.load(overrides));
+            RepositoryMerger merger = createRepositoryMerger(defaults, overrides);
             Repository repository = merger.merge();
 
             workflow.execute(repository);
@@ -52,6 +53,11 @@ public class RepositoryCommand implements CommandLineDelegate.Command
         protected String getRepositoryName()
         {
             return name;
+        }
+        
+        RepositoryMerger createRepositoryMerger(File defaults, File overrides) throws IOException
+        {
+            return new RepositoryMerger(Repository.load(defaults), Repository.load(overrides));
         }
     }
 }

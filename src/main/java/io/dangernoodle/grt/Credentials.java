@@ -49,7 +49,7 @@ public class Credentials
         @SuppressWarnings("unchecked")
         public Credentials get(Arguments arguments) throws FileNotFoundException
         {
-            FileReader reader = new FileReader(arguments.getRoot() + File.separator + FILENAME);
+            FileReader reader = new FileReader(arguments.getRepoDir() + File.separator + FILENAME);
             return new Credentials(transformer.deserialize(reader, Map.class));
         }
     }

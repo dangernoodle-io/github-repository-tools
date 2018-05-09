@@ -1,6 +1,17 @@
 package io.dangernoodle.grt;
 
-public interface Arguments
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
+
+
+@Parameters(resourceBundle = "GithubRepositoryTools")
+public class Arguments
 {
-    String getRoot();
+    @Parameter(names = "--repoDir", descriptionKey = "repoDir", required = true)
+    private String repoDir;
+
+    public String getRepoDir()
+    {
+        return repoDir;
+    }
 }
