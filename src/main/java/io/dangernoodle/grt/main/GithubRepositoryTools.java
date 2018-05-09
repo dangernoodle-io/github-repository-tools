@@ -24,6 +24,10 @@ public class GithubRepositoryTools
                      .get()
                      .execute();
         }
+        catch (@SuppressWarnings("unused") IllegalArgumentException e)
+        {
+            // no-op. thrown/catch so the container can shutdown cleanly
+        }
         catch (Exception e)
         {
             // catch and log any exceptions that make it this far so we shutdown gracefully

@@ -10,21 +10,16 @@ import javax.inject.Inject;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.dangernoodle.grt.Arguments;
 import io.dangernoodle.grt.json.JsonSchemaValidator;
 import io.dangernoodle.grt.json.JsonValidationException;
 
 
 @ApplicationScoped
-@Parameters(commandNames = "validate", commandDescription = "validate a repository configuration")
+@Parameters(commandNames = "validate", resourceBundle = "GithubRepositoryTools", commandDescriptionKey = "validate")
 public class ValidateCommand implements CommandLineDelegate.Command
 {
-    private static final Logger logger = LoggerFactory.getLogger(ValidateCommand.class);
-
-    @Parameter(description = "repository name", required = true)
+    @Parameter(descriptionKey = "repoName", required = true)
     private static String name;
 
     @Override
@@ -69,7 +64,7 @@ public class ValidateCommand implements CommandLineDelegate.Command
             }
             catch (@SuppressWarnings("unused") JsonValidationException e)
             {
-                logger.error("validation for [{}] failed", toValidate.getName());
+                logger.error("validation for [{}] failed", name);
             }
         }
     }

@@ -14,7 +14,8 @@ import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 
 import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
+import com.beust.jcommander.UnixStyleUsageFormatter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,21 +27,24 @@ public class CommandLineDelegate
 {
     private static final Logger logger = LoggerFactory.getLogger(CommandLineDelegate.class);
 
-    private static final Parameters parameters = new Parameters();
+    private static final Arguments parameters = new Arguments();
 
     private final JCommander jCommander;
 
-    public CommandLineDelegate(Collection<Command> commands)
+    CommandLineDelegate(Collection<Command> commands)
     {
         // see ParametersProducer#get
         this.jCommander = new JCommander(parameters);
+
+        jCommander.setUsageFormatter(new UnixStyleUsageFormatter(jCommander));
+        jCommander.setProgramName("github-repository-tools");
+
         addCommands(commands);
     }
 
-    public Command parse(String... args)
+    public Command parse(String... args) throws IllegalArgumentException
     {
-        // TODO: usage, error handling
-        jCommander.parse(args);
+        parseArguments(args);
         return (Command) jCommander.getCommands()
                                    .get(jCommander.getParsedCommand())
                                    .getObjects()
@@ -55,6 +59,23 @@ public class CommandLineDelegate
         });
     }
 
+    private void parseArguments(String... args) throws IllegalArgumentException
+    {
+        try
+        {
+            jCommander.parse(args);
+        }
+        catch (ParameterException e)
+        {
+            logger.error("{}", e.getMessage());
+            System.out.println();
+
+            jCommander.usage();
+
+            throw new IllegalArgumentException();
+        }
+    }
+
     public interface Command
     {
         Class<? extends Executor> getCommandExectorClass();
@@ -65,7 +86,7 @@ public class CommandLineDelegate
     {
         @Produces
         @ApplicationScoped
-        public CommandLineDelegate get(Parameters parameters, Instance<Command> instance)
+        public CommandLineDelegate get(Arguments parameters, Instance<Command> instance)
         {
             return new CommandLineDelegate(instance.stream().collect(Collectors.toList()));
         }
@@ -81,7 +102,7 @@ public class CommandLineDelegate
     {
         @Produces
         @ApplicationScoped
-        public Parameters get()
+        public Arguments get()
         {
             /*
              * defining the Parameters class as @ApplicationScoped causes JCommander to populate the annotations on the
@@ -93,11 +114,14 @@ public class CommandLineDelegate
 
     public static abstract class RepositoryExecutor implements Executor
     {
+        protected final Logger logger;
+
         private final String root;
 
         public RepositoryExecutor(Arguments arguments)
         {
-            this.root = arguments.getRoot();
+            this.root = arguments.getRepoDir();
+            this.logger = LoggerFactory.getLogger(getClass());
         }
 
         @Override
@@ -140,15 +164,4 @@ public class CommandLineDelegate
         }
     }
 
-    private static class Parameters implements Arguments
-    {
-        @Parameter(names = "--root", required = true)
-        private String root;
-
-        @Override
-        public String getRoot()
-        {
-            return root;
-        }
-    }
 }
