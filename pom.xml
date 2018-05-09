@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.dangernoodle</groupId>
     <artifactId>dangernoodle-io-build-pom</artifactId>
-    <version>3</version>
+    <version>4-SNAPSHOT</version>
   </parent>
 
   <artifactId>github-repository-tools</artifactId>
@@ -26,6 +26,7 @@
     <junit.version>5.2.0</junit.version>
     <logback.version>1.2.3</logback.version>
     <mockito.version>2.7.5</mockito.version>
+    <slf4j.version>1.7.25</slf4j.version>
     <weld-se.version>3.0.3.Final</weld-se.version>
   </properties>
 
@@ -40,20 +41,11 @@
       <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
+          <artifactId>maven-jar-plugin</artifactId>
           <configuration>
-            <systemPropertyVariables combine.children="append">
-              <default.logback.level>off</default.logback.level>
-            </systemPropertyVariables>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-failsafe-plugin</artifactId>
-          <configuration>
-            <systemPropertyVariables combine.children="append">
-              <default.logback.level>off</default.logback.level>
-            </systemPropertyVariables>
+            <excludes>
+              <exclude>**/logback.xml</exclude>
+            </excludes>
           </configuration>
         </plugin>
       </plugins>
@@ -87,6 +79,11 @@
       <version>${github-api.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <version>${junit.version}</version>
@@ -117,16 +114,16 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>annotations</artifactId>
       <version>${findbugs-annotations.version}</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>${logback.version}</version>
-
     </dependency>
   </dependencies>
 
@@ -256,12 +253,20 @@
                               <include>**/${shaded.artifact.name}</include>
                             </includes>
                           </fileSet>
+                          <fileSet>
+                            <directory>${project.build.directory}/classes</directory>
+                            <outputDirectory>/</outputDirectory>
+                            <includes>
+                              <include>**/logback.xml</include>
+                            </includes>
+                          </fileSet>
                         </fileSets>
                       </inline>
                     </assembly>
                     <entryPoint>
                       <exec>
                         <arg>java</arg>
+                        <arg>-Dlogback.configurationFile=/maven/logback.xml</arg>
                         <arg>-jar</arg>
                         <arg>/maven/${shaded.artifact.name}</arg>
                       </exec>
@@ -276,15 +281,6 @@
     </profile>
     <profile>
       <id>release</id>
-      <activation>
-        <property>
-          <name>env.IS_M2RELEASEBUILD</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <properties>
-        <docker.build.tag>latest</docker.build.tag>
-      </properties>
       <build>
         <pluginManagement>
           <plugins>
