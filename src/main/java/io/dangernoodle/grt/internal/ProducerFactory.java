@@ -12,8 +12,8 @@ import io.dangernoodle.grt.Credentials;
 import io.dangernoodle.grt.FileLoader;
 import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Workflow;
-import io.dangernoodle.grt.cli.CommandLineDelegate;
-import io.dangernoodle.grt.cli.CommandLineDelegate.Command;
+import io.dangernoodle.grt.cli.CommandLineParser;
+import io.dangernoodle.grt.cli.CommandLineParser.Command;
 import io.dangernoodle.grt.cli.RepositoryCommand;
 import io.dangernoodle.grt.cli.ValidateCommand;
 import io.dangernoodle.grt.json.JsonSchemaValidator;
@@ -27,6 +27,7 @@ public class ProducerFactory
     @Produces
     public Arguments getArguments()
     {
+        // @ApplicationScoped causes the bean to be proxied, which is no beuno for 
         return arguments;
     }
 
@@ -39,9 +40,9 @@ public class ProducerFactory
 
     @Produces
     @ApplicationScoped
-    public CommandLineDelegate getCommandLineDelegate(Instance<Command> instance, Arguments arguments)
+    public CommandLineParser getCommandLineDelegate(Instance<Command> instance, Arguments arguments)
     {
-        return new CommandLineDelegate(instance.stream().collect(Collectors.toList()), arguments);
+        return new CommandLineParser(instance.stream().collect(Collectors.toList()), arguments);
     }
 
     @Produces

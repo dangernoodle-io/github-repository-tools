@@ -10,23 +10,24 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
 import io.dangernoodle.grt.Arguments;
+import io.dangernoodle.grt.cli.CommandLineExecutor.RepositoryExecutor;
 import io.dangernoodle.grt.json.JsonSchemaValidator;
 import io.dangernoodle.grt.json.JsonValidationException;
 
 
 @Parameters(commandNames = "validate", resourceBundle = "GithubRepositoryTools", commandDescriptionKey = "validate")
-public class ValidateCommand implements CommandLineDelegate.Command
+public class ValidateCommand implements CommandLineParser.Command
 {
     @Parameter(descriptionKey = "repoName", required = true)
     private static String name;
 
     @Override
-    public Class<? extends Executor> getCommandExectorClass()
+    public Class<? extends RepositoryExecutor> getCommandExectorClass()
     {
         return Executor.class;
     }
 
-    public static class Executor extends CommandLineDelegate.RepositoryExecutor
+    public static class Executor extends RepositoryExecutor
     {
         private final JsonSchemaValidator validator;
 

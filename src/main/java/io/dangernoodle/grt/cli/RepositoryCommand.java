@@ -15,18 +15,18 @@ import io.dangernoodle.grt.internal.WorkflowExecutor;
 
 
 @Parameters(commandNames = "repository", resourceBundle = "GithubRepositoryTools", commandDescriptionKey = "repository")
-public class RepositoryCommand implements CommandLineDelegate.Command
+public class RepositoryCommand implements CommandLineParser.Command
 {
     @Parameter(descriptionKey = "repoName", required = true)
     private static String name;
 
     @Override
-    public Class<? extends CommandLineDelegate.Executor> getCommandExectorClass()
+    public Class<? extends Executor> getCommandExectorClass()
     {
         return Executor.class;
     }
 
-    public static class Executor extends CommandLineDelegate.RepositoryExecutor
+    public static class Executor extends CommandLineExecutor.RepositoryExecutor
     {
         private final WorkflowExecutor workflow;
 
