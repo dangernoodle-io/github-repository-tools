@@ -25,7 +25,6 @@ public class ProducerFactory
     private static final Arguments arguments = new Arguments();
 
     @Produces
-    @ApplicationScoped
     public Arguments getArguments()
     {
         return arguments;
