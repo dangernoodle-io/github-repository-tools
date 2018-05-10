@@ -9,10 +9,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Produces;
-
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.UnixStyleUsageFormatter;
@@ -27,14 +23,12 @@ public class CommandLineDelegate
 {
     private static final Logger logger = LoggerFactory.getLogger(CommandLineDelegate.class);
 
-    private static final Arguments parameters = new Arguments();
-
     private final JCommander jCommander;
 
-    CommandLineDelegate(Collection<Command> commands)
+    public CommandLineDelegate(Collection<Command> commands, Arguments arguments)
     {
         // see ParametersProducer#get
-        this.jCommander = new JCommander(parameters);
+        this.jCommander = new JCommander(arguments);
 
         jCommander.setUsageFormatter(new UnixStyleUsageFormatter(jCommander));
         jCommander.setProgramName("github-repository-tools");
@@ -54,7 +48,7 @@ public class CommandLineDelegate
     private void addCommands(Collection<Command> commands)
     {
         commands.forEach(command -> {
-            logger.debug("adding discovered command [{}]", command.getClass());
+            logger.trace("adding discovered command [{}]", command.getClass());
             jCommander.addCommand(command);
         });
     }
@@ -81,35 +75,9 @@ public class CommandLineDelegate
         Class<? extends Executor> getCommandExectorClass();
     }
 
-    @ApplicationScoped
-    public static class CommandLineProducer
-    {
-        @Produces
-        @ApplicationScoped
-        public CommandLineDelegate get(Arguments parameters, Instance<Command> instance)
-        {
-            return new CommandLineDelegate(instance.stream().collect(Collectors.toList()));
-        }
-    }
-
     public interface Executor
     {
         void execute() throws Exception;
-    }
-
-    @ApplicationScoped
-    public static class ParametersProducer
-    {
-        @Produces
-        @ApplicationScoped
-        public Arguments get()
-        {
-            /*
-             * defining the Parameters class as @ApplicationScoped causes JCommander to populate the annotations on the
-             * proxy class instead of the actual underlying object, which is no bueno.
-             */
-            return parameters;
-        }
     }
 
     public static abstract class RepositoryExecutor implements Executor
@@ -163,5 +131,4 @@ public class CommandLineDelegate
             return getRepositoryName().replace('.', '-');
         }
     }
-
 }

@@ -1,0 +1,109 @@
+package io.dangernoodle.grt.internal;
+
+import static io.dangernoodle.grt.json.DefaultJsonTransformer.transformer;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.Produces;
+
+import io.dangernoodle.grt.Arguments;
+import io.dangernoodle.grt.Credentials;
+import io.dangernoodle.grt.GithubClient;
+import io.dangernoodle.grt.Workflow;
+import io.dangernoodle.grt.cli.CommandLineDelegate;
+import io.dangernoodle.grt.cli.CommandLineDelegate.Command;
+import io.dangernoodle.grt.cli.RepositoryCommand;
+import io.dangernoodle.grt.cli.ValidateCommand;
+import io.dangernoodle.grt.json.JsonSchemaValidator;
+
+
+@ApplicationScoped
+public class ProducerFactory
+{
+    private static final Arguments arguments = new Arguments();
+
+    @Produces
+    @ApplicationScoped
+    public Arguments getArguments()
+    {
+        return arguments;
+    }
+
+    @Produces
+    @ApplicationScoped
+    public GithubClient getGithubClient(Credentials credentials) throws IOException
+    {
+        return GithubClient.createClient(credentials.getGithubToken());
+    }
+
+    @Produces
+    @ApplicationScoped
+    public CommandLineDelegate getCommandLineDelegate(Instance<Command> instance, Arguments arguments)
+    {
+        return new CommandLineDelegate(instance.stream().collect(Collectors.toList()), arguments);
+    }
+
+    @Produces
+    @ApplicationScoped
+    @SuppressWarnings("unchecked")
+    public Credentials getCredentials(Arguments arguments) throws IOException
+    {
+        FileReader reader = new FileReader(arguments.getRepoDir() + File.separator + Credentials.FILENAME);
+        return new Credentials(transformer.deserialize(reader, Map.class));
+    }
+
+    @Produces
+    @ApplicationScoped
+    public WorkflowExecutor getExecutor(Instance<Workflow> instance)
+    {
+        return new WorkflowExecutor(instance.stream().collect(Collectors.toList()));
+    }
+
+    @Produces
+    @ApplicationScoped
+    public RepositoryCommand getRepositoryCommand()
+    {
+        return new RepositoryCommand();
+    }
+
+    @Produces
+    @ApplicationScoped
+    public ValidateCommand.Executor getRepositoryExecutor(Arguments arguments, JsonSchemaValidator validator)
+    {
+        return new ValidateCommand.Executor(arguments, validator);
+    }
+
+    @Produces
+    @ApplicationScoped
+    public RepositoryCommand.Executor getRepositoryExecutor(Arguments arguments, WorkflowExecutor workflow)
+    {
+        return new RepositoryCommand.Executor(arguments, workflow);
+    }
+
+    @Produces
+    @ApplicationScoped
+    public ValidateCommand getValidateCommand()
+    {
+        return new ValidateCommand();
+    }
+
+    @Produces
+    @ApplicationScoped
+    public JsonSchemaValidator getJsonSchemaValidator() throws IOException
+    {
+        return new EveritSchemaValidator(() -> getClass().getResourceAsStream(JsonSchemaValidator.SCHEMA));
+    }
+
+    @Produces
+    @ApplicationScoped
+    public GithubWorkflow getGithubWorkflow(GithubClient client)
+    {
+        return new GithubWorkflow(client);
+    }
+}

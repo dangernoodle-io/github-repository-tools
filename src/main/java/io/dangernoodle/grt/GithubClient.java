@@ -6,10 +6,6 @@ import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Singleton;
-
 import org.kohsuke.github.GHCreateRepositoryBuilder;
 import org.kohsuke.github.GHEventPayload;
 import org.kohsuke.github.GHMyself;
@@ -144,17 +140,6 @@ public class GithubClient
         client.github.checkApiUrlValidity();
 
         return client;
-    }
-
-    @ApplicationScoped
-    public static class GithubClientProducer
-    {
-        @Produces
-        @Singleton
-        public GithubClient get(Credentials credentials) throws IOException
-        {
-            return GithubClient.createClient(credentials.getGithubToken());
-        }
     }
 
     @FunctionalInterface

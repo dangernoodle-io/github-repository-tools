@@ -3,9 +3,6 @@ package io.dangernoodle.grt.internal;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -56,17 +53,6 @@ public class EveritSchemaValidator implements JsonSchemaValidator
         try (InputStream inputStream = supplier.get())
         {
             return new JSONObject(new JSONTokener(inputStream));
-        }
-    }
-
-    @ApplicationScoped
-    public static class EveritSchemaValidatorProducer
-    {
-        @Produces
-        @ApplicationScoped
-        public JsonSchemaValidator get() throws IOException
-        {
-            return new EveritSchemaValidator(() -> getClass().getResourceAsStream("/repository-schema.json"));
         }
     }
 }

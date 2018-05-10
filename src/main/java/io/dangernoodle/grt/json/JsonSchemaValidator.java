@@ -6,6 +6,8 @@ import java.io.InputStream;
 
 public interface JsonSchemaValidator
 {
+    public static final String SCHEMA = "/repository-schema.json";
+
     void validate(InputStreamSupplier supplier) throws IOException;
 
     @FunctionalInterface
