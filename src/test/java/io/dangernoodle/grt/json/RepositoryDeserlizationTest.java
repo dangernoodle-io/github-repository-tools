@@ -7,12 +7,12 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import org.junit.jupiter.api.Test;
 
+import io.dangernoodle.TestFiles;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Color;
 import io.dangernoodle.grt.Repository.Settings;
 import io.dangernoodle.grt.Repository.Settings.Branches;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection;
-import io.dangernoodle.grt.TestFiles;
 
 
 public class RepositoryDeserlizationTest

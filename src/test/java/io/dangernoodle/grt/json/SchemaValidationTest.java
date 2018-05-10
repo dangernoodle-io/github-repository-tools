@@ -9,7 +9,7 @@ import java.io.InputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.dangernoodle.grt.TestFiles;
+import io.dangernoodle.TestFiles;
 import io.dangernoodle.grt.internal.EveritSchemaValidator;
 
 

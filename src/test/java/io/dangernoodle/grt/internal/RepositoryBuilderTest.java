@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.equalTo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.dangernoodle.TestFiles;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Color;
 import io.dangernoodle.grt.Repository.Permission;
@@ -15,7 +16,6 @@ import io.dangernoodle.grt.Repository.Settings.Branches.Protection;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequireReviews;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequiredChecks;
 import io.dangernoodle.grt.internal.RepositoryBuilder;
-import io.dangernoodle.grt.TestFiles;
 
 
 public class RepositoryBuilderTest
