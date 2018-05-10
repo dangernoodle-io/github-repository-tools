@@ -1,11 +1,6 @@
 package io.dangernoodle.grt.internal;
 
-import static io.dangernoodle.grt.json.DefaultJsonTransformer.transformer;
-
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -14,6 +9,7 @@ import javax.enterprise.inject.Produces;
 
 import io.dangernoodle.grt.Arguments;
 import io.dangernoodle.grt.Credentials;
+import io.dangernoodle.grt.FileLoader;
 import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.cli.CommandLineDelegate;
@@ -54,8 +50,7 @@ public class ProducerFactory
     @SuppressWarnings("unchecked")
     public Credentials getCredentials(Arguments arguments) throws IOException
     {
-        FileReader reader = new FileReader(arguments.getRepoDir() + File.separator + Credentials.FILENAME);
-        return new Credentials(transformer.deserialize(reader, Map.class));
+        return Credentials.load(new FileLoader(arguments.getRepoDir()).loadCredentials()); 
     }
 
     @Produces
