@@ -6,10 +6,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Produces;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +19,7 @@ public class WorkflowExecutor
 
     private final Map<String, Workflow> workflows;
 
-    WorkflowExecutor(Collection<Workflow> workflows)
+    public WorkflowExecutor(Collection<Workflow> workflows)
     {
         this.workflows = workflows.stream()
                                   .collect(Collectors.toMap(workflow -> workflow.getName(), Function.identity()));
@@ -61,16 +57,5 @@ public class WorkflowExecutor
         }
 
         return steps;
-    }
-
-    @ApplicationScoped
-    public static class WorkflowExecutorProducer
-    {
-        @Produces
-        @ApplicationScoped
-        public WorkflowExecutor get(Instance<Workflow> instance)
-        {
-            return new WorkflowExecutor(instance.stream().collect(Collectors.toList()));
-        }
     }
 }

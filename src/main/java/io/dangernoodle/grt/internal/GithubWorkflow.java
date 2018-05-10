@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,14 +17,12 @@ import io.dangernoodle.grt.steps.EnableBranchProtections;
 import io.dangernoodle.grt.steps.FindOrCreateRepository;
 
 
-@ApplicationScoped
 public class GithubWorkflow implements Workflow
 {
     private static final Logger logger = LoggerFactory.getLogger(GithubWorkflow.class);
 
     private final GithubClient client;
 
-    @Inject
     public GithubWorkflow(GithubClient client)
     {
         this.client = client;

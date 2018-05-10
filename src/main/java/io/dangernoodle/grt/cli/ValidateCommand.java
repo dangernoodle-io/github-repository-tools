@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import com.beust.jcommander.Parameter;
@@ -15,7 +14,6 @@ import io.dangernoodle.grt.json.JsonSchemaValidator;
 import io.dangernoodle.grt.json.JsonValidationException;
 
 
-@ApplicationScoped
 @Parameters(commandNames = "validate", resourceBundle = "GithubRepositoryTools", commandDescriptionKey = "validate")
 public class ValidateCommand implements CommandLineDelegate.Command
 {
@@ -28,7 +26,6 @@ public class ValidateCommand implements CommandLineDelegate.Command
         return Executor.class;
     }
 
-    @ApplicationScoped
     public static class Executor extends CommandLineDelegate.RepositoryExecutor
     {
         private final JsonSchemaValidator validator;
