@@ -5,8 +5,8 @@ import org.jboss.weld.environment.se.WeldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.dangernoodle.grt.cli.CommandLineDelegate;
-import io.dangernoodle.grt.cli.CommandLineDelegate.Executor;
+import io.dangernoodle.grt.cli.CommandLineParser;
+import io.dangernoodle.grt.cli.CommandLineExecutor;
 
 
 public class GithubRepositoryTools
@@ -26,7 +26,7 @@ public class GithubRepositoryTools
         }
         catch (@SuppressWarnings("unused") IllegalArgumentException e)
         {
-            // no-op. thrown/catch so the container can shutdown cleanly
+            // no-op thrown/catch so the container can shutdown cleanly
         }
         catch (Exception e)
         {
@@ -39,9 +39,9 @@ public class GithubRepositoryTools
         }
     }
 
-    private static Class<? extends Executor> getCommandClass(WeldContainer container, String... args)
+    private static Class<? extends CommandLineExecutor> getCommandClass(WeldContainer container, String... args)
     {
-        return container.select(CommandLineDelegate.class)
+        return container.select(CommandLineParser.class)
                         .get()
                         .parse(args)
                         .getCommandExectorClass();
