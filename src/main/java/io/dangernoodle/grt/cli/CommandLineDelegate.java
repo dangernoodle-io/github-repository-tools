@@ -1,13 +1,7 @@
 package io.dangernoodle.grt.cli;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
@@ -17,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.dangernoodle.grt.Arguments;
+import io.dangernoodle.grt.FileLoader;
 
 
 public class CommandLineDelegate
@@ -84,21 +79,19 @@ public class CommandLineDelegate
     {
         protected final Logger logger;
 
-        private final String root;
+        private final FileLoader loader;
 
         public RepositoryExecutor(Arguments arguments)
         {
-            this.root = arguments.getRepoDir();
+            this.loader = new FileLoader(arguments.getRepoDir());
             this.logger = LoggerFactory.getLogger(getClass());
         }
 
         @Override
         public void execute() throws Exception
         {
-            // depth = 1 for the configuration file, it should be at top level of root directory
-            File defaults = findRepositoryFile(root, 1, "github-repository-tools");
-            // depth = 10 is somewhat arbitrary - can be increased if there is ever a need
-            File overrides = findRepositoryFile(root, 10, getName());
+            File defaults = loader.loadRepositoryDefaults();
+            File overrides = loader.loadRepository(getRepositoryName());
 
             execute(defaults, overrides);
         }
@@ -106,29 +99,5 @@ public class CommandLineDelegate
         protected abstract void execute(File defaults, File overrides) throws Exception;
 
         protected abstract String getRepositoryName();
-
-        private File findRepositoryFile(String root, int depth, String name) throws IOException, IllegalStateException
-        {
-            List<Path> files = Files.find(Paths.get(root), depth, (path, attrs) -> {
-                return path.getFileName().toString().equals(name + ".json");
-            }).collect(Collectors.toList());
-
-            if (files.size() == 0)
-            {
-                throw new IllegalStateException("failed to find repository file [" + name + "]");
-            }
-
-            if (files.size() > 1)
-            {
-                throw new IllegalStateException("multiple repsository files named [" + name + "] found");
-            }
-
-            return files.get(0).toFile();
-        }
-
-        private String getName()
-        {
-            return getRepositoryName().replace('.', '-');
-        }
     }
 }

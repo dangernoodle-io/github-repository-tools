@@ -1,5 +1,8 @@
 package io.dangernoodle.grt.json;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.Reader;
 
 import com.google.gson.Gson;
@@ -32,6 +35,14 @@ public class SimpleJsonTransformer
         this.prettyPrinter = builder.setPrettyPrinting().create();
     }
 
+    public <T> T deserialize(File file, Class<T> clazz) throws IOException
+    {
+        try (FileReader reader = new FileReader(file))
+        {
+            return deserialize(reader, clazz);
+        }
+    }
+
     public <T> T deserialize(Reader reader, Class<T> clazz)
     {
         return gson.fromJson(reader, clazz);
@@ -41,7 +52,7 @@ public class SimpleJsonTransformer
     {
         return gson.fromJson(json, JsonElement.class);
     }
-    
+
     public <T> T deserialize(String json, Class<T> clazz)
     {
         return gson.fromJson(json, clazz);

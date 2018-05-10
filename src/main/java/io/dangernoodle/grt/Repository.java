@@ -3,7 +3,6 @@ package io.dangernoodle.grt;
 import static io.dangernoodle.grt.json.DefaultJsonTransformer.transformer;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,6 +12,8 @@ import java.util.Objects;
 
 public class Repository
 {
+    public static final String GITHUB = "github";
+
     private String name;
 
     private String organization;
@@ -50,10 +51,7 @@ public class Repository
 
     public static Repository load(File file) throws IOException
     {
-        try (FileReader reader = new FileReader(file))
-        {
-            return transformer.deserialize(reader, Repository.class);
-        }
+        return transformer.deserialize(file, Repository.class);
     }
 
     private static boolean toSafeBoolean(Boolean bool, boolean dflt)

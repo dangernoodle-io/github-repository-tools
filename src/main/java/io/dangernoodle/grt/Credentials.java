@@ -1,5 +1,9 @@
 package io.dangernoodle.grt;
 
+import static io.dangernoodle.grt.json.DefaultJsonTransformer.transformer;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 
@@ -11,7 +15,7 @@ public class Credentials
 
     private final String githubToken;
 
-    public Credentials(Map<String, Object> credentials)
+    private Credentials(Map<String, Object> credentials)
     {
         this.credentials = credentials;
         this.githubToken = credentials.remove("github").toString();
@@ -31,5 +35,10 @@ public class Credentials
         }
 
         return githubToken;
+    }
+
+    public static Credentials load(File file) throws IOException
+    {
+        return transformer.deserialize(file, Credentials.class);
     }
 }
