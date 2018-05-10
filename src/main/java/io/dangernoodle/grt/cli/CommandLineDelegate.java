@@ -70,21 +70,26 @@ public class CommandLineDelegate
         Class<? extends Executor> getCommandExectorClass();
     }
 
-    public interface Executor
-    {
-        void execute() throws Exception;
-    }
-
-    public static abstract class RepositoryExecutor implements Executor
+    public static abstract class Executor
     {
         protected final Logger logger;
 
-        private final FileLoader loader;
+        protected final FileLoader loader;
 
-        public RepositoryExecutor(Arguments arguments)
+        public Executor(Arguments arguments)
         {
             this.loader = new FileLoader(arguments.getRepoDir());
             this.logger = LoggerFactory.getLogger(getClass());
+        }
+
+        public abstract void execute() throws Exception;
+    }
+
+    public static abstract class RepositoryExecutor extends Executor
+    {
+        public RepositoryExecutor(Arguments arguments)
+        {
+            super(arguments);
         }
 
         @Override
