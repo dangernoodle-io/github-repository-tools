@@ -58,15 +58,16 @@ public class EnableBranchProtections extends GithubWorkflow.Step
     {
         if (ghBranch.isProtected())
         {
+            logger.warn("disabling branch protections for [{}]", ghBranch.getName());
             ghBranch.disableProtection();
         }
     }
 
-    private void enableChecks(GHBranchProtectionBuilder builder, RequiredChecks checks)
+    private void enableChecks(String branch, GHBranchProtectionBuilder builder, RequiredChecks checks)
     {
         if (!checks.isEnabled())
         {
-            logger.trace("checks are not required for this branch");
+            logger.info("branch checks are not required for [{}]", branch);
             return;
         }
 
@@ -74,18 +75,19 @@ public class EnableBranchProtections extends GithubWorkflow.Step
 
         checks.getContexts()
               .forEach(context -> {
-                  logger.trace("adding required status check context [{}]", context);
+                  logger.info("adding required status check [{}] for branch [{}]", context, branch);
                   builder.addRequiredChecks(context);
               });
     }
 
     private void enableProtection(GHBranch ghBranch, Protection protection, String organization) throws IOException
     {
+        String name = ghBranch.getName();
         GHBranchProtectionBuilder builder = ghBranch.enableProtection();
 
-        enableReviews(builder, protection.getRequireReviews());
-        enableChecks(builder, protection.getRequiredChecks());
-        restrictPushAccess(builder, protection, organization);
+        enableReviews(name, builder, protection.getRequireReviews());
+        enableChecks(name, builder, protection.getRequiredChecks());
+        restrictPushAccess(name, builder, protection, organization);
 
         // protection.getIncludeAdministrators();
         // protection.getRequireSignedCommits();
@@ -93,40 +95,42 @@ public class EnableBranchProtections extends GithubWorkflow.Step
         builder.enable();
     }
 
-    private void enableReviews(GHBranchProtectionBuilder builder, RequireReviews reviews)
+    private void enableReviews(String branch, GHBranchProtectionBuilder builder, RequireReviews reviews)
     {
         if (!reviews.isEnabled())
         {
-            logger.trace("reviews are not required for this branch");
+            logger.info("reviews are not required for branch [{}]", branch);
             return;
         }
 
+        logger.info("requiring reviews for branch [{}}", branch);
         builder.requireReviews();
 
         // builder.dismissStaleReviews(reviews.getDismissStaleApprovals());
         builder.requireCodeOwnReviews(reviews.getRequireCodeOwner());
     }
 
-    private void restrictPushAccess(GHBranchProtectionBuilder builder, Protection protection, String organization)
+    private void restrictPushAccess(String branch, GHBranchProtectionBuilder builder, Protection protection, String organization)
         throws IOException
     {
         if (!protection.enablePushAccess())
         {
-            logger.trace("push access is not restricted for this branch");
+            logger.info("push access is not restricted for branch [{}]", branch);
             return;
         }
 
+        logger.info("restricting push access fpr branch [{}}", branch);
         builder.restrictPushAccess();
 
         for (String team : protection.getPushTeams())
         {
-            logger.trace("enabling push access for team [{}]", team);
+            logger.info("enabling push access on branch [{}] for team [{}]", branch, team);
             builder.teamPushAccess(client.getTeam(organization, team));
         }
 
         for (String user : protection.getPushUsers())
         {
-            logger.trace("enabling push access for user [{}]", user);
+            logger.info("enabling push access on branch [{}] for user [{}]", branch, user);
             builder.userPushAccess(client.getUser(user));
         }
     }

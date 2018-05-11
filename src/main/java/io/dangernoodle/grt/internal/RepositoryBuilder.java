@@ -90,7 +90,7 @@ public class RepositoryBuilder
     public Repository build()
     {
         String json = transformer.serialize(repository);
-        //System.out.println(transformer.prettyPrint(json));
+        // System.out.println(transformer.prettyPrint(json));
 
         return transformer.deserialize(json, Repository.class);
     }
@@ -98,6 +98,12 @@ public class RepositoryBuilder
     public RepositoryBuilder dismissStaleApprovals(String branch, boolean bool)
     {
         reviews(branch).put("dismissStaleApprovals", bool);
+        return this;
+    }
+
+    public RepositoryBuilder enableBranchProtection(String branch)
+    {
+        protections(branch);
         return this;
     }
 
