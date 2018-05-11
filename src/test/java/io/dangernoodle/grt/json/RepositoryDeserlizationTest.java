@@ -1,5 +1,10 @@
 package io.dangernoodle.grt.json;
 
+import static io.dangernoodle.TestAsserts.verifyCommitsAdminsDisabled;
+import static io.dangernoodle.TestAsserts.verifyRequireReviewsDisabled;
+import static io.dangernoodle.TestAsserts.verifyRequireReviewsEnabled;
+import static io.dangernoodle.TestAsserts.verifyRequiredStatusChecksDisabled;
+import static io.dangernoodle.TestAsserts.verifyRequiredStatusChecksEnabled;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -28,7 +33,7 @@ public class RepositoryDeserlizationTest
         whenParseIntoObject();
         thenBranchProtectionIsCorrect();
     }
-    
+
     @Test
     public void testRepository()
     {
@@ -71,7 +76,7 @@ public class RepositoryDeserlizationTest
 
         assertThat(branches.getProtection("master"), notNullValue());
         Protection protection = branches.getProtection("master");
-        
+
         verifyCommitsAdminsDisabled(protection);
         verifyRequireReviewsDisabled(protection);
         verifyRequiredStatusChecksDisabled(protection);
@@ -91,27 +96,17 @@ public class RepositoryDeserlizationTest
 
         assertThat(protection.getRequireSignedCommits(), equalTo(true));
         assertThat(protection.getIncludeAdministrators(), equalTo(true));
-        
+
         verifyRequireReviewsEnabled(protection);
-        verifyRequiredStatusChecksEnabled(protection);
+        verifyRequiredStatusChecksEnabled(protection, repository.getName());
     }
 
-    private void verifyRequireReviewsEnabled(Protection protection)
-    {
-        assertThat(protection.getRequireReviews(), notNullValue());
-        assertThat(protection.getRequireReviews().isEnabled(), equalTo(true));
-        assertThat(protection.getRequireReviews().getRequiredReviewers(), equalTo(2));
-        assertThat(protection.getRequireReviews().getDismissStaleApprovals(), equalTo(true));
-        assertThat(protection.getRequireReviews().getRequireCodeOwner(), equalTo(true));
-        assertThat(protection.getRequireReviews().enableRestrictDismissals(), equalTo(true));
-    }
-    
     private void thenPluginIsCorrect()
     {
         assertThat(repository.getPlugins().get("jenkins"), notNullValue());
         assertThat(repository.getPlugins().get("jenkins"), equalTo("[{\"container\":\"maven\"}]"));
     }
-    
+
     private void thenRepositoryIsCorrect()
     {
         assertThat(repository, notNullValue());
@@ -148,44 +143,12 @@ public class RepositoryDeserlizationTest
 
         verifyCommitsAdminsDisabled(protection);
         verifyRequireReviewsDisabled(protection);
-        verifyRequiredStatusChecksEnabled(protection);
+        verifyRequiredStatusChecksEnabled(protection, repository.getName());
     }
 
     private void thenWorkflowIsCorrect()
     {
         assertThat(repository.getWorkflow(), notNullValue());
-    }
-
-    private void verifyCommitsAdminsDisabled(Protection protection)
-    {
-        assertThat(protection.getRequireSignedCommits(), equalTo(false));
-        assertThat(protection.getIncludeAdministrators(), equalTo(false));
-    }
-    
-    private void verifyRequiredStatusChecksDisabled(Protection protection)
-    {
-        assertThat(protection.getRequiredChecks(), notNullValue());
-        assertThat(protection.getRequiredChecks().isEnabled(), equalTo(false));
-        assertThat(protection.getRequiredChecks().getRequireUpToDate(), equalTo(false));
-        assertThat(protection.getRequiredChecks().getContexts().isEmpty(), equalTo(true));
-    }
-    
-    private void verifyRequiredStatusChecksEnabled(Protection protection)
-    {
-        assertThat(protection.getRequiredChecks(), notNullValue());
-        assertThat(protection.getRequiredChecks().isEnabled(), equalTo(true));
-        assertThat(protection.getRequiredChecks().getRequireUpToDate(), equalTo(true));
-        assertThat(protection.getRequiredChecks().getContexts(), contains(repository.getName()));
-    }
-    
-    private void verifyRequireReviewsDisabled(Protection protection)
-    {
-        assertThat(protection.getRequireReviews(), notNullValue());
-        assertThat(protection.getRequireReviews().isEnabled(), equalTo(false));
-        assertThat(protection.getRequireReviews().getRequiredReviewers(), equalTo(1));
-        assertThat(protection.getRequireReviews().getDismissStaleApprovals(), equalTo(false));
-        assertThat(protection.getRequireReviews().getRequireCodeOwner(), equalTo(false));
-        assertThat(protection.getRequireReviews().enableRestrictDismissals(), equalTo(false));
     }
 
     private void whenParseIntoObject()
