@@ -12,9 +12,11 @@ import io.dangernoodle.grt.json.DefaultJsonTransformer;
 
 public enum TestFiles
 {
+    branchProtection,
     credentials,
     mockRepository,
-    nullWorkflow;
+    nullWorkflow,
+    requireStatusChecks;
 
     private static final List<String> dirs;
 

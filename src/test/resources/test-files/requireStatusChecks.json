@@ -1,0 +1,17 @@
+{
+    "name": "require-status-checks",
+    "settings": {
+        "branches": {
+            "protections": {
+                "master": {
+                    "requiredStatusChecks": {
+                        "requireUpToDate": true,
+                        "contexts": [
+                            "require-status-checks"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}
