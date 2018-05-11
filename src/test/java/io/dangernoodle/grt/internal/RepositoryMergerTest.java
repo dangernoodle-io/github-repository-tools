@@ -34,6 +34,11 @@ public class RepositoryMergerTest
         dBuilder.setOrganization("default-org");
     }
 
+    public void test()
+    {
+        whenBuildRepositories();
+    }
+    
     @Test
     public void testGetDefaultLabels()
     {

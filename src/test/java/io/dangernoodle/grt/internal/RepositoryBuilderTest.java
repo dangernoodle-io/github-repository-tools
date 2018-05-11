@@ -33,7 +33,7 @@ public class RepositoryBuilderTest
     }
 
     @Test
-    public void testBuildingComplete()
+    public void testBuildCompleteRepository()
     {
         givenARepository();
         whenSerializeJson();
@@ -109,7 +109,7 @@ public class RepositoryBuilderTest
                .requireSignedCommits("master", true)
                .enforceForAdminstrators("master", true)
                .requireReviews("master")
-               .requiredReviewers("master", 1)
+               .requiredReviewers("master", 2)
                .dismissStaleApprovals("master", true)
                .requireCodeOwnerReview("master", true)
                .addTeamReviewDismisser("master", "write")

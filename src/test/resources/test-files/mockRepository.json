@@ -25,7 +25,7 @@
                     "requireSignedCommits": true,
                     "includeAdministrators": true,
                     "requireReviews": {
-                        "requiredReviewers": 1,
+                        "requiredReviewers": 2,
                         "dismissStaleApprovals": true,
                         "requireCodeOwner": true,
                         "restrictDismissals": {
