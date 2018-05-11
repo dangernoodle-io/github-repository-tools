@@ -15,14 +15,18 @@ import io.dangernoodle.grt.Repository.Settings.Branches.Protection;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequireReviews;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequiredChecks;
 import io.dangernoodle.grt.Workflow.Context;
+import io.dangernoodle.grt.extensions.StatusCheckFactory;
 import io.dangernoodle.grt.internal.GithubWorkflow;
 
 
 public class EnableBranchProtections extends GithubWorkflow.Step
 {
-    public EnableBranchProtections(GithubClient client)
+    private final StatusCheckFactory factory;
+
+    public EnableBranchProtections(GithubClient client, StatusCheckFactory factory)
     {
         super(client);
+        this.factory = factory;
     }
 
     @Override
@@ -45,7 +49,7 @@ public class EnableBranchProtections extends GithubWorkflow.Step
             }
             else if (protection.isEnabled())
             {
-                enableProtection(ghBranch, protection, repository.getOrganization());
+                enableProtection(ghBranch, protection, repository);
             }
             else
             {
@@ -63,7 +67,7 @@ public class EnableBranchProtections extends GithubWorkflow.Step
         }
     }
 
-    private void enableChecks(String branch, GHBranchProtectionBuilder builder, RequiredChecks checks)
+    private void enableChecks(String branch, GHBranchProtectionBuilder builder, RequiredChecks checks, Repository repository)
     {
         if (!checks.isEnabled())
         {
@@ -73,21 +77,21 @@ public class EnableBranchProtections extends GithubWorkflow.Step
 
         builder.requireBranchIsUpToDate(checks.getRequireUpToDate());
 
-        checks.getContexts()
-              .forEach(context -> {
-                  logger.info("adding required status check [{}] for branch [{}]", context, branch);
-                  builder.addRequiredChecks(context);
-              });
+        factory.getRequiredStatusChecks(branch, repository)
+               .forEach(context -> {
+                   logger.info("adding required status check [{}] for branch [{}]", context, branch);
+                   builder.addRequiredChecks(context);
+               });
     }
 
-    private void enableProtection(GHBranch ghBranch, Protection protection, String organization) throws IOException
+    private void enableProtection(GHBranch ghBranch, Protection protection, Repository repository) throws IOException
     {
         String name = ghBranch.getName();
         GHBranchProtectionBuilder builder = ghBranch.enableProtection();
 
         enableReviews(name, builder, protection.getRequireReviews());
-        enableChecks(name, builder, protection.getRequiredChecks());
-        restrictPushAccess(name, builder, protection, organization);
+        enableChecks(name, builder, protection.getRequiredChecks(), repository);
+        restrictPushAccess(name, builder, protection, repository.getOrganization());
 
         // protection.getIncludeAdministrators();
         // protection.getRequireSignedCommits();

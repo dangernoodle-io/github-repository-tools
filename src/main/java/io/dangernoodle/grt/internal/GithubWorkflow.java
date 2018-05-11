@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow;
+import io.dangernoodle.grt.extensions.StatusCheckFactory;
 import io.dangernoodle.grt.steps.AddTeamsAndCollaborators;
 import io.dangernoodle.grt.steps.CreateRepositoryBranches;
 import io.dangernoodle.grt.steps.CreateRepositoryLabels;
@@ -23,9 +24,12 @@ public class GithubWorkflow implements Workflow
 
     private final GithubClient client;
 
-    public GithubWorkflow(GithubClient client)
+    private final StatusCheckFactory factory;
+
+    public GithubWorkflow(GithubClient client, StatusCheckFactory factory)
     {
         this.client = client;
+        this.factory = factory;
     }
 
     @Override
@@ -37,7 +41,7 @@ public class GithubWorkflow implements Workflow
         steps.add(new CreateRepositoryLabels(client));
         steps.add(new AddTeamsAndCollaborators(client));
         steps.add(new CreateRepositoryBranches(client));
-        steps.add(new EnableBranchProtections(client));
+        steps.add(new EnableBranchProtections(client, factory));
 
         for (GithubWorkflow.Step step : steps)
         {
