@@ -328,7 +328,7 @@ public class RepositoryMerger
                 return false;
             }
 
-            return oRequireReviews != null || dRequireReviews != null;
+            return oRequireReviews.isEnabled() || dRequireReviews.isEnabled();
         }
 
         boolean requireSignedCommits()
@@ -345,7 +345,7 @@ public class RepositoryMerger
                 return false;
             }
 
-            return oRequiredChecks != null || dRequiredChecks != null;
+            return oRequiredChecks.isEnabled() || dRequiredChecks.isEnabled();
         }
     }
 }

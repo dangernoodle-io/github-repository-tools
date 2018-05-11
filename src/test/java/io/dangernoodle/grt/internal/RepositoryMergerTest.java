@@ -1,5 +1,8 @@
 package io.dangernoodle.grt.internal;
 
+import static io.dangernoodle.TestAsserts.verifyCommitsAdminsDisabled;
+import static io.dangernoodle.TestAsserts.verifyRequireReviewsDisabled;
+import static io.dangernoodle.TestAsserts.verifyRequiredStatusChecksDisabled;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -34,11 +37,6 @@ public class RepositoryMergerTest
         dBuilder.setOrganization("default-org");
     }
 
-    public void test()
-    {
-        whenBuildRepositories();
-    }
-    
     @Test
     public void testGetDefaultLabels()
     {
@@ -121,7 +119,7 @@ public class RepositoryMergerTest
         givenDefaultWorkflow();
         whenBuildRepositories();
         thenDefaultWorkflowReturned();
-       
+
         givenOverrideWorkflow();
         whenBuildRepositories();
         thenOverrideWorkflowReturned();
@@ -133,7 +131,15 @@ public class RepositoryMergerTest
         whenBuildRepositories();
         thenPrimaryBranchIsMaster();
     }
-    
+
+    @Test
+    public void testRepositoryDefaults()
+    {
+        whenBuildRepositories();
+        whenBuildRepositories();
+        thenRepositoryDefaultsAreReturned();
+    }
+
     @Test
     public void testRequiredCheckContextsDefaultOnly()
     {
@@ -148,6 +154,17 @@ public class RepositoryMergerTest
         givenOverrideStatusChecks();
         whenBuildRepositories();
         thenOverrideStatusCheckesReturned();
+    }
+
+    private void assertPluginValues(String key, String json)
+    {
+        assertThat(repository.getPlugins().get(key), notNullValue());
+        assertThat(repository.getPlugins().get(key), equalTo(json));
+    }
+
+    private Protection getProtection(Repository repository, String branch)
+    {
+        return repository.getSettings().getBranches().getProtection(branch);
     }
 
     private void givenADefaultPlugin()
@@ -231,17 +248,11 @@ public class RepositoryMergerTest
     {
         assertPluginValues("default", "{\"default\":\"true\"}");
     }
-    
-    private void assertPluginValues(String key, String json)
-    {
-        assertThat(repository.getPlugins().get(key), notNullValue());
-        assertThat(repository.getPlugins().get(key), equalTo(json));
-    }
 
     private void thenDefaultPushTeamsReturned()
     {
-        Protection rProtection = repository.getSettings().getBranches().getProtection("master");
-        Protection dProtection = defaults.getSettings().getBranches().getProtection("master");
+        Protection dProtection = getProtection(defaults, "master");
+        Protection rProtection = getProtection(repository, "master");
 
         assertThat(rProtection, notNullValue());
         assertThat(rProtection.getPushTeams().containsAll(dProtection.getPushTeams()), equalTo(true));
@@ -249,22 +260,22 @@ public class RepositoryMergerTest
 
     private void thenDefaultStatusChecksReturned()
     {
-        Protection rProtection = repository.getSettings().getBranches().getProtection("master");
-        Protection dProtection = defaults.getSettings().getBranches().getProtection("master");
+        Protection dProtection = getProtection(defaults, "master");
+        Protection rProtection = getProtection(repository, "master");
 
         assertThat(rProtection, notNullValue());
         assertThat(rProtection.getRequiredChecks().getContexts().containsAll(dProtection.getRequiredChecks().getContexts()),
                 equalTo(true));
     }
 
-    private void thenMergedPluginReturned()
-    {
-        assertPluginValues("merged", "{\"merged\":\"true\"}");
-    }
-    
     private void thenDefaultWorkflowReturned()
     {
         assertThat(repository.getWorkflow().containsAll(defaults.getWorkflow()), equalTo(true));
+    }
+
+    private void thenMergedPluginReturned()
+    {
+        assertPluginValues("merged", "{\"merged\":\"true\"}");
     }
 
     private void thenOverrideColorIsCorrect()
@@ -292,8 +303,8 @@ public class RepositoryMergerTest
 
     private void thenOverridePushTeamsReturned()
     {
-        Protection rProtection = repository.getSettings().getBranches().getProtection("master");
-        Protection oProtection = overrides.getSettings().getBranches().getProtection("master");
+        Protection oProtection = getProtection(overrides, "master");
+        Protection rProtection = getProtection(repository, "master");
 
         assertThat(rProtection, notNullValue());
         assertThat(rProtection.getPushTeams().containsAll(oProtection.getPushTeams()), equalTo(true));
@@ -301,8 +312,8 @@ public class RepositoryMergerTest
 
     private void thenOverrideStatusCheckesReturned()
     {
-        Protection rProtection = repository.getSettings().getBranches().getProtection("master");
-        Protection oProtection = overrides.getSettings().getBranches().getProtection("master");
+        Protection oProtection = getProtection(overrides, "master");
+        Protection rProtection = getProtection(repository, "master");
 
         assertThat(rProtection, notNullValue());
         assertThat(rProtection.getRequiredChecks().getContexts().containsAll(oProtection.getRequiredChecks().getContexts()),
@@ -318,6 +329,15 @@ public class RepositoryMergerTest
     private void thenPrimaryBranchIsMaster()
     {
         assertThat(repository.getSettings().getBranches().getDefault(), equalTo("master"));
+    }
+
+    private void thenRepositoryDefaultsAreReturned()
+    {
+        Protection protection = getProtection(repository, "master");
+
+        verifyCommitsAdminsDisabled(protection);
+        verifyRequireReviewsDisabled(protection);
+        verifyRequiredStatusChecksDisabled(protection);
     }
 
     private void whenBuildRepositories()
