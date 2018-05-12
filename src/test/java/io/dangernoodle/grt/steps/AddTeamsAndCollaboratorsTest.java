@@ -22,7 +22,7 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
 {
     @Mock
     private GHTeam mockGHTeam;
-    
+
     @Mock
     private GHUser mockGHUser;
 
@@ -33,7 +33,7 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
         super.beforeEach();
         when(mockContext.get(GHRepository.class)).thenReturn(mockGHRepository);
     }
-    
+
     @Test
     public void testAddCollaborator() throws Exception
     {
@@ -42,7 +42,7 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
         whenExecuteStep();
         thenCollaboratorIsAdded();
     }
-    
+
     @Test
     public void testAddNonExistantTeamToOrg() throws Exception
     {
@@ -75,7 +75,7 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
     @Override
     protected GithubWorkflow.Step createStep()
     {
-       return new AddTeamsAndCollaborators(mockClient);
+        return new AddTeamsAndCollaborators(mockClient);
     }
 
     private void givenACollaborator() throws IOException
@@ -95,7 +95,7 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
         repoBuilder.setOrganization("org");
         when(mockContext.isOrg()).thenReturn(true);
     }
-    
+
     private void givenATeam() throws IOException
     {
         repoBuilder.addTeam("team", Permission.read);
@@ -110,7 +110,7 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
 
     private void givenAUserRepo()
     {
-        repoBuilder.setOrganization("user");        
+        repoBuilder.setOrganization("user");
     }
 
     private void thenCollaboratorIsAdded() throws IOException
@@ -120,7 +120,7 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
 
     private void thenTeamIsAdded() throws IOException
     {
-       verify(mockGHTeam).add(mockGHRepository, GHOrganization.Permission.PULL);
+        verify(mockGHTeam).add(mockGHRepository, GHOrganization.Permission.PULL);
     }
 
     private void thenTeamIsNotAdded()

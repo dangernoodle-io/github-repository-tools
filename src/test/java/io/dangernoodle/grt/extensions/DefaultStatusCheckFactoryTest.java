@@ -2,6 +2,7 @@ package io.dangernoodle.grt.extensions;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.util.Collection;
 
@@ -23,10 +24,10 @@ public class DefaultStatusCheckFactoryTest
     private Collection<String> result;
 
     @BeforeEach
-    public void beforeEach()
+    public void beforeEach() throws Exception
     {
         factory = new DefaultStatusCheckFactory();
-        repository = TestFiles.mockRepository.parseIntoObject(Repository.class);
+        repository = Repository.load(TestFiles.mockRepository.getFile());
     }
 
     @Test
@@ -34,7 +35,7 @@ public class DefaultStatusCheckFactoryTest
     {
         givenABranchWithNoProtection();
         whenGetStatusCheck();
-        thenStatusCheckIsEmpty();
+        thenStatusCheckIsNull();
     }
 
     @Test
@@ -55,9 +56,9 @@ public class DefaultStatusCheckFactoryTest
         branchName = "master";
     }
 
-    private void thenStatusCheckIsEmpty()
+    private void thenStatusCheckIsNull()
     {
-        assertThat(result.isEmpty(), equalTo(true));
+        assertThat(result, nullValue());
     }
 
     private void thenStatusCheckIsReturned()

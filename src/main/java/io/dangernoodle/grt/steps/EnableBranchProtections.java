@@ -117,7 +117,7 @@ public class EnableBranchProtections extends GithubWorkflow.Step
     private void restrictPushAccess(String branch, GHBranchProtectionBuilder builder, Protection protection, String organization)
         throws IOException
     {
-        if (!protection.enablePushAccess())
+        if (!protection.enableRestrictedPushAccess())
         {
             logger.info("push access is not restricted for branch [{}]", branch);
             return;

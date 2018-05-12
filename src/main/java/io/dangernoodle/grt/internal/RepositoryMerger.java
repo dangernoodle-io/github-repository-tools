@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 
@@ -20,37 +19,37 @@ import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequiredCheck
 
 public class RepositoryMerger
 {
-    private final Branches dBranches;
+    private final Branches deBranches;
 
-    private final Repository dRepository;
+    private final Repository deRepository;
 
-    private final Settings dSettings;
+    private final Settings deSettings;
 
-    private final Branches oBranches;
+    private final Branches ovBranches;
 
-    private final Repository oRepository;
+    private final Repository ovRepository;
 
-    private final Settings oSettings;
+    private final Settings ovSettings;
 
     private final RepositoryBuilder repoBuilder;
 
     public RepositoryMerger(Repository defaults, Repository overrides)
     {
-        this.dRepository = defaults;
-        this.oRepository = overrides;
+        this.deRepository = defaults;
+        this.ovRepository = overrides;
 
-        this.dSettings = dRepository.getSettings();
-        this.oSettings = oRepository.getSettings();
+        this.deSettings = deRepository.getSettings();
+        this.ovSettings = ovRepository.getSettings();
 
-        this.dBranches = dSettings.getBranches();
-        this.oBranches = oSettings.getBranches();
+        this.deBranches = deSettings.getBranches();
+        this.ovBranches = ovSettings.getBranches();
 
         this.repoBuilder = new RepositoryBuilder();
     }
 
     public Repository merge() throws IllegalStateException
     {
-        repoBuilder.setName(oRepository.getName());
+        repoBuilder.setName(ovRepository.getName());
 
         mergeOrganization();
         mergeAutoInitialize();
@@ -59,57 +58,75 @@ public class RepositoryMerger
         mergeTeams();
         mergeColaborators();
         mergeBranches();
-
         mergePlugins();
         mergeWorkflow();
 
         return repoBuilder.build();
     }
 
-    private void addBranchProtection(String branch, ProtectionDelegate protection)
+    private void addBranchProtection(String branch, Protection protection)
     {
-        repoBuilder.requireSignedCommits(branch, protection.requireSignedCommits())
-                   .enforceForAdminstrators(branch, protection.enforceForAdminstrators());
+        repoBuilder.requireSignedCommits(branch, merge(protection.getRequireSignedCommits(), false))
+                   .enforceForAdminstrators(branch, merge(protection.getIncludeAdministrators(), false));
 
-        if (protection.requireReviews())
+        if (protection.hasRequireReviews())
         {
-            repoBuilder.requireReviews(branch)
-                       .requiredReviewers(branch, protection.getRequiredReviewers())
-                       .dismissStaleApprovals(branch, protection.getDismissStaleApprovals())
-                       .requireCodeOwnerReview(branch, protection.getRequireCodeOwner());
-
-            protection.getRetrictDismissalTeams()
-                      .forEach(team -> repoBuilder.addTeamReviewDismisser(branch, team));
-
-            protection.getRetrictDismissalUsers()
-                      .forEach(user -> repoBuilder.addUserReviewDismisser(branch, user));
+            addRequireReviews(branch, protection.getRequireReviews());
         }
 
-        if (protection.requireStatusChecks())
+        if (protection.hasRequiredChecks())
         {
-            repoBuilder.requireBranchUpToDate(branch, protection.getRequireUpToDate());
-            protection.getRequiredContexts()
-                      .forEach(context -> repoBuilder.addRequiredContext(branch, context));
+            addRequireChecks(branch, protection.getRequiredChecks());
         }
 
-        if (protection.enablePushAccess())
+        if (protection.enableRestrictedPushAccess())
         {
             repoBuilder.restrictPushAccess(branch);
 
-            protection.getTeamPushAccess()
+            protection.getPushTeams()
                       .forEach(team -> repoBuilder.addTeamPushAccess(branch, team));
 
-            protection.getUserPushAccess()
+            protection.getPushUsers()
                       .forEach(user -> repoBuilder.addUserPushAccess(branch, user));
+        }
+    }
+
+    private void addRequireChecks(String branch, RequiredChecks requireChecks)
+    {
+        repoBuilder.requireBranchUpToDate(branch, requireChecks.getRequireUpToDate());
+        if (requireChecks.hasContexts())
+        {
+            requireChecks.getContexts()
+                         .forEach(context -> repoBuilder.addRequiredContext(branch, context));
+        }
+    }
+
+    private void addRequireReviews(String branch, RequireReviews requireReviews)
+    {
+        repoBuilder.requireReviews(branch)
+                   .requiredReviewers(branch, merge(requireReviews.getRequiredReviewers(), 1))
+                   .dismissStaleApprovals(branch, merge(requireReviews.getDismissStaleApprovals(), false))
+                   .requireCodeOwnerReview(branch, merge(requireReviews.getRequireCodeOwner(), false));
+
+        if (requireReviews.hasDismissalTeams())
+        {
+            requireReviews.getDismissalTeams()
+                          .forEach(team -> repoBuilder.addTeamReviewDismisser(branch, team));
+        }
+
+        if (requireReviews.hasDismissalUsers())
+        {
+            requireReviews.getDismissalUsers()
+                          .forEach(user -> repoBuilder.addUserReviewDismisser(branch, user));
         }
     }
 
     private String getPrimaryBranch()
     {
-        String branch = oSettings.getBranches().getDefault();
+        String branch = ovBranches.getDefault();
         if (branch == null)
         {
-            branch = dSettings.getBranches().getDefault();
+            branch = deBranches.getDefault();
             if (branch == null)
             {
                 branch = "master";
@@ -119,37 +136,53 @@ public class RepositoryMerger
         return branch;
     }
 
-    private <V> Collection<V> join(Collection<V> defaults, Collection<V> overrides, boolean merge)
+    private boolean merge(Boolean override, Boolean defaults)
     {
-        HashSet<V> merged = new HashSet<>(defaults.size() + overrides.size());
-
-        if (merge)
-        {
-            merged.addAll(defaults);
-        }
-
-        merged.addAll(overrides);
-
-        return merged;
+        return merge(override, defaults, false);
     }
 
-    private <V> Map<String, V> join(Map<String, V> defaults, Map<String, V> overrides, boolean merge)
+    private Collection<String> merge(Collection<String> override, Collection<String> defaults)
     {
-        Map<String, V> merged = new HashMap<>();
+        return merge(override, defaults, Collections.emptyList());
+    }
 
-        if (merge)
+    private int merge(Integer override, Integer defaults)
+    {
+        return merge(override, defaults, 1);
+    }
+
+    private <V> void merge(Map<String, V> overrides, Map<String, V> defaults, Callback<V> callback)
+    {
+        Map<String, V> merged = merge(overrides, defaults, Collections.emptyMap());
+
+        if (merged.isEmpty())
         {
-            merged.putAll(defaults);
+            callback.add();
+        }
+        else
+        {
+            merged.forEach(callback::add);
+        }
+    }
+
+    private <T> T merge(T override, T defaults, T dflt)
+    {
+        if (override != null)
+        {
+            return override;
         }
 
-        merged.putAll(overrides);
+        if (defaults != null)
+        {
+            return defaults;
+        }
 
-        return merged;
+        return dflt;
     }
 
     private void mergeAutoInitialize()
     {
-        repoBuilder.setInitialize(oSettings.autoInitialize() ? true : dSettings.autoInitialize());
+        repoBuilder.setInitialize(merge(ovSettings.autoInitialize(), deSettings.autoInitialize()));
     }
 
     private void mergeBranches()
@@ -157,37 +190,76 @@ public class RepositoryMerger
         String primary = getPrimaryBranch();
         repoBuilder.setPrimaryBranch(primary);
 
-        Collection<String> branches = join(dBranches.getOther(), oBranches.getOther(), true);
+        Collection<String> branches = new ArrayList<>(merge(deBranches.getOther(), ovBranches.getOther()));
+        repoBuilder.addOtherBranches(branches);
 
-        branches.forEach(repoBuilder::addOtherBranch);
         branches.add(primary);
+        branches.forEach(this::mergeProtections);
+    }
 
-        branches.forEach(branch -> {
-            Protection dProtection = dBranches.getProtection(branch);
-            Protection oProtection = oBranches.getProtection(branch);
+    private void mergeProtections(String branch)
+    {
+        Protection deProtection = deBranches.getProtection(branch);
+        Protection ovProtection = ovBranches.getProtection(branch);
 
-            addBranchProtection(branch, new ProtectionDelegate(dProtection, oProtection));
-        });
+        if (ovBranches.hasProtection(branch))
+        {
+            if (ovProtection.isEnabled())
+            {
+                addBranchProtection(branch, ovProtection);
+            }
+        }
+        else if (deBranches.hasProtection(branch))
+        {
+            if (deProtection.isEnabled())
+            {
+                addBranchProtection(branch, deProtection);
+            }
+        }
     }
 
     private void mergeColaborators()
     {
-        Map<String, Permission> users = join(dSettings.getCollaborators(), oSettings.getCollaborators(), true);
-        users.forEach((k, v) -> repoBuilder.addCollaborator(k, v));
+        merge(ovSettings.getCollaborators(), deSettings.getCollaborators(), new Callback<Permission>()
+        {
+            @Override
+            public void add()
+            {
+                repoBuilder.addCollaborators();
+            }
+
+            @Override
+            public void add(String key, Permission value)
+            {
+                repoBuilder.addCollaborator(key, value);
+            }
+        });
     }
 
     private void mergeLabels()
     {
-        Map<String, Color> labels = join(dSettings.getLabels(), oSettings.getLabels(), true);
-        labels.forEach((k, v) -> repoBuilder.addLabel(k, v));
+        merge(ovSettings.getLabels(), deSettings.getLabels(), new Callback<Color>()
+        {
+            @Override
+            public void add()
+            {
+                repoBuilder.addLabels();
+            }
+
+            @Override
+            public void add(String key, Color value)
+            {
+                repoBuilder.addLabel(key, value);
+            }
+        });
     }
 
     private void mergeOrganization() throws IllegalStateException
     {
-        String organization = oRepository.getOrganization();
+        String organization = ovRepository.getOrganization();
         if (organization == null)
         {
-            organization = dRepository.getOrganization();
+            organization = deRepository.getOrganization();
             if (organization == null)
             {
                 throw new IllegalStateException("organization must be specified");
@@ -199,153 +271,50 @@ public class RepositoryMerger
 
     private void mergePlugins()
     {
-        Map<String, String> plugins = join(dRepository.getPlugins(), oRepository.getPlugins(), true);
-        plugins.forEach((k, v) -> repoBuilder.addPlugin(k, v.toString()));
+        Map<String, Object> dePlugins = Optional.ofNullable(deRepository.getPlugins())
+                                                .orElse(Collections.emptyMap());
+
+        Map<String, Object> ovPlugins = Optional.ofNullable(ovRepository.getPlugins())
+                                                .orElse(Collections.emptyMap());
+
+        Map<String, Object> merged = new HashMap<>(dePlugins);
+        merged.putAll(ovPlugins);
+
+        merged.forEach(repoBuilder::addPlugin);
     }
 
     private void mergePrivate()
     {
-        repoBuilder.setPrivate(oSettings.isPrivate() ? true : dSettings.isPrivate());
+        repoBuilder.setPrivate(merge(ovSettings.isPrivate(), deSettings.isPrivate()));
     }
 
     private void mergeTeams()
     {
-        Map<String, Permission> teams = join(dSettings.getTeams(), oSettings.getTeams(), true);
-        teams.forEach((k, v) -> repoBuilder.addTeam(k, v));
+        merge(ovSettings.getTeams(), deSettings.getTeams(), new Callback<Permission>()
+        {
+            @Override
+            public void add()
+            {
+                repoBuilder.addTeams();
+            }
+
+            @Override
+            public void add(String key, Permission value)
+            {
+                repoBuilder.addTeam(key, value);
+            }
+        });
+    }
+
+    private interface Callback<V>
+    {
+        void add();
+
+        void add(String key, V value);
     }
 
     private void mergeWorkflow()
     {
-        Collection<String> workflow = oRepository.getWorkflow();
-        if (workflow == null)
-        {
-            workflow = dRepository.getWorkflow();
-        }
-
-        Optional.ofNullable(workflow)
-                .orElse(Collections.emptyList())
-                .forEach(repoBuilder::addWorkflow);
-    }
-
-    private class ProtectionDelegate
-    {
-        private final Protection dProtection;
-
-        private final RequiredChecks dRequiredChecks;
-
-        private final RequireReviews dRequireReviews;
-
-        private final Protection oProtection;
-
-        private final RequiredChecks oRequiredChecks;
-
-        private final RequireReviews oRequireReviews;
-
-        ProtectionDelegate(Protection dProtection, Protection oProtection)
-        {
-            this.dProtection = dProtection;
-            this.oProtection = oProtection;
-
-            this.dRequireReviews = dProtection.getRequireReviews();
-            this.oRequireReviews = oProtection.getRequireReviews();
-
-            this.dRequiredChecks = dProtection.getRequiredChecks();
-            this.oRequiredChecks = oProtection.getRequiredChecks();
-        }
-
-        boolean enablePushAccess()
-        {
-            boolean override = false;
-
-            if (override)
-            {
-                return false;
-            }
-
-            return oProtection.enablePushAccess() || dProtection.enablePushAccess();
-        }
-
-        boolean enforceForAdminstrators()
-        {
-            return oProtection.getIncludeAdministrators() ? true : dProtection.getIncludeAdministrators();
-        }
-
-        boolean getDismissStaleApprovals()
-        {
-            return oRequireReviews.getDismissStaleApprovals() ? true : dRequireReviews.getDismissStaleApprovals();
-        }
-
-        boolean getRequireCodeOwner()
-        {
-            return oRequireReviews.getRequireCodeOwner() ? true : dRequireReviews.getRequireCodeOwner();
-        }
-
-        Collection<String> getRequiredContexts()
-        {
-            Collection<String> contexts = new ArrayList<>(dRequiredChecks.getContexts());
-            contexts.addAll(oRequiredChecks.getContexts());
-
-            return contexts;
-        }
-
-        int getRequiredReviewers()
-        {
-            int reviewers = oRequireReviews.getRequiredReviewers();
-            return reviewers > 1 ? reviewers : dRequireReviews.getRequiredReviewers();
-        }
-
-        boolean getRequireUpToDate()
-        {
-            return oRequiredChecks.getRequireUpToDate() ? true : dRequiredChecks.getRequireUpToDate();
-        }
-
-        Collection<String> getRetrictDismissalTeams()
-        {
-            return join(dRequireReviews.getDismissalTeams(), oRequireReviews.getDismissalTeams(), true);
-        }
-
-        Collection<String> getRetrictDismissalUsers()
-        {
-            return join(dRequireReviews.getDismissalUsers(), oRequireReviews.getDismissalUsers(), true);
-        }
-
-        Collection<String> getTeamPushAccess()
-        {
-            return join(dProtection.getPushTeams(), oProtection.getPushTeams(), true);
-        }
-
-        Collection<String> getUserPushAccess()
-        {
-            return join(dProtection.getPushUsers(), oProtection.getPushUsers(), true);
-        }
-
-        boolean requireReviews()
-        {
-            boolean override = false;
-
-            if (override)
-            {
-                return false;
-            }
-
-            return oRequireReviews.isEnabled() || dRequireReviews.isEnabled();
-        }
-
-        boolean requireSignedCommits()
-        {
-            return oProtection.getRequireSignedCommits() ? true : dProtection.getRequireSignedCommits();
-        }
-
-        boolean requireStatusChecks()
-        {
-            boolean override = false;
-
-            if (override)
-            {
-                return false;
-            }
-
-            return oRequiredChecks.isEnabled() || dRequiredChecks.isEnabled();
-        }
+        merge(ovRepository.getWorkflow(), deRepository.getWorkflow()).forEach(repoBuilder::addWorkflow);
     }
 }

@@ -1,0 +1,15 @@
+{
+    "name": "grt-test-repository",
+    "organization": "dangernoodle-io",
+    "settings": {
+        "branches": {
+            "protections": {
+                "master": {
+                    "requireReviews": null,
+                    "requiredStatusChecks": null,
+                    "pushAccess": null
+                }
+            }
+        }
+    }
+}

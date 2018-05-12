@@ -1,6 +1,7 @@
 package io.dangernoodle.grt;
 
-import static io.dangernoodle.grt.json.DefaultJsonTransformer.transformer;
+import static io.dangernoodle.grt.json.JsonTransformer.deserialize;
+import static java.util.Optional.ofNullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,83 +10,91 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
+import io.dangernoodle.grt.json.JsonTransformer.JsonArray;
+import io.dangernoodle.grt.json.JsonTransformer.JsonObject;
+import io.dangernoodle.grt.json.JsonTransformer.JsonObject.Deserializer;
 
+
+/**
+ * Represents a repository configuration.
+ * 
+ * @since 0.1.0
+ */
 public class Repository
 {
     public static final String GITHUB = "github";
 
-    private String name;
+    private final JsonObject json;
 
-    private String organization;
+    private final Map<String, Object> plugins;
 
-    private Plugins plugins;
+    private final Settings settings;
 
-    private Settings settings;
+    private Repository(JsonObject json)
+    {
+        this.json = json;
 
-    private Collection<String> workflow;
+        this.plugins = buildPluginMap();
+        this.settings = new Settings(json.getJsonObject("settings"));
+    }
 
     public String getName()
     {
-        return name;
+        return json.getString("name");
     }
 
     public String getOrganization()
     {
-        return organization;
+        return json.getString("organization");
     }
 
-    public Map<String, String> getPlugins()
+    @SuppressWarnings("unchecked")
+    public <T> T getPlugin(String name)
     {
-        return plugins == null ? Collections.emptyMap() : plugins.plugins;
+        return (T) getPlugins().get(name);
+    }
+
+    public Map<String, Object> getPlugins()
+    {
+        return plugins;
     }
 
     public Settings getSettings()
     {
-        return settings == null ? Settings.NULL : settings;
+        return settings;
     }
 
     public Collection<String> getWorkflow()
     {
-        return workflow;
+        return json.getCollection("workflow");
+    }
+
+    private Map<String, Object> buildPluginMap()
+    {
+        return json.getMap("plugins", new Deserializer<Object>()
+        {
+            @Override
+            public Object apply(JsonArray json)
+            {
+                return json;
+            }
+
+            @Override
+            public Object apply(JsonObject json)
+            {
+                return json;
+            }
+        });
     }
 
     public static Repository load(File file) throws IOException
     {
-        return transformer.deserialize(file, Repository.class);
+        return load(deserialize(file));
     }
 
-    private static boolean toSafeBoolean(Boolean bool, boolean dflt)
+    public static Repository load(JsonObject json)
     {
-        return bool == null ? dflt : bool.booleanValue();
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Collection<String> toSafeCollection(Object collection)
-    {
-        return (collection == null) ? Collections.emptySet()
-                : Collections.unmodifiableCollection((Collection<String>) collection);
-    }
-
-    private static int toSafeInteger(Integer integer, int dflt)
-    {
-        return integer == null ? dflt : integer.intValue();
-    }
-
-    private static <T> Map<String, T> toSafeMap(Map<String, T> map)
-    {
-        return map == null ? Collections.emptyMap() : Collections.unmodifiableMap(map);
-    }
-
-    private static String toSafeString(String str, String dflt)
-    {
-        return str == null ? dflt : str;
-    }
-
-    public static class Access
-    {
-        private Collection<String> teams;
-
-        private Collection<String> users;
+        return new Repository(json);
     }
 
     public static class Color
@@ -136,211 +145,288 @@ public class Repository
         write;
     }
 
-    public static class Plugins
-    {
-        private final Map<String, String> plugins;
-
-        public Plugins(Map<String, String> plugins)
-        {
-            this.plugins = plugins;
-        }
-    }
-
     public static class Settings
     {
-        private static final Settings NULL = new Settings();
-
         private Branches branches;
 
-        private Map<String, Permission> collaborators;
+        private final JsonObject json;
 
-        private boolean hidden;
-
-        private boolean initialize;
-
-        private Map<String, Color> labels;
-
-        private Map<String, Permission> teams;
-
-        public boolean autoInitialize()
+        private Settings(JsonObject json)
         {
-            return initialize;
+            this.json = json;
+            this.branches = new Branches(json.getJsonObject("branches"));
+        }
+
+        public Boolean autoInitialize()
+        {
+            return json.getBoolean("initialize");
         }
 
         public Branches getBranches()
         {
-            return branches == null ? Branches.NULL : branches;
+            return branches;
         }
 
         public Map<String, Permission> getCollaborators()
         {
-            return toSafeMap(collaborators);
+            return json.getMap("collaborators", new Deserializer<Permission>()
+            {
+                @Override
+                public Permission apply(String value)
+                {
+                    return Permission.valueOf(value);
+                }
+            });
         }
 
         public Map<String, Color> getLabels()
         {
-            return toSafeMap(labels);
+            return json.getMap("labels", new Deserializer<Color>()
+            {
+                @Override
+                public Color apply(String value)
+                {
+                    return Color.from(value);
+                }
+            });
         }
 
         public Map<String, Permission> getTeams()
         {
-            return toSafeMap(teams);
+            return json.getMap("teams", new Deserializer<Permission>()
+            {
+                @Override
+                public Permission apply(String value)
+                {
+                    return Permission.valueOf(value);
+                }
+            });
         }
 
-        public boolean isPrivate()
+        public Boolean isPrivate()
         {
-            return hidden;
+            return json.getBoolean("hidden");
         }
 
         public static class Branches
         {
-            private static final Branches NULL = new Branches();
+            private final JsonObject json;
 
-            private Collection<String> other;
+            private final Map<String, Protection> protections;
 
-            private String primary;
-
-            private Map<String, Protection> protections;
+            private Branches(JsonObject json)
+            {
+                this.json = json;
+                this.protections = getProtections();
+            }
 
             public String getDefault()
             {
-                return toSafeString(primary, "master");
+                return json.getString("primary");
             }
 
             public Collection<String> getOther()
             {
-                return toSafeCollection(other);
+                return json.getCollection("other");
             }
 
             public Protection getProtection(String branch)
             {
-                return toSafeMap(protections).getOrDefault(branch, Protection.NULL);
+                return protections.getOrDefault(branch, Protection.NULL);
+            }
+
+            public boolean hasProtection(String branch)
+            {
+                return protections.containsKey(branch);
+            }
+
+            private Map<String, Protection> getProtections()
+            {
+                return ofNullable(json.getMap("protections", new Deserializer<Protection>()
+                {
+                    @Override
+                    public Protection apply(JsonObject value)
+                    {
+                        return new Protection(value);
+                    }
+
+                    @Override
+                    public Protection apply(String value)
+                    {
+                        return Protection.NULL;
+                    }
+                })).orElse(Collections.emptyMap());
             }
 
             public static class Protection
             {
-                private static final Protection NULL = new Protection();
+                public static final Protection NULL = new Protection(JsonObject.NULL);
 
-                private Boolean includeAdministrators;
+                private final JsonObject json;
 
-                private Access pushAccess;
+                private final RequiredChecks requiredChecks;
 
-                private RequiredChecks requiredStatusChecks;
+                private final RequireReviews requiredReviews;
+                
+                private final JsonObject pushAccess;
 
-                private RequireReviews requireReviews;
-
-                private Boolean requireSignedCommits;
-
-                public boolean enablePushAccess()
+                private Protection(JsonObject json)
                 {
-                    return pushAccess != null;
+                    this.json = json;
+
+                    this.requiredReviews = new RequireReviews(json.getJsonObject("requireReviews"));
+                    this.requiredChecks = new RequiredChecks(json.getJsonObject("requiredStatusChecks"));
+                    this.pushAccess = json.getJsonObject("pushAccess");
                 }
 
-                public boolean getIncludeAdministrators()
+                public boolean enableRestrictedPushAccess()
                 {
-                    return toSafeBoolean(includeAdministrators, false);
+                    return json.has("pushAccess");
+                }
+
+                public Boolean getIncludeAdministrators()
+                {
+                    return json.getBoolean("includeAdministrators");
                 }
 
                 public Collection<String> getPushTeams()
                 {
-                    return toSafeCollection(enablePushAccess() ? pushAccess.teams : null);
+                    return pushAccess.getCollection("teams");
                 }
 
                 public Collection<String> getPushUsers()
                 {
-                    return toSafeCollection(enablePushAccess() ? pushAccess.users : null);
+                    return pushAccess.getCollection("users");
                 }
 
                 public RequiredChecks getRequiredChecks()
                 {
-                    return requiredStatusChecks == null ? RequiredChecks.NULL : requiredStatusChecks;
+                    return requiredChecks;
                 }
 
                 public RequireReviews getRequireReviews()
                 {
-                    return requireReviews == null ? RequireReviews.NULL : requireReviews;
+                    return requiredReviews;
                 }
 
-                public boolean getRequireSignedCommits()
+                public Boolean getRequireSignedCommits()
                 {
-                    return toSafeBoolean(requireSignedCommits, false);
+                    return json.getBoolean("requireSignedCommits");
+                }
+
+                public boolean hasRequiredChecks()
+                {
+                    return json.has("requiredStatusChecks");
+                }
+
+                public boolean hasRequireReviews()
+                {
+                    return json.has("requireReviews");
                 }
 
                 public boolean isEnabled()
                 {
-                    return this != NULL;
+                    return json.isNotNull();
                 }
 
                 public static class RequiredChecks
                 {
-                    private static final RequiredChecks NULL = new RequiredChecks();
+                    private final JsonObject json;
 
-                    private Collection<String> contexts;
-
-                    private Boolean requireUpToDate;
+                    private RequiredChecks(JsonObject json)
+                    {
+                        this.json = json;
+                    }
 
                     public Collection<String> getContexts()
                     {
-                        return toSafeCollection(contexts);
+                        return json.getCollection("contexts");
                     }
 
-                    public boolean getRequireUpToDate()
+                    public Boolean getRequireUpToDate()
                     {
-                        return toSafeBoolean(requireUpToDate, false);
+                        return json.getBoolean("requireUpToDate");
+                    }
+
+                    public boolean hasContexts()
+                    {
+                        return json.has("contexts");
                     }
 
                     public boolean isEnabled()
                     {
-                        return this != NULL;
+                        return json.isNotNull();
                     }
                 }
 
                 public static class RequireReviews
                 {
-                    private static final RequireReviews NULL = new RequireReviews();
+                    private final JsonObject dismissals;
 
-                    private Boolean dismissStaleApprovals;
+                    private final JsonObject json;
 
-                    private Boolean requireCodeOwner;
-
-                    private Integer requiredReviewers;
-
-                    private Access restrictDismissals;
+                    private RequireReviews(JsonObject json)
+                    {
+                        this.json = json;
+                        this.dismissals = json.getJsonObject("restrictDismissals");
+                    }
 
                     public boolean enableRestrictDismissals()
                     {
-                        return restrictDismissals != null;
+                        return dismissals.isNotNull();
                     }
 
                     public Collection<String> getDismissalTeams()
                     {
-                        return toSafeCollection(enableRestrictDismissals() ? restrictDismissals.teams : null);
+                        return dismissals.getCollection("teams");
                     }
 
                     public Collection<String> getDismissalUsers()
                     {
-                        return toSafeCollection(enableRestrictDismissals() ? restrictDismissals.users : null);
+                        return dismissals.getCollection("users");
                     }
 
-                    public boolean getDismissStaleApprovals()
+                    public Boolean getDismissStaleApprovals()
                     {
-                        return toSafeBoolean(dismissStaleApprovals, false);
+                        return json.getBoolean("dismissStaleApprovals");
                     }
 
-                    public boolean getRequireCodeOwner()
+                    public Boolean getRequireCodeOwner()
                     {
-                        return toSafeBoolean(requireCodeOwner, false);
+                        return json.getBoolean("requireCodeOwner");
                     }
 
-                    public int getRequiredReviewers()
+                    public Integer getRequiredReviewers()
                     {
-                        return toSafeInteger(requiredReviewers, 1);
+                        return json.getInteger("requiredReviewers");
+                    }
+
+                    public boolean hasDismissalTeams()
+                    {
+                        return dismissals.has("teams");
+                    }
+
+                    public boolean hasDismissalUsers()
+                    {
+                        return dismissals.has("users");
                     }
 
                     public boolean isEnabled()
                     {
-                        return this != NULL;
+                        return json.isNotNull();
                     }
+                }
+
+                public boolean hasRestrictedPushTeams()
+                {
+                    // TODO Auto-generated method stub
+                    return false;
+                }
+
+                public boolean hasRestrictedPushUsers()
+                {
+                    // TODO Auto-generated method stub
+                    return false;
                 }
             }
         }

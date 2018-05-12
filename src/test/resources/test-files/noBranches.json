@@ -1,0 +1,7 @@
+{
+    "name": "grt-test-repository",
+    "organization": "dangernoodle-io",
+    "settings": {
+        "initialize": true
+    }
+}
