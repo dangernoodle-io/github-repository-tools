@@ -11,9 +11,9 @@ import io.dangernoodle.grt.FileLoader;
 
 public abstract class CommandLineExecutor
 {
-    protected final Logger logger;
-
     protected final FileLoader loader;
+
+    protected final Logger logger;
 
     public CommandLineExecutor(Arguments arguments)
     {

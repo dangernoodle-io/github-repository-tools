@@ -40,19 +40,19 @@ public class EveritSchemaValidator implements JsonSchemaValidator
         }
     }
 
-    private void logViolations(ValidationException exception)
-    {
-        logger.error("{}", exception.getMessage());
-        exception.getCausingExceptions()
-                 .stream()
-                 .forEach(this::logViolations);
-    }
-
     private JSONObject loadJson(InputStreamSupplier supplier) throws IOException
     {
         try (InputStream inputStream = supplier.get())
         {
             return new JSONObject(new JSONTokener(inputStream));
         }
+    }
+
+    private void logViolations(ValidationException exception)
+    {
+        logger.error("{}", exception.getMessage());
+        exception.getCausingExceptions()
+                 .stream()
+                 .forEach(this::logViolations);
     }
 }

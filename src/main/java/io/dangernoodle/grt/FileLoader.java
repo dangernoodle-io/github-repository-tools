@@ -29,17 +29,17 @@ public class FileLoader
         return findFile(root, 1, "credentials");
     }
 
-    public File loadRepositoryDefaults() throws IOException
-    {
-        // depth = 1 for the configuration file, it should be at top level of root directory
-        return findFile(root, 1, "github-repository-tools");
-    }
-
     public File loadRepository(String name) throws IOException
     {
         // depth = 10 is somewhat arbitrary - can be increased if there is ever a need
         // automatically swap '.' for '-' in the repository name
         return findFile(repoDir, 10, name.replace('.', '-'));
+    }
+
+    public File loadRepositoryDefaults() throws IOException
+    {
+        // depth = 1 for the configuration file, it should be at top level of root directory
+        return findFile(root, 1, "github-repository-tools");
     }
 
     private File findFile(String root, int depth, String name) throws IOException

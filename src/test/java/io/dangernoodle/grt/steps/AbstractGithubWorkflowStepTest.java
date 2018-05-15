@@ -27,9 +27,9 @@ public abstract class AbstractGithubWorkflowStepTest
 
     protected RepositoryBuilder repoBuilder;
 
-    private GithubWorkflow.Step step;
-
     protected Repository repository;
+
+    private GithubWorkflow.Step step;
     
     @BeforeEach
     @SuppressWarnings("unused")

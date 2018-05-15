@@ -14,10 +14,10 @@ import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.cli.CommandLineParser;
 import io.dangernoodle.grt.cli.CommandLineParser.Command;
-import io.dangernoodle.grt.extensions.DefaultStatusCheckFactory;
-import io.dangernoodle.grt.extensions.StatusCheckFactory;
 import io.dangernoodle.grt.cli.RepositoryCommand;
 import io.dangernoodle.grt.cli.ValidateCommand;
+import io.dangernoodle.grt.extensions.DefaultStatusCheckFactory;
+import io.dangernoodle.grt.extensions.StatusCheckFactory;
 import io.dangernoodle.grt.json.JsonSchemaValidator;
 
 

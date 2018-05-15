@@ -40,11 +40,6 @@ public class GithubClient
         this.orgTeams = createMap();
     }
 
-    public String getCurrentLogin() throws IOException
-    {
-        return github.getMyself().getLogin();
-    }
-
     public GHRepository createRepository(String name, Settings settings) throws IOException
     {
         return createRepository(name, settings, github.createRepository(name));
@@ -53,6 +48,11 @@ public class GithubClient
     public GHRepository createRepository(String name, String organization, Settings settings) throws IOException
     {
         return createRepository(name, settings, getOrganization(organization).createRepository(name));
+    }
+
+    public String getCurrentLogin() throws IOException
+    {
+        return github.getMyself().getLogin();
     }
 
     public GHMyself getMyself() throws IOException

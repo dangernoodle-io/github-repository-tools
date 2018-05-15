@@ -152,19 +152,6 @@ public class RepositoryMerger
         repoBuilder.setInitialize(oSettings.autoInitialize() ? true : dSettings.autoInitialize());
     }
 
-    private void mergeWorkflow()
-    {
-        Collection<String> workflow = oRepository.getWorkflow();
-        if (workflow == null)
-        {
-            workflow = dRepository.getWorkflow();
-        }
-
-        Optional.ofNullable(workflow)
-                .orElse(Collections.emptyList())
-                .forEach(repoBuilder::addWorkflow);
-    }
-
     private void mergeBranches()
     {
         String primary = getPrimaryBranch();
@@ -225,6 +212,19 @@ public class RepositoryMerger
     {
         Map<String, Permission> teams = join(dSettings.getTeams(), oSettings.getTeams(), true);
         teams.forEach((k, v) -> repoBuilder.addTeam(k, v));
+    }
+
+    private void mergeWorkflow()
+    {
+        Collection<String> workflow = oRepository.getWorkflow();
+        if (workflow == null)
+        {
+            workflow = dRepository.getWorkflow();
+        }
+
+        Optional.ofNullable(workflow)
+                .orElse(Collections.emptyList())
+                .forEach(repoBuilder::addWorkflow);
     }
 
     private class ProtectionDelegate

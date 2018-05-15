@@ -5,8 +5,8 @@ import org.jboss.weld.environment.se.WeldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.dangernoodle.grt.cli.CommandLineParser;
 import io.dangernoodle.grt.cli.CommandLineExecutor;
+import io.dangernoodle.grt.cli.CommandLineParser;
 
 
 public class GithubRepositoryTools

@@ -15,16 +15,15 @@ import io.dangernoodle.grt.Repository.Settings.Branches;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequireReviews;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequiredChecks;
-import io.dangernoodle.grt.internal.RepositoryBuilder;
 
 
 public class RepositoryBuilderTest
 {
-    private Repository expected;
-
     private Repository actual;
 
     private RepositoryBuilder builder;
+
+    private Repository expected;
 
     @BeforeEach
     public void before()
@@ -38,6 +37,38 @@ public class RepositoryBuilderTest
         givenARepository();
         whenSerializeJson();
         thenRepositoriesMatch();
+    }
+
+    private void givenARepository()
+    {
+        expected = TestFiles.mockRepository.parseIntoObject(Repository.class);
+
+        builder.setName("grt-test-repository")
+               .setOrganization("dangernoodle-io")
+               .setInitialize(true)
+               .setPrivate(true)
+               .addLabel("label", Color.from("#00000"))
+               .addTeam("read", Permission.read)
+               .addTeam("write", Permission.write)
+               .addTeam("admin", Permission.admin)
+               .addCollaborator("user", Permission.read)
+               .setPrimaryBranch("master")
+               .addOtherBranch("other")
+               .requireSignedCommits("master", true)
+               .enforceForAdminstrators("master", true)
+               .requireReviews("master")
+               .requiredReviewers("master", 2)
+               .dismissStaleApprovals("master", true)
+               .requireCodeOwnerReview("master", true)
+               .addTeamReviewDismisser("master", "write")
+               .addUserReviewDismisser("master", "user")
+               .requireBranchUpToDate("master", true)
+               .addRequiredContext("master", "grt-test-repository")
+               .restrictPushAccess("master")
+               .addTeamPushAccess("master", "write")
+               .addUserPushAccess("master", "user")
+               .addPlugin("jenkins", "[{\"container\": \"maven\"}]")
+               .addWorkflow("jenkins");
     }
 
     private void thenRepositoriesMatch()
@@ -89,38 +120,6 @@ public class RepositoryBuilderTest
         assertThat(aProtection.enablePushAccess(), equalTo(eProtection.enablePushAccess()));
         assertThat(aProtection.getPushTeams().containsAll(eProtection.getPushTeams()), equalTo(true));
         assertThat(aProtection.getPushUsers().containsAll(eProtection.getPushUsers()), equalTo(true));
-    }
-
-    private void givenARepository()
-    {
-        expected = TestFiles.mockRepository.parseIntoObject(Repository.class);
-
-        builder.setName("grt-test-repository")
-               .setOrganization("dangernoodle-io")
-               .setInitialize(true)
-               .setPrivate(true)
-               .addLabel("label", Color.from("#00000"))
-               .addTeam("read", Permission.read)
-               .addTeam("write", Permission.write)
-               .addTeam("admin", Permission.admin)
-               .addCollaborator("user", Permission.read)
-               .setPrimaryBranch("master")
-               .addOtherBranch("other")
-               .requireSignedCommits("master", true)
-               .enforceForAdminstrators("master", true)
-               .requireReviews("master")
-               .requiredReviewers("master", 2)
-               .dismissStaleApprovals("master", true)
-               .requireCodeOwnerReview("master", true)
-               .addTeamReviewDismisser("master", "write")
-               .addUserReviewDismisser("master", "user")
-               .requireBranchUpToDate("master", true)
-               .addRequiredContext("master", "grt-test-repository")
-               .restrictPushAccess("master")
-               .addTeamPushAccess("master", "write")
-               .addUserPushAccess("master", "user")
-               .addPlugin("jenkins", "[{\"container\": \"maven\"}]")
-               .addWorkflow("jenkins");
     }
 
     private void whenSerializeJson()
