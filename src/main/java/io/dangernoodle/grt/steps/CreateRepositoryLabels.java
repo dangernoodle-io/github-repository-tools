@@ -9,7 +9,7 @@ import org.kohsuke.github.GHRepository;
 
 import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
-import io.dangernoodle.grt.Repository.Color;
+import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.internal.GithubWorkflow;
 

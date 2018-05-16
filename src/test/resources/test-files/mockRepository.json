@@ -28,7 +28,7 @@
                         "requireCodeOwner": true,
                         "restrictDismissals": {
                             "teams": [
-                                "write"
+                                "team"
                             ],
                             "users": [
                                 "user"
@@ -43,7 +43,7 @@
                     },
                     "pushAccess": {
                         "teams": [
-                            "write"
+                            "team"
                         ],
                         "users": [
                             "user"

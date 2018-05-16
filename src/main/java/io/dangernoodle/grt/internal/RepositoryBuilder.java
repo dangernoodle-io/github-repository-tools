@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.dangernoodle.grt.Repository;
-import io.dangernoodle.grt.Repository.Color;
-import io.dangernoodle.grt.Repository.Permission;
+import io.dangernoodle.grt.Repository.Settings.Color;
+import io.dangernoodle.grt.Repository.Settings.Permission;
 import io.dangernoodle.grt.json.JsonTransformer;
 import io.dangernoodle.grt.json.JsonTransformer.JsonObject;
 
@@ -135,6 +135,12 @@ public class RepositoryBuilder
         return Repository.load(json);
     }
 
+    public RepositoryBuilder disableBranchProtection(String branch)
+    {
+        computeMapIfAbsent("protections", branches()).put(branch, JsonTransformer.NULL);
+        return this;
+    }
+
     public RepositoryBuilder dismissStaleApprovals(String branch, boolean bool)
     {
         reviews(branch).put("dismissStaleApprovals", bool);
@@ -144,12 +150,6 @@ public class RepositoryBuilder
     public RepositoryBuilder enableBranchProtection(String branch)
     {
         protections(branch);
-        return this;
-    }
-
-    public RepositoryBuilder disableBranchProtection(String branch)
-    {
-        computeMapIfAbsent("protections", branches()).put(branch, JsonTransformer.NULL);
         return this;
     }
 

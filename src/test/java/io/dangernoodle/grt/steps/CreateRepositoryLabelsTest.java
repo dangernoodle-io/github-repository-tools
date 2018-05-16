@@ -15,7 +15,7 @@ import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.PagedIterable;
 import org.mockito.Mock;
 
-import io.dangernoodle.grt.Repository.Color;
+import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.internal.GithubWorkflow;
 
 

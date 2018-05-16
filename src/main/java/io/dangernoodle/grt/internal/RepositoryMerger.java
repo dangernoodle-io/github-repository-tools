@@ -8,13 +8,14 @@ import java.util.Map;
 import java.util.Optional;
 
 import io.dangernoodle.grt.Repository;
-import io.dangernoodle.grt.Repository.Color;
-import io.dangernoodle.grt.Repository.Permission;
 import io.dangernoodle.grt.Repository.Settings;
+import io.dangernoodle.grt.Repository.Settings.AccessRestrictions;
 import io.dangernoodle.grt.Repository.Settings.Branches;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequireReviews;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequiredChecks;
+import io.dangernoodle.grt.Repository.Settings.Color;
+import io.dangernoodle.grt.Repository.Settings.Permission;
 
 
 public class RepositoryMerger
@@ -79,15 +80,9 @@ public class RepositoryMerger
             addRequireChecks(branch, protection.getRequiredChecks());
         }
 
-        if (protection.enableRestrictedPushAccess())
+        if (protection.hasRestrictedPushAccess())
         {
-            repoBuilder.restrictPushAccess(branch);
-
-            protection.getPushTeams()
-                      .forEach(team -> repoBuilder.addTeamPushAccess(branch, team));
-
-            protection.getPushUsers()
-                      .forEach(user -> repoBuilder.addUserPushAccess(branch, user));
+            addRestrictedPushAccess(branch, protection);
         }
     }
 
@@ -108,16 +103,38 @@ public class RepositoryMerger
                    .dismissStaleApprovals(branch, merge(requireReviews.getDismissStaleApprovals(), false))
                    .requireCodeOwnerReview(branch, merge(requireReviews.getRequireCodeOwner(), false));
 
-        if (requireReviews.hasDismissalTeams())
+        if (requireReviews.hasDismissalRestrictions())
         {
-            requireReviews.getDismissalTeams()
-                          .forEach(team -> repoBuilder.addTeamReviewDismisser(branch, team));
+            AccessRestrictions restrictions = requireReviews.getDismissalRestrictions();
+            if (restrictions.hasTeams())
+            {
+                restrictions.getTeams()
+                            .forEach(team -> repoBuilder.addTeamReviewDismisser(branch, team));
+            }
+
+            if (restrictions.hasUsers())
+            {
+                restrictions.getUsers()
+                            .forEach(user -> repoBuilder.addUserReviewDismisser(branch, user));
+            }
+        }
+    }
+
+    private void addRestrictedPushAccess(String branch, Protection protection)
+    {
+        repoBuilder.restrictPushAccess(branch);
+
+        AccessRestrictions restrictions = protection.getPushAccess();
+        if (restrictions.hasTeams())
+        {
+            restrictions.getTeams()
+                        .forEach(team -> repoBuilder.addTeamPushAccess(branch, team));
         }
 
-        if (requireReviews.hasDismissalUsers())
+        if (restrictions.hasUsers())
         {
-            requireReviews.getDismissalUsers()
-                          .forEach(user -> repoBuilder.addUserReviewDismisser(branch, user));
+            restrictions.getUsers()
+                        .forEach(user -> repoBuilder.addUserPushAccess(branch, user));
         }
     }
 
@@ -197,27 +214,6 @@ public class RepositoryMerger
         branches.forEach(this::mergeProtections);
     }
 
-    private void mergeProtections(String branch)
-    {
-        Protection deProtection = deBranches.getProtection(branch);
-        Protection ovProtection = ovBranches.getProtection(branch);
-
-        if (ovBranches.hasProtection(branch))
-        {
-            if (ovProtection.isEnabled())
-            {
-                addBranchProtection(branch, ovProtection);
-            }
-        }
-        else if (deBranches.hasProtection(branch))
-        {
-            if (deProtection.isEnabled())
-            {
-                addBranchProtection(branch, deProtection);
-            }
-        }
-    }
-
     private void mergeColaborators()
     {
         merge(ovSettings.getCollaborators(), deSettings.getCollaborators(), new Callback<Permission>()
@@ -288,6 +284,27 @@ public class RepositoryMerger
         repoBuilder.setPrivate(merge(ovSettings.isPrivate(), deSettings.isPrivate()));
     }
 
+    private void mergeProtections(String branch)
+    {
+        Protection deProtection = deBranches.getProtection(branch);
+        Protection ovProtection = ovBranches.getProtection(branch);
+
+        if (ovBranches.hasProtection(branch))
+        {
+            if (ovProtection.isEnabled())
+            {
+                addBranchProtection(branch, ovProtection);
+            }
+        }
+        else if (deBranches.hasProtection(branch))
+        {
+            if (deProtection.isEnabled())
+            {
+                addBranchProtection(branch, deProtection);
+            }
+        }
+    }
+
     private void mergeTeams()
     {
         merge(ovSettings.getTeams(), deSettings.getTeams(), new Callback<Permission>()
@@ -306,15 +323,15 @@ public class RepositoryMerger
         });
     }
 
+    private void mergeWorkflow()
+    {
+        merge(ovRepository.getWorkflow(), deRepository.getWorkflow()).forEach(repoBuilder::addWorkflow);
+    }
+
     private interface Callback<V>
     {
         void add();
 
         void add(String key, V value);
-    }
-
-    private void mergeWorkflow()
-    {
-        merge(ovRepository.getWorkflow(), deRepository.getWorkflow()).forEach(repoBuilder::addWorkflow);
     }
 }

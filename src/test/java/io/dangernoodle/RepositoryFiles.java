@@ -8,7 +8,7 @@ import java.util.Scanner;
 import java.util.function.Function;
 
 
-public enum TestFiles
+public enum RepositoryFiles
 {
     branchProtectionOnly,
     credentials,
@@ -28,7 +28,7 @@ public enum TestFiles
 
     public final String jsonFile;
 
-    private TestFiles()
+    private RepositoryFiles()
     {
         this.jsonFile = this.toString();
     }

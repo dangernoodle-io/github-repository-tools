@@ -1,25 +1,36 @@
 package io.dangernoodle.grt.internal;
 
-import static io.dangernoodle.TestAsserts.verifyBranchProtectionEnabledOnly;
-import static io.dangernoodle.TestAsserts.verifyBranchProtectionIsDisabled;
-import static io.dangernoodle.TestAsserts.verifyBranchProtectionsAreAllEnabled;
-import static io.dangernoodle.TestAsserts.verifyCollaborators;
-import static io.dangernoodle.TestAsserts.verifyCollaboratorsAreEmpty;
-import static io.dangernoodle.TestAsserts.verifyEnforeForAdministratorsDisabled;
-import static io.dangernoodle.TestAsserts.verifyLabels;
-import static io.dangernoodle.TestAsserts.verifyLabelsAreEmpty;
-import static io.dangernoodle.TestAsserts.verifyNoStatusChecksAreRequired;
-import static io.dangernoodle.TestAsserts.verifyOrganization;
-import static io.dangernoodle.TestAsserts.verifyPrimaryBranch;
-import static io.dangernoodle.TestAsserts.verifyPushAccessIsUnrestricted;
-import static io.dangernoodle.TestAsserts.verifyRepositoryInitialized;
-import static io.dangernoodle.TestAsserts.verifyRepositoryNotInitialized;
-import static io.dangernoodle.TestAsserts.verifyRequireReviewsDisabled;
-import static io.dangernoodle.TestAsserts.verifyRequireSignedCommitsDisabled;
-import static io.dangernoodle.TestAsserts.verifyRequireUpToDateEnabled;
-import static io.dangernoodle.TestAsserts.verifyRequiredStatusChecksDisabled;
-import static io.dangernoodle.TestAsserts.verifyTeams;
-import static io.dangernoodle.TestAsserts.verifyTeamsAreEmpty;
+import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionDisabled;
+import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyCollaborators;
+import static io.dangernoodle.RepositoryAsserts.verifyCollaboratorsAreEmpty;
+import static io.dangernoodle.RepositoryAsserts.verifyEnforeForAdministratorsDisabled;
+import static io.dangernoodle.RepositoryAsserts.verifyEnforeForAdministratorsEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyLabels;
+import static io.dangernoodle.RepositoryAsserts.verifyLabelsAreEmpty;
+import static io.dangernoodle.RepositoryAsserts.verifyOrganization;
+import static io.dangernoodle.RepositoryAsserts.verifyPrimaryBranch;
+import static io.dangernoodle.RepositoryAsserts.verifyPushAccessRestricted;
+import static io.dangernoodle.RepositoryAsserts.verifyPushAccessTeams;
+import static io.dangernoodle.RepositoryAsserts.verifyPushAccessUnrestricted;
+import static io.dangernoodle.RepositoryAsserts.verifyPushAccessUsers;
+import static io.dangernoodle.RepositoryAsserts.verifyRepositoryInitialized;
+import static io.dangernoodle.RepositoryAsserts.verifyRepositoryNotInitialized;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsDisabled;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsDismissStaleApprovalsEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsDismissalRestrictionsEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsDismissalUsers;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsRequireCodeOwnerEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsRequiredReviewers;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireReviwsDismissalTeams;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireSignedCommitsDisabled;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireSignedCommitsEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyRequiredChecksContextsEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyRequiredChecksRequireUpToDateEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyRequiredStatusChecksDisabled;
+import static io.dangernoodle.RepositoryAsserts.verifyTeams;
+import static io.dangernoodle.RepositoryAsserts.verifyTeamsAreEmpty;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -32,8 +43,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.dangernoodle.grt.Repository;
-import io.dangernoodle.grt.Repository.Color;
-import io.dangernoodle.grt.Repository.Permission;
+import io.dangernoodle.grt.Repository.Settings.Color;
+import io.dangernoodle.grt.Repository.Settings.Permission;
 import io.dangernoodle.grt.json.JsonTransformer;
 import io.dangernoodle.grt.json.JsonTransformer.JsonObject;
 
@@ -308,7 +319,7 @@ public class RepositoryMergerTest
         thenTeamsAreEmpty();
         thenCollaboratorsAreEmpty();
         thenPrimaryBranchIsCorrect();
-        thenBranchProtectionDefaultsAreCorrect();
+        thenBranchProtectionIsNotEnabled();
     }
 
     @Test
@@ -565,28 +576,39 @@ public class RepositoryMergerTest
 
     private void thenBranchProtectionDefaultRequireUpToDateOnly()
     {
-        verifyRequireUpToDateEnabled(repository, "master");
-        verifyNoStatusChecksAreRequired(repository, "master");
-    }
+        verifyRequiredChecksRequireUpToDateEnabled(repository, "master");
+        verifyRequiredStatusChecksDisabled(repository, "master");
 
-    private void thenBranchProtectionDefaultsAreCorrect()
-    {
-        verifyBranchProtectionIsDisabled(repository, "master");
+        verifyRequireReviewsDisabled(repository, "master");
+        verifyPushAccessUnrestricted(repository, "master");
     }
 
     private void thenBranchProtectionIsNotEnabled()
     {
-        verifyBranchProtectionIsDisabled(repository, "master");
+        verifyBranchProtectionDisabled(repository, "master");
     }
 
     private void thenBranchProtectionOnlyIsEnabled(Repository repository)
     {
-        verifyBranchProtectionEnabledOnly(repository, "master");
+        verifyBranchProtectionEnabled(repository, "master");
     }
 
     private void thenBranchProtectionsAreEnabled(Repository expected)
     {
-        verifyBranchProtectionsAreAllEnabled(repository, expected, "master");
+        verifyRequireSignedCommitsEnabled(repository, "master");
+        verifyEnforeForAdministratorsEnabled(repository, "master");
+        verifyRequireReviewsEnabled(repository, "master");
+        verifyRequireReviewsDismissStaleApprovalsEnabled(repository, "master");
+        verifyRequireReviewsRequiredReviewers(repository, "master", 2);
+        verifyRequireReviewsRequireCodeOwnerEnabled(repository, "master");
+        verifyRequireReviewsDismissalRestrictionsEnabled(repository, "master");
+        verifyRequireReviwsDismissalTeams(repository, "master", expected);
+        verifyRequireReviewsDismissalUsers(repository, "master", expected);
+        verifyRequiredChecksRequireUpToDateEnabled(repository, "master");
+        verifyRequiredChecksContextsEnabled(repository, "master", expected);
+        verifyPushAccessRestricted(repository, "master");
+        verifyPushAccessTeams(repository, "master", expected);
+        verifyPushAccessUsers(repository, "master", expected);
     }
 
     private void thenCollaboratorsAreEmpty()
@@ -638,7 +660,7 @@ public class RepositoryMergerTest
 
     private void thenLabelsAreReturned(Repository expected)
     {
-        verifyLabels(repository.getSettings().getLabels(), expected.getSettings().getLabels());
+        verifyLabels(repository, expected);
     }
 
     private void thenOrganizationDefaultIsReturned()
@@ -655,7 +677,7 @@ public class RepositoryMergerTest
     {
         verifyRequireReviewsDisabled(repository, "master");
         verifyRequiredStatusChecksDisabled(repository, "master");
-        verifyPushAccessIsUnrestricted(repository, "master");
+        verifyPushAccessUnrestricted(repository, "master");
     }
 
     private void thenOverridePluginsReturned()

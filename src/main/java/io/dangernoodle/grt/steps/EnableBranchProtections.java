@@ -10,6 +10,7 @@ import org.kohsuke.github.GHRepository;
 
 import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
+import io.dangernoodle.grt.Repository.Settings.AccessRestrictions;
 import io.dangernoodle.grt.Repository.Settings.Branches;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequireReviews;
@@ -117,7 +118,7 @@ public class EnableBranchProtections extends GithubWorkflow.Step
     private void restrictPushAccess(String branch, GHBranchProtectionBuilder builder, Protection protection, String organization)
         throws IOException
     {
-        if (!protection.enableRestrictedPushAccess())
+        if (!protection.hasRestrictedPushAccess())
         {
             logger.info("push access is not restricted for branch [{}]", branch);
             return;
@@ -126,16 +127,24 @@ public class EnableBranchProtections extends GithubWorkflow.Step
         logger.info("restricting push access fpr branch [{}}", branch);
         builder.restrictPushAccess();
 
-        for (String team : protection.getPushTeams())
+        AccessRestrictions pushAccess = protection.getPushAccess();
+
+        if (pushAccess.hasTeams())
         {
-            logger.info("enabling push access on branch [{}] for team [{}]", branch, team);
-            builder.teamPushAccess(client.getTeam(organization, team));
+            for (String team : pushAccess.getTeams())
+            {
+                logger.info("enabling push access on branch [{}] for team [{}]", branch, team);
+                builder.teamPushAccess(client.getTeam(organization, team));
+            }
         }
 
-        for (String user : protection.getPushUsers())
+        if (pushAccess.hasUsers())
         {
-            logger.info("enabling push access on branch [{}] for user [{}]", branch, user);
-            builder.userPushAccess(client.getUser(user));
+            for (String user : pushAccess.getUsers())
+            {
+                logger.info("enabling push access on branch [{}] for user [{}]", branch, user);
+                builder.userPushAccess(client.getUser(user));
+            }
         }
     }
 }

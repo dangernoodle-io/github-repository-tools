@@ -5,7 +5,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 import org.junit.jupiter.api.Test;
 
-import io.dangernoodle.grt.Repository.Color;
+import io.dangernoodle.grt.Repository.Settings.Color;
 
 public class MiscellaneousTests
 {

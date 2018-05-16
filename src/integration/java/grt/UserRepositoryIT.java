@@ -22,7 +22,7 @@ import org.kohsuke.github.GitHubBuilder;
 
 import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
-import io.dangernoodle.grt.Repository.Color;
+import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.extensions.DefaultStatusCheckFactory;
 import io.dangernoodle.grt.internal.GithubWorkflow;
