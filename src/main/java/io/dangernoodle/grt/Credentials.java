@@ -2,11 +2,7 @@ package io.dangernoodle.grt;
 
 import static io.dangernoodle.grt.Repository.GITHUB;
 
-import java.io.File;
-import java.io.IOException;
-
-import io.dangernoodle.grt.json.JsonTransformer;
-import io.dangernoodle.grt.json.JsonTransformer.JsonObject;
+import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
 
 
 public class Credentials
@@ -15,7 +11,7 @@ public class Credentials
 
     private final JsonObject json;
 
-    private Credentials(JsonObject json)
+    public Credentials(JsonObject json)
     {
         this.json = json;
     }
@@ -39,11 +35,5 @@ public class Credentials
         }
 
         return token;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Credentials load(File file) throws IOException
-    {
-        return new Credentials(JsonTransformer.deserialize(file));
     }
 }

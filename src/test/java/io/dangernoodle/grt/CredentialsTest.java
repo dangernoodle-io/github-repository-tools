@@ -4,7 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
@@ -16,7 +15,7 @@ public class CredentialsTest
 {
     private Credentials credentials;
 
-    private File file;
+    private RepositoryFiles file;
 
     @Test
     public void testLoadCredentials() throws Exception
@@ -29,7 +28,7 @@ public class CredentialsTest
 
     private void givenACredentialsFile()
     {
-        file = RepositoryFiles.credentials.getFile();
+        file = RepositoryFiles.credentials;
     }
 
     private void theCredentialsAreLoaded()
@@ -41,9 +40,9 @@ public class CredentialsTest
     {
         assertThat(credentials.getGithubToken(), equalTo("oauth-token"));
     }
-    
+
     private void whenLoadCredentials() throws IOException
     {
-        credentials = Credentials.load(file);
+        credentials = new Credentials(file.toJsonObject());
     }
 }

@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.internal;
+package io.dangernoodle.grt.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,7 +34,7 @@ public class RepositoryMerger
 
     private final RepositoryBuilder repoBuilder;
 
-    public RepositoryMerger(Repository defaults, Repository overrides)
+    public RepositoryMerger(Repository defaults, Repository overrides, RepositoryBuilder builder)
     {
         this.deRepository = defaults;
         this.ovRepository = overrides;
@@ -45,11 +45,12 @@ public class RepositoryMerger
         this.deBranches = deSettings.getBranches();
         this.ovBranches = ovSettings.getBranches();
 
-        this.repoBuilder = new RepositoryBuilder();
+        this.repoBuilder = builder;
     }
 
     public Repository merge() throws IllegalStateException
     {
+        // there can be only one
         repoBuilder.setName(ovRepository.getName());
 
         mergeOrganization();

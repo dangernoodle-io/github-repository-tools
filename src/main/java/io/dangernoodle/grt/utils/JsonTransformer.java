@@ -1,10 +1,8 @@
-package io.dangernoodle.grt.json;
+package io.dangernoodle.grt.utils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
@@ -18,51 +16,62 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.ValidationException;
+import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
-public final class JsonTransformer
+public class JsonTransformer
 {
     public static final Object NULL = JSONObject.NULL;
 
-    public static JsonObject deserialize(File file) throws FileNotFoundException
+    public static final String SCHEMA = "/repository-schema.json";
+
+    private static final Logger logger = LoggerFactory.getLogger(JsonTransformer.class);
+
+    private final Schema schema;
+
+    public JsonTransformer()
+    {
+        this.schema = loadSchema();
+    }
+
+    public JsonObject deserialize(File file) throws IOException
     {
         return deserialize(new FileReader(file));
     }
 
-    public static JsonObject deserialize(InputStream inputStream)
-    {
-        return deserialize(new InputStreamReader(inputStream));
-    }
-
-    public static JsonObject deserialize(Reader reader)
-    {
-        return loadJson(() -> reader);
-    }
-
-    public static JsonObject deserialize(String json)
+    public JsonObject deserialize(String json)
     {
         return deserialize(new StringReader(json));
     }
 
-    public static String prettyPrint(String json)
+    public String prettyPrint(String json)
     {
         return new JSONObject(json).toString(4);
     }
 
-    public static JsonObject serialize(Map<?, ?> object)
+    public JsonObject serialize(Map<?, ?> object)
     {
         return new JsonObject(new JSONObject(adjustPlugins(object)));
     }
 
-    public static String serialize(Object object)
+    public JsonObject serialize(Object object) 
     {
-        return new JSONObject(object).toString();
+        return new JsonObject(new JSONObject(object));
     }
 
-    private static Map<?, ?> adjustPlugins(Map<?, ?> object)
+    public JsonObject validate(File file) throws IOException
+    {
+        return validate(deserialize(file));
+    }
+
+    private Map<?, ?> adjustPlugins(Map<?, ?> object)
     {
         // pull out the JSONObject/Array objects being wrapped and insert back into map for proper serialization
         if (object.containsKey("plugins"))
@@ -86,17 +95,49 @@ public final class JsonTransformer
 
         return object;
     }
+    
+    private JsonObject deserialize(Reader reader)
+    {
+        return new JsonObject(loadJson(() -> reader));
+    }
 
-    private static JsonObject loadJson(Supplier<Reader> supplier)
+    private JSONObject loadJson(Supplier<Reader> supplier)
     {
         try (Reader reader = supplier.get())
         {
-            return new JsonObject(new JSONObject(new JSONTokener(reader)));
+            return new JSONObject(new JSONTokener(reader));
         }
         catch (IOException e)
         {
             // this 'catch' is for the auto close
             throw new UncheckedIOException(e);
+        }
+    }
+
+    private Schema loadSchema()
+    {
+        return SchemaLoader.load(loadJson(() -> new InputStreamReader(getClass().getResourceAsStream(SCHEMA))));
+    }
+
+    private void logViolations(ValidationException exception)
+    {
+        logger.error("{}", exception.getMessage());
+        exception.getCausingExceptions()
+                 .stream()
+                 .forEach(this::logViolations);
+    }
+
+    private JsonObject validate(JsonObject object) throws JsonValidationException
+    {
+        try
+        {
+            schema.validate(object.json);
+            return object;
+        }
+        catch (ValidationException e)
+        {
+            logViolations(e);
+            throw new JsonValidationException(e);
         }
     }
 
@@ -115,7 +156,7 @@ public final class JsonTransformer
         {
             this((JSONArray) json);
         }
-
+        
         public boolean isNotNull()
         {
             return this != NULL;
@@ -125,6 +166,12 @@ public final class JsonTransformer
         public Iterator<Object> iterator()
         {
             return new Itr(json.iterator());
+        }
+
+        @Override
+        public String toString()
+        {
+            return json.toString();
         }
 
         private class Itr implements Iterator<Object>
@@ -188,7 +235,7 @@ public final class JsonTransformer
         {
             return convert(key, () -> Integer.valueOf(json.getInt(key)));
         }
-
+        
         public JsonObject getJsonObject(String key)
         {
             return Optional.ofNullable(json.optJSONObject(key))
@@ -245,6 +292,12 @@ public final class JsonTransformer
         public String prettyPrint()
         {
             return json.toString(4);
+        }
+
+        @Override
+        public String toString()
+        {
+            return json.toString();
         }
 
         private <T> T convert(String key, Supplier<T> supplier)

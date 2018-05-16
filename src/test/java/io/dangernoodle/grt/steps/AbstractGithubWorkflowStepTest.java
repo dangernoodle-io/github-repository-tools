@@ -11,14 +11,13 @@ import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.internal.GithubWorkflow;
-import io.dangernoodle.grt.internal.RepositoryBuilder;
-import io.dangernoodle.grt.internal.RepositoryMerger;
+import io.dangernoodle.grt.utils.JsonTransformer;
+import io.dangernoodle.grt.utils.RepositoryBuilder;
+import io.dangernoodle.grt.utils.RepositoryMerger;
 
 
 public abstract class AbstractGithubWorkflowStepTest
 {
-    private static final Repository defaults = new RepositoryBuilder().build();
-
     @Mock
     protected GithubClient mockClient;
 
@@ -32,6 +31,8 @@ public abstract class AbstractGithubWorkflowStepTest
 
     protected Repository repository;
 
+    private Repository defaults;
+
     private GithubWorkflow.Step step;
 
     @BeforeEach
@@ -40,7 +41,9 @@ public abstract class AbstractGithubWorkflowStepTest
     {
         MockitoAnnotations.initMocks(this);
 
-        repoBuilder = new RepositoryBuilder();
+        repoBuilder = createBuilder();
+        defaults = repoBuilder.build();
+        
         repoBuilder.setName("repository")
                    .setOrganization("org");
 
@@ -52,7 +55,12 @@ public abstract class AbstractGithubWorkflowStepTest
     protected final void whenExecuteStep() throws IOException
     {
         // the steps will always be invoked w/ a merged repo - duplicated here to prevent NPEs
-        repository = new RepositoryMerger(defaults, repoBuilder.build()).merge();
+        repository = new RepositoryMerger(defaults, repoBuilder.build(), createBuilder()).merge();
         step.execute(repository, mockContext);
+    }
+
+    private RepositoryBuilder createBuilder()
+    {
+        return new RepositoryBuilder(new JsonTransformer());
     }
 }

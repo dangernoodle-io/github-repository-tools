@@ -26,7 +26,8 @@ import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.extensions.DefaultStatusCheckFactory;
 import io.dangernoodle.grt.internal.GithubWorkflow;
-import io.dangernoodle.grt.internal.RepositoryBuilder;
+import io.dangernoodle.grt.utils.JsonTransformer;
+import io.dangernoodle.grt.utils.RepositoryBuilder;
 
 
 public class UserRepositoryIT
@@ -56,8 +57,9 @@ public class UserRepositoryIT
     @BeforeEach
     public void beforeEach() throws Exception
     {
-        builder = new RepositoryBuilder();
         context = new Workflow.Context();
+        builder = new RepositoryBuilder(new JsonTransformer());
+
         workflow = new GithubWorkflow(new GithubClient(github), new DefaultStatusCheckFactory());
 
         // meh - the github api uses commons-lang, so...

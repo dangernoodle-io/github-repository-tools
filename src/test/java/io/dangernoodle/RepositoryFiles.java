@@ -1,11 +1,13 @@
 package io.dangernoodle;
 
 import java.io.File;
-import java.io.InputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 import java.util.function.Function;
+
+import io.dangernoodle.grt.utils.JsonTransformer;
+import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
 
 
 public enum RepositoryFiles
@@ -15,7 +17,6 @@ public enum RepositoryFiles
     mockRepository,
     noBranches,
     nullBranchProtection,
-    nullBranchProtections,
     nullWorkflow,
     requireStatusChecks;
 
@@ -37,24 +38,10 @@ public enum RepositoryFiles
     {
         return new File(find(file -> getClass().getResource(file)).getFile());
     }
-
-    public InputStream getInputStream()
-    {
-        return find(file -> getClass().getResourceAsStream(file));
-    }
-
-    public String loadJson()
-    {
-        try (Scanner scanner = new Scanner(getInputStream(), "UTF-8"))
-        {
-            return scanner.useDelimiter("\\Z").next();
-        }
-    }
-
     
-    public String toJson()
+    public JsonObject toJsonObject() throws IOException
     {
-        return loadJson();
+        return new JsonTransformer().deserialize(getFile());
     }
 
     private <T> T find(Function<String, T> function)

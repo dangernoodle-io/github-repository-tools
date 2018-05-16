@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.internal;
+package io.dangernoodle.grt.utils;
 
 import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionDisabled;
 import static io.dangernoodle.RepositoryAsserts.verifyCollaborators;
@@ -38,8 +38,8 @@ import io.dangernoodle.RepositoryFiles;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Repository.Settings.Permission;
-import io.dangernoodle.grt.json.JsonTransformer;
-import io.dangernoodle.grt.json.JsonTransformer.JsonObject;
+import io.dangernoodle.grt.utils.RepositoryBuilder;
+import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
 
 
 public class RepositoryBuilderTest
@@ -53,7 +53,7 @@ public class RepositoryBuilderTest
     @BeforeEach
     public void before()
     {
-        builder = new RepositoryBuilder();
+        builder = new RepositoryBuilder(new JsonTransformer());
     }
 
     @Test
@@ -79,7 +79,7 @@ public class RepositoryBuilderTest
 
     private void givenARepository() throws IOException
     {
-        expected = Repository.load(RepositoryFiles.mockRepository.getFile());
+        expected = new Repository(RepositoryFiles.mockRepository.toJsonObject());
 
         builder.setName("grt-test-repository")
                .setOrganization("dangernoodle-io")
@@ -144,7 +144,7 @@ public class RepositoryBuilderTest
 
     private JsonObject toJson(String key, String value)
     {
-        return JsonTransformer.serialize(Collections.singletonMap(key, value));
+        return new JsonTransformer().serialize(Collections.singletonMap(key, value));
     }
 
     private void whenBuildRepository()

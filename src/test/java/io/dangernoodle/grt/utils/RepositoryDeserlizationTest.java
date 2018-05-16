@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.json;
+package io.dangernoodle.grt.utils;
 
 import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionDisabled;
 import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionEnabled;
@@ -44,8 +44,8 @@ import io.dangernoodle.RepositoryFiles;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Repository.Settings.Permission;
-import io.dangernoodle.grt.json.JsonTransformer.JsonArray;
-import io.dangernoodle.grt.json.JsonTransformer.JsonObject;
+import io.dangernoodle.grt.utils.JsonTransformer.JsonArray;
+import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
 
 
 public class RepositoryDeserlizationTest
@@ -79,16 +79,7 @@ public class RepositoryDeserlizationTest
         whenParseIntoObject();
         thenBranchProtectionIsEnabled();
     }
-
-    @Test
-    public void testBranchProtectionsAllNull() throws Exception
-    {
-        // master: { requiredReviews: null, requiredStatusChecks: null, pushAccess: null }
-        givenNullBranchProtections();
-        whenParseIntoObject();
-        thenBranchProtectionIsEnabled();
-    }
-
+    
     @Test
     public void testRepository() throws Exception
     {
@@ -121,11 +112,6 @@ public class RepositoryDeserlizationTest
     private void givenNullBranches()
     {
         testFile = RepositoryFiles.noBranches;
-    }
-
-    private void givenNullBranchProtections()
-    {
-        testFile = RepositoryFiles.nullBranchProtections;
     }
 
     private void givenOnlyABranchProtection()
@@ -218,6 +204,6 @@ public class RepositoryDeserlizationTest
 
     private void whenParseIntoObject() throws IOException
     {
-        repository = Repository.load(testFile.getFile());
+        repository = new Repository(testFile.toJsonObject());
     }
 }

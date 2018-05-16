@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.internal;
+package io.dangernoodle.grt.utils;
 
 import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionDisabled;
 import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionEnabled;
@@ -45,8 +45,9 @@ import org.junit.jupiter.api.Test;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Repository.Settings.Permission;
-import io.dangernoodle.grt.json.JsonTransformer;
-import io.dangernoodle.grt.json.JsonTransformer.JsonObject;
+import io.dangernoodle.grt.utils.RepositoryBuilder;
+import io.dangernoodle.grt.utils.RepositoryMerger;
+import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
 
 
 public class RepositoryMergerTest
@@ -70,8 +71,8 @@ public class RepositoryMergerTest
     {
         primaryBranch = "master";
 
-        dBuilder = new RepositoryBuilder();
-        oBuilder = new RepositoryBuilder();
+        dBuilder = createBuilder();
+        oBuilder = createBuilder();
 
         // these are required values, so just set defaults here
         oBuilder.setName("repository");
@@ -372,6 +373,11 @@ public class RepositoryMergerTest
         givenOverrideWorkflow();
         whenBuildRepositories();
         thenOverrideWorkflowReturned();
+    }
+
+    private RepositoryBuilder createBuilder()
+    {
+        return new RepositoryBuilder(new JsonTransformer());
     }
 
     private void givenADefaultPlugin()
@@ -713,7 +719,7 @@ public class RepositoryMergerTest
 
     private JsonObject toJson(String json)
     {
-        return JsonTransformer.deserialize(json);
+        return new JsonTransformer().deserialize(json);
     }
 
     private void whenBuildRepositories()
@@ -723,7 +729,7 @@ public class RepositoryMergerTest
 
         try
         {
-            repository = new RepositoryMerger(defaults, overrides).merge();
+            repository = new RepositoryMerger(defaults, overrides, createBuilder()).merge();
         }
         catch (Exception e)
         {

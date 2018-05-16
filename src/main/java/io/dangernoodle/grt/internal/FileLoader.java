@@ -1,4 +1,4 @@
-package io.dangernoodle.grt;
+package io.dangernoodle.grt.internal;
 
 import java.io.File;
 import java.io.FileNotFoundException;
