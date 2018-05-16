@@ -14,7 +14,7 @@ import org.kohsuke.github.GHTeam;
 import org.kohsuke.github.GHUser;
 import org.mockito.Mock;
 
-import io.dangernoodle.grt.Repository.Permission;
+import io.dangernoodle.grt.Repository.Settings.Permission;
 import io.dangernoodle.grt.internal.GithubWorkflow;
 
 

@@ -9,7 +9,7 @@ import java.io.InputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.dangernoodle.TestFiles;
+import io.dangernoodle.RepositoryFiles;
 import io.dangernoodle.grt.internal.EveritSchemaValidator;
 
 
@@ -17,7 +17,7 @@ public class SchemaValidationTest
 {
     private Exception exception;
     
-    private TestFiles toValidate;
+    private RepositoryFiles toValidate;
 
     private EveritSchemaValidator validator;
 
@@ -50,12 +50,12 @@ public class SchemaValidationTest
     
     private void givenANullWorkflow()
     {
-        toValidate = TestFiles.nullWorkflow;
+        toValidate = RepositoryFiles.nullWorkflow;
     }
 
     private void givenAValidJsonFile()
     {
-        toValidate = TestFiles.mockRepository;
+        toValidate = RepositoryFiles.mockRepository;
     }
 
     private void thenJsonIsValid()

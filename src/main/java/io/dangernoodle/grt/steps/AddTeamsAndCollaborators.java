@@ -11,7 +11,7 @@ import org.kohsuke.github.GHUser;
 
 import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
-import io.dangernoodle.grt.Repository.Permission;
+import io.dangernoodle.grt.Repository.Settings.Permission;
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.internal.GithubWorkflow;
 

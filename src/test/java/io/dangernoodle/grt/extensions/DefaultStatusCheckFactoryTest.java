@@ -9,7 +9,7 @@ import java.util.Collection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.dangernoodle.TestFiles;
+import io.dangernoodle.RepositoryFiles;
 import io.dangernoodle.grt.Repository;
 
 
@@ -27,7 +27,7 @@ public class DefaultStatusCheckFactoryTest
     public void beforeEach() throws Exception
     {
         factory = new DefaultStatusCheckFactory();
-        repository = Repository.load(TestFiles.mockRepository.getFile());
+        repository = Repository.load(RepositoryFiles.mockRepository.getFile());
     }
 
     @Test

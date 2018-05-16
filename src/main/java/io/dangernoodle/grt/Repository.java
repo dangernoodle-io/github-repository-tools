@@ -97,54 +97,6 @@ public class Repository
         return new Repository(json);
     }
 
-    public static class Color
-    {
-        private final String color;
-
-        private Color(String color)
-        {
-            this.color = color;
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (obj == null || getClass() != obj.getClass())
-            {
-                return false;
-            }
-
-            return Objects.equals(this.color, ((Color) obj).color);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return Objects.hash(color);
-        }
-
-        @Override
-        public String toString()
-        {
-            return color;
-        }
-
-        public static Color from(String color)
-        {
-            // TODO: validate color is valid hex as well...
-            color = color.startsWith("#") ? color.substring(1) : color;
-
-            return new Color(color);
-        }
-    }
-
-    public static enum Permission
-    {
-        admin,
-        read,
-        write;
-    }
-
     public static class Settings
     {
         private Branches branches;
@@ -208,6 +160,42 @@ public class Repository
             return json.getBoolean("hidden");
         }
 
+        public static class AccessRestrictions
+        {
+            private final JsonObject json;
+
+            private AccessRestrictions(JsonObject json)
+            {
+                this.json = json;
+            }
+
+            public Collection<String> getTeams()
+            {
+                return json.getCollection("teams");
+            }
+
+            public Collection<String> getUsers()
+            {
+                return json.getCollection("users");
+            }
+
+            public boolean hasTeams()
+            {
+                return json.has("teams");
+            }
+
+            public boolean hasUsers()
+            {
+                return json.has("users");
+            }
+
+            public boolean isEnabled()
+            {
+                return json.isNotNull();
+            }
+
+        }
+
         public static class Branches
         {
             private final JsonObject json;
@@ -264,11 +252,11 @@ public class Repository
 
                 private final JsonObject json;
 
+                private final AccessRestrictions pushAccess;
+
                 private final RequiredChecks requiredChecks;
 
                 private final RequireReviews requiredReviews;
-                
-                private final JsonObject pushAccess;
 
                 private Protection(JsonObject json)
                 {
@@ -276,12 +264,7 @@ public class Repository
 
                     this.requiredReviews = new RequireReviews(json.getJsonObject("requireReviews"));
                     this.requiredChecks = new RequiredChecks(json.getJsonObject("requiredStatusChecks"));
-                    this.pushAccess = json.getJsonObject("pushAccess");
-                }
-
-                public boolean enableRestrictedPushAccess()
-                {
-                    return json.has("pushAccess");
+                    this.pushAccess = new AccessRestrictions(json.getJsonObject("pushAccess"));
                 }
 
                 public Boolean getIncludeAdministrators()
@@ -289,14 +272,9 @@ public class Repository
                     return json.getBoolean("includeAdministrators");
                 }
 
-                public Collection<String> getPushTeams()
+                public AccessRestrictions getPushAccess()
                 {
-                    return pushAccess.getCollection("teams");
-                }
-
-                public Collection<String> getPushUsers()
-                {
-                    return pushAccess.getCollection("users");
+                    return pushAccess;
                 }
 
                 public RequiredChecks getRequiredChecks()
@@ -322,6 +300,11 @@ public class Repository
                 public boolean hasRequireReviews()
                 {
                     return json.has("requireReviews");
+                }
+
+                public boolean hasRestrictedPushAccess()
+                {
+                    return pushAccess.isEnabled();
                 }
 
                 public boolean isEnabled()
@@ -361,29 +344,19 @@ public class Repository
 
                 public static class RequireReviews
                 {
-                    private final JsonObject dismissals;
+                    private final AccessRestrictions dismissals;
 
                     private final JsonObject json;
 
                     private RequireReviews(JsonObject json)
                     {
                         this.json = json;
-                        this.dismissals = json.getJsonObject("restrictDismissals");
+                        this.dismissals = new AccessRestrictions(json.getJsonObject("restrictDismissals"));
                     }
 
-                    public boolean enableRestrictDismissals()
+                    public AccessRestrictions getDismissalRestrictions()
                     {
-                        return dismissals.isNotNull();
-                    }
-
-                    public Collection<String> getDismissalTeams()
-                    {
-                        return dismissals.getCollection("teams");
-                    }
-
-                    public Collection<String> getDismissalUsers()
-                    {
-                        return dismissals.getCollection("users");
+                        return dismissals;
                     }
 
                     public Boolean getDismissStaleApprovals()
@@ -401,14 +374,9 @@ public class Repository
                         return json.getInteger("requiredReviewers");
                     }
 
-                    public boolean hasDismissalTeams()
+                    public boolean hasDismissalRestrictions()
                     {
-                        return dismissals.has("teams");
-                    }
-
-                    public boolean hasDismissalUsers()
-                    {
-                        return dismissals.has("users");
+                        return json.has("restrictDismissals");
                     }
 
                     public boolean isEnabled()
@@ -416,19 +384,55 @@ public class Repository
                         return json.isNotNull();
                     }
                 }
-
-                public boolean hasRestrictedPushTeams()
-                {
-                    // TODO Auto-generated method stub
-                    return false;
-                }
-
-                public boolean hasRestrictedPushUsers()
-                {
-                    // TODO Auto-generated method stub
-                    return false;
-                }
             }
+        }
+
+        public static class Color
+        {
+            private final String color;
+
+            private Color(String color)
+            {
+                this.color = color;
+            }
+
+            @Override
+            public boolean equals(Object obj)
+            {
+                if (obj == null || getClass() != obj.getClass())
+                {
+                    return false;
+                }
+
+                return Objects.equals(this.color, ((Color) obj).color);
+            }
+
+            @Override
+            public int hashCode()
+            {
+                return Objects.hash(color);
+            }
+
+            @Override
+            public String toString()
+            {
+                return color;
+            }
+
+            public static Color from(String color)
+            {
+                // TODO: validate color is valid hex as well...
+                color = color.startsWith("#") ? color.substring(1) : color;
+
+                return new Color(color);
+            }
+        }
+
+        public static enum Permission
+        {
+            admin,
+            read,
+            write;
         }
     }
 }

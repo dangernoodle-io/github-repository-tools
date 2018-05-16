@@ -1,28 +1,33 @@
 package io.dangernoodle.grt.json;
 
-import static io.dangernoodle.TestAsserts.verifyBranchProtectionEnabledOnly;
-import static io.dangernoodle.TestAsserts.verifyBranchProtectionIsDisabled;
-import static io.dangernoodle.TestAsserts.verifyBranchProtectionsAreAllNull;
-import static io.dangernoodle.TestAsserts.verifyBranchesIsNotNull;
-import static io.dangernoodle.TestAsserts.verifyCollaborators;
-import static io.dangernoodle.TestAsserts.verifyEnforeForAdministratorsEnabled;
-import static io.dangernoodle.TestAsserts.verifyLabels;
-import static io.dangernoodle.TestAsserts.verifyOtherBranches;
-import static io.dangernoodle.TestAsserts.verifyPrimaryBranch;
-import static io.dangernoodle.TestAsserts.verifyPushAccessIsRestricted;
-import static io.dangernoodle.TestAsserts.verifyPushAccessIsUnrestricted;
-import static io.dangernoodle.TestAsserts.verifyPushAccessTeams;
-import static io.dangernoodle.TestAsserts.verifyPushAccessUsers;
-import static io.dangernoodle.TestAsserts.verifyRepositoryInitialized;
-import static io.dangernoodle.TestAsserts.verifyRepositoryIsPrivate;
-import static io.dangernoodle.TestAsserts.verifyRepositoryName;
-import static io.dangernoodle.TestAsserts.verifyRepositoryOrganization;
-import static io.dangernoodle.TestAsserts.verifyRequireReviewsEnabled;
-import static io.dangernoodle.TestAsserts.verifyRequireReviewsIsNull;
-import static io.dangernoodle.TestAsserts.verifyRequireSignedCommitsEnabled;
-import static io.dangernoodle.TestAsserts.verifyRequiredStatusChecksEnabled;
-import static io.dangernoodle.TestAsserts.verifySettingsIsNotNull;
-import static io.dangernoodle.TestAsserts.verifyTeams;
+import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionDisabled;
+import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyBranchesIsNotNull;
+import static io.dangernoodle.RepositoryAsserts.verifyCollaborators;
+import static io.dangernoodle.RepositoryAsserts.verifyEnforeForAdministratorsEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyLabels;
+import static io.dangernoodle.RepositoryAsserts.verifyOtherBranches;
+import static io.dangernoodle.RepositoryAsserts.verifyPrimaryBranch;
+import static io.dangernoodle.RepositoryAsserts.verifyPushAccessRestricted;
+import static io.dangernoodle.RepositoryAsserts.verifyPushAccessTeams;
+import static io.dangernoodle.RepositoryAsserts.verifyPushAccessUnrestricted;
+import static io.dangernoodle.RepositoryAsserts.verifyPushAccessUsers;
+import static io.dangernoodle.RepositoryAsserts.verifyRepositoryInitialized;
+import static io.dangernoodle.RepositoryAsserts.verifyRepositoryIsPrivate;
+import static io.dangernoodle.RepositoryAsserts.verifyRepositoryName;
+import static io.dangernoodle.RepositoryAsserts.verifyRepositoryOrganization;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsDisabled;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsDismissStaleApprovalsEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsDismissalRestrictionsEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsDismissalTeams;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsDismissalUsers;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsRequireCodeOwnerEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsRequiredReviewers;
+import static io.dangernoodle.RepositoryAsserts.verifyRequireSignedCommitsEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyRequiredChecksContextsEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyRequiredChecksRequireUpToDateEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyTeams;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -35,10 +40,10 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import io.dangernoodle.TestFiles;
+import io.dangernoodle.RepositoryFiles;
 import io.dangernoodle.grt.Repository;
-import io.dangernoodle.grt.Repository.Color;
-import io.dangernoodle.grt.Repository.Permission;
+import io.dangernoodle.grt.Repository.Settings.Color;
+import io.dangernoodle.grt.Repository.Settings.Permission;
 import io.dangernoodle.grt.json.JsonTransformer.JsonArray;
 import io.dangernoodle.grt.json.JsonTransformer.JsonObject;
 
@@ -47,7 +52,7 @@ public class RepositoryDeserlizationTest
 {
     private Repository repository;
 
-    private TestFiles testFile;
+    private RepositoryFiles testFile;
 
     @Test
     public void testBranchesIsNull() throws Exception
@@ -81,7 +86,7 @@ public class RepositoryDeserlizationTest
         // master: { requiredReviews: null, requiredStatusChecks: null, pushAccess: null }
         givenNullBranchProtections();
         whenParseIntoObject();
-        thenBranchProtectionsAreNull();
+        thenBranchProtectionIsEnabled();
     }
 
     @Test
@@ -95,23 +100,6 @@ public class RepositoryDeserlizationTest
         thenPluginsIsCorrect();
     }
 
-    private void thenPluginsIsCorrect()
-    {
-        Map<String, Object> plugins = repository.getPlugins();
-        
-        assertThat(plugins, notNullValue());
-        assertThat(plugins.isEmpty(), equalTo(false));
-        
-        assertThat(plugins.containsKey("other"), equalTo(false));        
-        
-        assertThat(plugins.containsKey("travis"), equalTo(true));
-        assertThat(((JsonObject) plugins.get("travis")).getBoolean("enabled"), equalTo(true)); 
-        assertThat(((JsonObject) plugins.get("travis")).getString("foo"), equalTo("bar")); 
-        
-        assertThat(plugins.containsKey("jenkins"), equalTo(true));
-        assertThat(((JsonArray) plugins.get("jenkins")).iterator().hasNext(), equalTo(true));
-    }
-
     @Test
     public void testRequireStatusChecks() throws Exception
     {
@@ -120,48 +108,34 @@ public class RepositoryDeserlizationTest
         thenOnlyRequiredChecksAreEnabled();
     }
 
-    @Test
-    public void testSettingsIsNull() throws Exception
-    {
-        givenNullSettings();
-        whenParseIntoObject();
-        thenSettingsIsNotNull();
-    }
-
     private void givenADisabledBranchProtection()
     {
-        testFile = TestFiles.nullBranchProtection;
+        testFile = RepositoryFiles.nullBranchProtection;
     }
 
     private void givenARepository()
     {
-        testFile = TestFiles.mockRepository;
+        testFile = RepositoryFiles.mockRepository;
     }
 
     private void givenNullBranches()
     {
-        testFile = TestFiles.noBranches;
+        testFile = RepositoryFiles.noBranches;
     }
 
     private void givenNullBranchProtections()
     {
-        testFile = TestFiles.nullBranchProtections;
-    }
-
-    private void givenNullSettings()
-    {
-        // cheat - it has no 'settings' element
-        testFile = TestFiles.nullWorkflow;
+        testFile = RepositoryFiles.nullBranchProtections;
     }
 
     private void givenOnlyABranchProtection()
     {
-        testFile = TestFiles.branchProtectionOnly;
+        testFile = RepositoryFiles.branchProtectionOnly;
     }
 
     private void givenRequiredStatusChecks()
     {
-        testFile = TestFiles.requireStatusChecks;
+        testFile = RepositoryFiles.requireStatusChecks;
     }
 
     private void thenBranchesIsNotNull()
@@ -171,30 +145,43 @@ public class RepositoryDeserlizationTest
 
     private void thenBranchProtectionIsDisabled()
     {
-        verifyBranchProtectionIsDisabled(repository, "master");
+        verifyBranchProtectionDisabled(repository, "master");
     }
 
     private void thenBranchProtectionIsEnabled()
     {
-        verifyBranchProtectionEnabledOnly(repository, "master");
-    }
-
-    private void thenBranchProtectionsAreNull()
-    {
-        verifyBranchProtectionsAreAllNull(repository, "master");
+        verifyBranchProtectionEnabled(repository, "master");
     }
 
     private void thenOnlyRequiredChecksAreEnabled()
     {
-        verifyRequiredStatusChecksEnabled(repository, "master");
-        verifyRequireReviewsIsNull(repository, "master");
-        verifyPushAccessIsUnrestricted(repository, "master");
+        verifyRequiredChecksRequireUpToDateEnabled(repository, "master");
+        verifyRequiredChecksContextsEnabled(repository, "master", Arrays.asList(repository.getName()));
+        verifyRequireReviewsDisabled(repository, "master");
+        verifyPushAccessUnrestricted(repository, "master");
     }
 
     private void thenPluginIsCorrect()
     {
-       assertThat(repository.getPlugin("jenkins"), notNullValue());
-       assertThat(repository.getPlugin("doesnotexist"), nullValue());
+        assertThat(repository.getPlugin("jenkins"), notNullValue());
+        assertThat(repository.getPlugin("doesnotexist"), nullValue());
+    }
+
+    private void thenPluginsIsCorrect()
+    {
+        Map<String, Object> plugins = repository.getPlugins();
+
+        assertThat(plugins, notNullValue());
+        assertThat(plugins.isEmpty(), equalTo(false));
+
+        assertThat(plugins.containsKey("other"), equalTo(false));
+
+        assertThat(plugins.containsKey("travis"), equalTo(true));
+        assertThat(((JsonObject) plugins.get("travis")).getBoolean("enabled"), equalTo(true));
+        assertThat(((JsonObject) plugins.get("travis")).getString("foo"), equalTo("bar"));
+
+        assertThat(plugins.containsKey("jenkins"), equalTo(true));
+        assertThat(((JsonArray) plugins.get("jenkins")).iterator().hasNext(), equalTo(true));
     }
 
     private void thenRepositoryIsCorrect()
@@ -211,15 +198,17 @@ public class RepositoryDeserlizationTest
         verifyRequireSignedCommitsEnabled(repository, "master");
         verifyEnforeForAdministratorsEnabled(repository, "master");
         verifyRequireReviewsEnabled(repository, "master");
-        verifyRequiredStatusChecksEnabled(repository, "master");
-        verifyPushAccessIsRestricted(repository, "master");
-        verifyPushAccessTeams(repository, "master", Arrays.asList("write"));
+        verifyRequireReviewsDismissStaleApprovalsEnabled(repository, "master");
+        verifyRequireReviewsRequiredReviewers(repository, "master", 2);
+        verifyRequireReviewsRequireCodeOwnerEnabled(repository, "master");
+        verifyRequireReviewsDismissalRestrictionsEnabled(repository, "master");
+        verifyRequireReviewsDismissalTeams(repository, "master", Arrays.asList("team"));
+        verifyRequireReviewsDismissalUsers(repository, "master", Arrays.asList("user"));
+        verifyRequiredChecksRequireUpToDateEnabled(repository, "master");
+        verifyRequiredChecksContextsEnabled(repository, "master", Arrays.asList("grt-test-repository"));
+        verifyPushAccessRestricted(repository, "master");
+        verifyPushAccessTeams(repository, "master", Arrays.asList("team"));
         verifyPushAccessUsers(repository, "master", Arrays.asList("user"));
-    }
-
-    private void thenSettingsIsNotNull()
-    {
-        verifySettingsIsNotNull(repository);
     }
 
     private void thenWorkflowIsCorrect()

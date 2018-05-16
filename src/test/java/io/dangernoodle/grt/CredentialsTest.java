@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
-import io.dangernoodle.TestFiles;
+import io.dangernoodle.RepositoryFiles;
 
 
 public class CredentialsTest
@@ -29,7 +29,7 @@ public class CredentialsTest
 
     private void givenACredentialsFile()
     {
-        file = TestFiles.credentials.getFile();
+        file = RepositoryFiles.credentials.getFile();
     }
 
     private void theCredentialsAreLoaded()
