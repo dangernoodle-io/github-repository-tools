@@ -1,15 +1,15 @@
 package io.dangernoodle.grt.internal;
 
-import static io.dangernoodle.grt.json.DefaultJsonTransformer.transformer;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Color;
 import io.dangernoodle.grt.Repository.Permission;
+import io.dangernoodle.grt.json.JsonTransformer;
+import io.dangernoodle.grt.json.JsonTransformer.JsonObject;
 
 
 public class RepositoryBuilder
@@ -23,14 +23,36 @@ public class RepositoryBuilder
 
     public RepositoryBuilder addCollaborator(String user, Permission permission)
     {
-        computeMapIfAbsent("collaborators", settings()).put(user, permission);
+        collaborators().put(user, permission);
+        return this;
+    }
+
+    public RepositoryBuilder addCollaborators()
+    {
+        collaborators();
+        return this;
+    }
+
+    public RepositoryBuilder addCollaborators(Map<String, Permission> collaborators)
+    {
+        collaborators().putAll(collaborators);
         return this;
     }
 
     public RepositoryBuilder addLabel(String name, Color color)
     {
-        computeMapIfAbsent("labels", settings()).put(name, color.toString());
+        labels().put(name, color.toString());
         return this;
+    }
+
+    public void addLabels()
+    {
+        labels();
+    }
+
+    public void addLabels(Map<String, Color> labels)
+    {
+        labels().putAll(labels);
     }
 
     public RepositoryBuilder addOtherBranch(String branch)
@@ -39,9 +61,15 @@ public class RepositoryBuilder
         return this;
     }
 
-    public RepositoryBuilder addPlugin(String key, String rawJson)
+    public RepositoryBuilder addOtherBranches(Collection<String> branches)
     {
-        computeMapIfAbsent("plugins", repository).put(key, transformer.deserialize(rawJson));
+        computeCollectionIfAbsent("other", branches()).addAll(branches);
+        return this;
+    }
+
+    public RepositoryBuilder addPlugin(String key, Object plugin)
+    {
+        computeMapIfAbsent("plugins", repository).put(key, plugin);
         return this;
     }
 
@@ -53,7 +81,7 @@ public class RepositoryBuilder
 
     public RepositoryBuilder addTeam(String team, Permission permission)
     {
-        computeMapIfAbsent("teams", settings()).put(team, permission);
+        teams().put(team, permission);
         return this;
     }
 
@@ -66,6 +94,18 @@ public class RepositoryBuilder
     public RepositoryBuilder addTeamReviewDismisser(String branch, String team)
     {
         addRestriction("teams", "restrictDismissals", reviews(branch), team);
+        return this;
+    }
+
+    public RepositoryBuilder addTeams()
+    {
+        teams();
+        return this;
+    }
+
+    public RepositoryBuilder addTeams(Map<String, Permission> teams)
+    {
+        teams().putAll(teams);
         return this;
     }
 
@@ -89,10 +129,10 @@ public class RepositoryBuilder
 
     public Repository build()
     {
-        String json = transformer.serialize(repository);
-        // System.out.println(transformer.prettyPrint(json));
+        JsonObject json = JsonTransformer.serialize(repository);
+        // System.out.println(json.prettyPrint());
 
-        return transformer.deserialize(json, Repository.class);
+        return Repository.load(json);
     }
 
     public RepositoryBuilder dismissStaleApprovals(String branch, boolean bool)
@@ -104,6 +144,12 @@ public class RepositoryBuilder
     public RepositoryBuilder enableBranchProtection(String branch)
     {
         protections(branch);
+        return this;
+    }
+
+    public RepositoryBuilder disableBranchProtection(String branch)
+    {
+        computeMapIfAbsent("protections", branches()).put(branch, JsonTransformer.NULL);
         return this;
     }
 
@@ -186,7 +232,13 @@ public class RepositoryBuilder
 
     private Map<String, Object> branches()
     {
-        return computeMapIfAbsent("branches", settings());
+        Map<String, Object> branches = computeMapIfAbsent("branches", settings());
+        return branches;
+    }
+
+    private Map<String, Object> collaborators()
+    {
+        return computeMapIfAbsent("collaborators", settings());
     }
 
     @SuppressWarnings("unchecked")
@@ -203,7 +255,12 @@ public class RepositoryBuilder
 
     private <K, V> Map<K, V> createEmptyMap()
     {
-        return new LinkedHashMap<>();
+        return new HashMap<>();
+    }
+
+    private Map<String, Object> labels()
+    {
+        return computeMapIfAbsent("labels", settings());
     }
 
     @SuppressWarnings("unchecked")
@@ -231,5 +288,10 @@ public class RepositoryBuilder
     private Map<String, Object> statusChecks(String branch)
     {
         return computeMapIfAbsent("requiredStatusChecks", protections(branch));
+    }
+
+    private Map<String, Object> teams()
+    {
+        return computeMapIfAbsent("teams", settings());
     }
 }

@@ -45,8 +45,6 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
 
         super.beforeEach();
 
-        repoBuilder.setOrganization("org");
-
         when(mockClient.getUser("user")).thenReturn(mockGHUser);
         when(mockClient.getTeam("org", "team")).thenReturn(mockGHTeam);
 

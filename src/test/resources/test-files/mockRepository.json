@@ -8,8 +8,6 @@
             "label": "#00000"
         },
         "teams": {
-            "read": "read",
-            "write": "write",
             "admin": "admin"
         },
         "collaborators": {
@@ -56,6 +54,10 @@
         }
     },
     "plugins": {
+        "travis": {
+            "enabled": true,
+            "foo": "bar"
+        },
         "jenkins": [
             {
                 "container": "maven"

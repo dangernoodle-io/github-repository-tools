@@ -1,7 +1,11 @@
 package io.dangernoodle.grt.internal;
 
+import static io.dangernoodle.TestAsserts.verifyBranchProtectionIsDisabled;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+
+import java.io.IOException;
+import java.util.Collections;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +19,8 @@ import io.dangernoodle.grt.Repository.Settings.Branches;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequireReviews;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequiredChecks;
+import io.dangernoodle.grt.json.JsonTransformer;
+import io.dangernoodle.grt.json.JsonTransformer.JsonObject;
 
 
 public class RepositoryBuilderTest
@@ -32,24 +38,35 @@ public class RepositoryBuilderTest
     }
 
     @Test
-    public void testBuildCompleteRepository()
+    public void testBuildCompleteRepository() throws Exception
     {
         givenARepository();
-        whenSerializeJson();
+        whenBuildRepository();
         thenRepositoriesMatch();
     }
 
-    private void givenARepository()
+    @Test
+    public void testDisableBranchProtection()
     {
-        expected = TestFiles.mockRepository.parseIntoObject(Repository.class);
+        givenADisabledBranchProtection();
+        whenBuildRepository();
+        thenBranchProtectionIsNull();
+    }
+    
+    private void givenADisabledBranchProtection()
+    {
+        builder.disableBranchProtection("master");
+    }
+
+    private void givenARepository() throws IOException
+    {
+        expected = Repository.load(TestFiles.mockRepository.getFile());
 
         builder.setName("grt-test-repository")
                .setOrganization("dangernoodle-io")
                .setInitialize(true)
                .setPrivate(true)
                .addLabel("label", Color.from("#00000"))
-               .addTeam("read", Permission.read)
-               .addTeam("write", Permission.write)
                .addTeam("admin", Permission.admin)
                .addCollaborator("user", Permission.read)
                .setPrimaryBranch("master")
@@ -67,8 +84,18 @@ public class RepositoryBuilderTest
                .restrictPushAccess("master")
                .addTeamPushAccess("master", "write")
                .addUserPushAccess("master", "user")
-               .addPlugin("jenkins", "[{\"container\": \"maven\"}]")
+               .addPlugin("jenkins", toJson("container", "maven"))
                .addWorkflow("jenkins");
+    }
+    
+    private JsonObject toJson(String key, String value)
+    {
+        return JsonTransformer.serialize(Collections.singletonMap(key, value));
+    }
+    
+    private void thenBranchProtectionIsNull()
+    {
+        verifyBranchProtectionIsDisabled(actual, "master");
     }
 
     private void thenRepositoriesMatch()
@@ -76,7 +103,7 @@ public class RepositoryBuilderTest
         assertThat(actual.getName(), equalTo(expected.getName()));
         assertThat(actual.getOrganization(), equalTo(expected.getOrganization()));
 
-        assertThat(actual.getPlugins().get("jenkins"), equalTo(expected.getPlugins().get("jenkins")));
+        assertThat(((JsonObject) actual.getPlugin("jenkins")).getString("container"), equalTo("maven"));
         assertThat(actual.getWorkflow().containsAll(expected.getWorkflow()), equalTo(true));
         
         Settings aSettings = actual.getSettings();
@@ -117,12 +144,12 @@ public class RepositoryBuilderTest
         assertThat(aChecks.getRequireUpToDate(), equalTo(eChecks.getRequireUpToDate()));
         assertThat(aChecks.getContexts().containsAll(eChecks.getContexts()), equalTo(true));
 
-        assertThat(aProtection.enablePushAccess(), equalTo(eProtection.enablePushAccess()));
+        assertThat(aProtection.enableRestrictedPushAccess(), equalTo(eProtection.enableRestrictedPushAccess()));
         assertThat(aProtection.getPushTeams().containsAll(eProtection.getPushTeams()), equalTo(true));
         assertThat(aProtection.getPushUsers().containsAll(eProtection.getPushUsers()), equalTo(true));
     }
 
-    private void whenSerializeJson()
+    private void whenBuildRepository()
     {
         actual = builder.build();
     }

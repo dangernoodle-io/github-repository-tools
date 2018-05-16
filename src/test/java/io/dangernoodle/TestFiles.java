@@ -7,14 +7,15 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.function.Function;
 
-import io.dangernoodle.grt.json.DefaultJsonTransformer;
-
 
 public enum TestFiles
 {
-    branchProtection,
+    branchProtectionOnly,
     credentials,
     mockRepository,
+    noBranches,
+    nullBranchProtection,
+    nullBranchProtections,
     nullWorkflow,
     requireStatusChecks;
 
@@ -50,11 +51,7 @@ public enum TestFiles
         }
     }
 
-    public <T> T parseIntoObject(Class<T> clazz)
-    {
-        return DefaultJsonTransformer.transformer.deserialize(toJson(), clazz);
-    }
-
+    
     public String toJson()
     {
         return loadJson();

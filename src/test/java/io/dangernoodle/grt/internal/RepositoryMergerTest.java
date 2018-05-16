@@ -1,18 +1,41 @@
 package io.dangernoodle.grt.internal;
 
-import static io.dangernoodle.TestAsserts.verifyCommitsAdminsDisabled;
+import static io.dangernoodle.TestAsserts.verifyBranchProtectionEnabledOnly;
+import static io.dangernoodle.TestAsserts.verifyBranchProtectionIsDisabled;
+import static io.dangernoodle.TestAsserts.verifyBranchProtectionsAreAllEnabled;
+import static io.dangernoodle.TestAsserts.verifyCollaborators;
+import static io.dangernoodle.TestAsserts.verifyCollaboratorsAreEmpty;
+import static io.dangernoodle.TestAsserts.verifyEnforeForAdministratorsDisabled;
+import static io.dangernoodle.TestAsserts.verifyLabels;
+import static io.dangernoodle.TestAsserts.verifyLabelsAreEmpty;
+import static io.dangernoodle.TestAsserts.verifyNoStatusChecksAreRequired;
+import static io.dangernoodle.TestAsserts.verifyOrganization;
+import static io.dangernoodle.TestAsserts.verifyPrimaryBranch;
+import static io.dangernoodle.TestAsserts.verifyPushAccessIsUnrestricted;
+import static io.dangernoodle.TestAsserts.verifyRepositoryInitialized;
+import static io.dangernoodle.TestAsserts.verifyRepositoryNotInitialized;
 import static io.dangernoodle.TestAsserts.verifyRequireReviewsDisabled;
+import static io.dangernoodle.TestAsserts.verifyRequireSignedCommitsDisabled;
+import static io.dangernoodle.TestAsserts.verifyRequireUpToDateEnabled;
 import static io.dangernoodle.TestAsserts.verifyRequiredStatusChecksDisabled;
+import static io.dangernoodle.TestAsserts.verifyTeams;
+import static io.dangernoodle.TestAsserts.verifyTeamsAreEmpty;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
+
+import java.util.Collections;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Color;
-import io.dangernoodle.grt.Repository.Settings.Branches.Protection;
+import io.dangernoodle.grt.Repository.Permission;
+import io.dangernoodle.grt.json.JsonTransformer;
+import io.dangernoodle.grt.json.JsonTransformer.JsonObject;
 
 
 public class RepositoryMergerTest
@@ -21,185 +44,414 @@ public class RepositoryMergerTest
 
     private Repository defaults;
 
+    private Exception exception;
+
     private RepositoryBuilder oBuilder;
 
     private Repository overrides;
+
+    private String primaryBranch;
 
     private Repository repository;
 
     @BeforeEach
     public void setup()
     {
+        primaryBranch = "master";
+
         dBuilder = new RepositoryBuilder();
         oBuilder = new RepositoryBuilder();
 
-        // this is a required value, so just set a default here
+        // these are required values, so just set defaults here
+        oBuilder.setName("repository");
         dBuilder.setOrganization("default-org");
     }
 
     @Test
-    public void testGetDefaultLabels()
+    public void testBranchProtectionBothDisable()
     {
-        givenDefaultLabels();
+        givenBranchProtectionDefaultsDisables();
+        givenBranchProtectionOverrideDisables();
         whenBuildRepositories();
-        thenDefaultLabelsReturned();
+        thenBranchProtectionIsNotEnabled();
     }
 
     @Test
-    public void testGetDefaultOrganization()
+    public void testBranchProtectionDefaults()
+    {
+        givenBranchProtectionDefaults();
+        whenBuildRepositories();
+        thenBranchProtectionsAreEnabled(defaults);
+    }
+
+    @Test
+    public void testBranchProtectionDefaultsDisables()
+    {
+        givenBranchProtectionDefaultsDisables();
+        whenBuildRepositories();
+        thenBranchProtectionIsNotEnabled();
+    }
+
+    @Test
+    public void testBranchProtectionOnlyOverride()
+    {
+        givenBranchProtectionDefaults();
+        givenBranchProtectionOnlyOverride();
+        whenBuildRepositories();
+        thenBranchProtectionOnlyIsEnabled(repository);
+    }
+
+    @Test
+    public void testBranchProtectionOverrideDisables()
+    {
+        givenBranchProtectionDefaults();
+        givenBranchProtectionOverrideDisables();
+        whenBuildRepositories();
+        thenBranchProtectionIsNotEnabled();
+    }
+
+    @Test
+    public void testBranchProtectionOverrideEnforceForAdmins()
+    {
+        givenBranchProtectionDefaults();
+        givenBranchProtectionOverridesEnforceForAdmins();
+        whenBuildRepositories();
+        thenEnforceForAdminsDisabled();
+        thenOtherProtectionsAreDisabled();
+    }
+
+    @Test
+    public void testBranchProtectionOverrides()
+    {
+        givenBranchProtectionOverrides();
+        whenBuildRepositories();
+        thenBranchProtectionsAreEnabled(overrides);
+    }
+
+    @Test
+    public void testBranchProtectionOverrideSignedCommits()
+    {
+        givenBranchProtectionDefaults();
+        givenBranchProtectionOverridesSignedCommits();
+        whenBuildRepositories();
+        thenSignedCommitsAreDisabled();
+        thenEnforceForAdminsDisabled();
+        thenOtherProtectionsAreDisabled();
+    }
+
+    @Test
+    public void testBranchProtectionRequireUpToDateOnly()
+    {
+        givenBranchProtectionDefaultRequireUpToDateOnly();
+        whenBuildRepositories();
+        thenBranchProtectionDefaultRequireUpToDateOnly();
+    }
+
+    @Test
+    public void testCollaboratorDefaults()
+    {
+        givenCollaboratorDefaults();
+        whenBuildRepositories();
+        thenCollaboratorsAreReturned(defaults);
+    }
+
+    @Test
+    public void testCollaboratorOverrides()
+    {
+        givenCollaboratorDefaults();
+        givenCollaboratorOverrides();
+        whenBuildRepositories();
+        thenCollaboratorsAreReturned(overrides);
+    }
+
+    @Test
+    public void testCollaboratorOverridesEmpty()
+    {
+        givenCollaboratorDefaults();
+        givenCollaboratorOverridesAreEmpty();
+        whenBuildRepositories();
+        thenCollaboratorsAreEmpty();
+    }
+
+    @Test
+    public void testCollaboratorOverridesNull()
+    {
+        givenCollaboratorDefaults();
+        givenCollaboratorOverridesAreNull();
+        whenBuildRepositories();
+        thenCollaboratorsAreEmpty();
+    }
+
+    @Test
+    public void testInitializeDefault()
+    {
+        givenInitializeDefault();
+        whenBuildRepositories();
+        thenInitializationIsTrue();
+    }
+
+    @Test
+    public void testInitializeOverride()
+    {
+        givenInitializeDefault();
+        givenInitializeOverride();
+        whenBuildRepositories();
+        thenInitializationIsFalse();
+    }
+
+    @Test
+    public void testLabelDefaults()
+    {
+        givenLabelDefaults();
+        whenBuildRepositories();
+        thenLabelsAreReturned(defaults);
+    }
+
+    @Test
+    public void testLabelOverrides()
+    {
+        givenLabelDefaults();
+        givenLabelOverrides();
+        whenBuildRepositories();
+        thenLabelsAreReturned(overrides);
+    }
+
+    @Test
+    public void testLabelOverridesEmpty()
+    {
+        givenLabelDefaults();
+        givenLabelOverridesEmpty();
+        whenBuildRepositories();
+        thenLabelsAreEmpty();
+    }
+
+    @Test
+    public void testLabelOverridesNull()
+    {
+        givenLabelDefaults();
+        givenLabelOverridesNull();
+        whenBuildRepositories();
+        thenLabelsAreEmpty();
+    }
+
+    @Test
+    public void testOrganizationDefault()
     {
         // see #setup()
         whenBuildRepositories();
-        thenDefaultOrganizationReturned();
+        thenOrganizationDefaultIsReturned();
     }
 
     @Test
-    public void testGetMergedLabels()
+    public void testOrganizationNull()
     {
-        givenDefaultLabels();
-        givenMergedLabels();
+        givenNullOrganizations();
         whenBuildRepositories();
-        thenDefaultLabelsReturned();
-        thenOverrideLabelsReturned();
-
-        // overriding 'default' label(s) as part of a 'merge' is allowed
-        givenOverrideLabels();
-        whenBuildRepositories();
-        thenDefaultLabelsReturned();
-        thenOverrideLabelsReturned();
-        thenOverrideColorIsCorrect();
+        thenIllegalStateExceptionThrown();
     }
 
     @Test
-    public void testGetMergedPlugin()
+    public void testOrganizationOverride()
+    {
+        givenAnOrganizationOverride();
+        whenBuildRepositories();
+        thenOrganizationOverrideIsReturned();
+    }
+
+    @Test
+    public void testPluginDefaults()
     {
         givenADefaultPlugin();
-        givenAMergedPlugin();
         whenBuildRepositories();
-        thenDefaultPluginReturned();
-        thenMergedPluginReturned();
+        thenDefaultPluginsReturned();
+    }
 
-        // overriding 'default' plugin(s) as part of a 'merge' is allowed
+    @Test
+    public void testPluginOverrides()
+    {
+        givenADefaultPlugin();
         givenAnOverridenPlugin();
         whenBuildRepositories();
-        thenOverridenPluginIsReturned();
+        thenOverridePluginsReturned();
     }
 
     @Test
-    public void testGetMergedPushTeams()
+    public void testPrimaryBranchDefault()
     {
-        givenDefaultPushTeams();
-        givenOverridePushTeams();
+        givenAPrimaryBranchDefault();
         whenBuildRepositories();
-        thenDefaultPushTeamsReturned();
-        thenOverridePushTeamsReturned();
-    }
-
-    @Test
-    public void testGetMergedRequiredCheckContexts()
-    {
-        givenDefaultStatusChecks();
-        givenOverrideStatusChecks();
-        whenBuildRepositories();
-        thenDefaultStatusChecksReturned();
-        thenOverrideStatusCheckesReturned();
-    }
-
-    @Test
-    public void testGetOverrideOrganization()
-    {
-        givenAnOverrideOrganization();
-        whenBuildRepositories();
-        thenOverrideOrganizationReturned();
-    }
-
-    @Test
-    public void testGetWorkflow()
-    {
-        givenDefaultWorkflow();
-        whenBuildRepositories();
-        thenDefaultWorkflowReturned();
-
-        givenOverrideWorkflow();
-        whenBuildRepositories();
-        thenOverrideWorkflowReturned();
+        thenPrimaryBranchIsCorrect();
     }
 
     @Test
     public void testPrimaryBranchDefaultsToMaster()
     {
+        givenPrimaryBranchNoSet();
         whenBuildRepositories();
-        thenPrimaryBranchIsMaster();
+        thenPrimaryBranchIsCorrect();
+    }
+
+    @Test
+    public void testPrimaryBranchOverride()
+    {
+        givenAPrimaryBranchOverride();
+        whenBuildRepositories();
+        thenPrimaryBranchIsCorrect();
     }
 
     @Test
     public void testRepositoryDefaults()
     {
         whenBuildRepositories();
-        whenBuildRepositories();
-        thenRepositoryDefaultsAreReturned();
+        thenInitializationIsFalse();
+        thenLabelsAreEmpty();
+        thenTeamsAreEmpty();
+        thenCollaboratorsAreEmpty();
+        thenPrimaryBranchIsCorrect();
+        thenBranchProtectionDefaultsAreCorrect();
     }
 
     @Test
-    public void testRequiredCheckContextsDefaultOnly()
+    public void testTeamDefaults()
     {
-        givenDefaultStatusChecks();
+        givenTeamDefaults();
         whenBuildRepositories();
-        thenDefaultStatusChecksReturned();
+        thenTeamsAreReturned(defaults);
     }
 
     @Test
-    public void testRequiredCheckContextsOverrideOnly()
+    public void testTeamOverrides()
     {
-        givenOverrideStatusChecks();
+        givenTeamDefaults();
+        givenTeamOverrides();
         whenBuildRepositories();
-        thenOverrideStatusCheckesReturned();
+        thenTeamsAreReturned(overrides);
     }
 
-    private void assertPluginValues(String key, String json)
+    @Test
+    public void testTeamOverridesEmpty()
     {
-        assertThat(repository.getPlugins().get(key), notNullValue());
-        assertThat(repository.getPlugins().get(key), equalTo(json));
+        givenTeamDefaults();
+        givenTeamOverridesAreEmpty();
+        whenBuildRepositories();
+        thenTeamsAreEmpty();
     }
 
-    private Protection getProtection(Repository repository, String branch)
+    @Test
+    public void testTeamOverridesNull()
     {
-        return repository.getSettings().getBranches().getProtection(branch);
+        givenTeamDefaults();
+        givenTeamOverridesAreNull();
+        whenBuildRepositories();
+        thenTeamsAreEmpty();
+    }
+
+    @Test
+    public void testWorkflowDefault()
+    {
+        givenDefaultWorkflow();
+        whenBuildRepositories();
+        thenDefaultWorkflowReturned();
+    }
+
+    @Test
+    public void testWorkflowOverride()
+    {
+        givenDefaultWorkflow();
+        givenOverrideWorkflow();
+        whenBuildRepositories();
+        thenOverrideWorkflowReturned();
     }
 
     private void givenADefaultPlugin()
     {
-        dBuilder.addPlugin("default", "{\"default\": \"true\"}");
+        dBuilder.addPlugin("default", toJson("{\"foo\": \"bar\"}"))
+                .addPlugin("other", toJson("{\"foo\": \"bar\"}"));
     }
 
-    private void givenAMergedPlugin()
-    {
-        dBuilder.addPlugin("merged", "{\"merged\": \"true\"}");
-    }
-
-    private void givenAnOverridenPlugin()
-    {
-        dBuilder.addPlugin("default", "{\"default\": \"false\"}");
-    }
-
-    private void givenAnOverrideOrganization()
+    private void givenAnOrganizationOverride()
     {
         oBuilder.setOrganization("override-org");
     }
 
-    private void givenDefaultLabels()
+    private void givenAnOverridenPlugin()
     {
-        dBuilder.addLabel("default", Color.from("#00000"));
+        dBuilder.addPlugin("default", toJson("{\"foo\": \"baz\"}"))
+                .addPlugin("override", toJson("{\"foo\": \"baz\"}"));
     }
 
-    private void givenDefaultPushTeams()
+    private void givenAPrimaryBranchDefault()
     {
-        dBuilder.addTeamPushAccess("master", "default");
+        primaryBranch = "primary";
+        dBuilder.setPrimaryBranch(primaryBranch);
     }
 
-    private void givenDefaultStatusChecks()
+    private void givenAPrimaryBranchOverride()
     {
-        dBuilder.addRequiredContext("master", "default");
+        primaryBranch = "override";
+        oBuilder.setPrimaryBranch(primaryBranch);
+    }
+
+    private void givenBranchProtectionDefaultRequireUpToDateOnly()
+    {
+        dBuilder.requireBranchUpToDate("master", true);
+    }
+
+    private void givenBranchProtectionDefaults()
+    {
+        setEnabledBranchProtections(dBuilder);
+    }
+
+    private void givenBranchProtectionDefaultsDisables()
+    {
+        dBuilder.disableBranchProtection("master");
+    }
+
+    private void givenBranchProtectionOnlyOverride()
+    {
+        oBuilder.enableBranchProtection("master");
+    }
+
+    private void givenBranchProtectionOverrideDisables()
+    {
+        oBuilder.disableBranchProtection("master");
+    }
+
+    private void givenBranchProtectionOverrides()
+    {
+        setEnabledBranchProtections(oBuilder);
+    }
+
+    private void givenBranchProtectionOverridesEnforceForAdmins()
+    {
+        oBuilder.enableBranchProtection("master")
+                .enforceForAdminstrators("master", false);
+    }
+
+    private void givenBranchProtectionOverridesSignedCommits()
+    {
+        oBuilder.enableBranchProtection("master")
+                .requireSignedCommits("master", false);
+    }
+
+    private void givenCollaboratorDefaults()
+    {
+        dBuilder.addCollaborator("default", Permission.write);
+    }
+
+    private void givenCollaboratorOverrides()
+    {
+        oBuilder.addCollaborator("override", Permission.admin);
+    }
+
+    private void givenCollaboratorOverridesAreEmpty()
+    {
+        oBuilder.addCollaborators(Collections.emptyMap());
+    }
+
+    private void givenCollaboratorOverridesAreNull()
+    {
+        oBuilder.addCollaborators();
     }
 
     private void givenDefaultWorkflow()
@@ -207,24 +459,40 @@ public class RepositoryMergerTest
         dBuilder.addWorkflow("default");
     }
 
-    private void givenMergedLabels()
+    private void givenInitializeDefault()
     {
-        oBuilder.addLabel("merged", Color.from("#00001"));
+        dBuilder.setInitialize(true);
     }
 
-    private void givenOverrideLabels()
+    private void givenInitializeOverride()
     {
-        oBuilder.addLabel("default", Color.from("#00001"));
+        oBuilder.setInitialize(false);
     }
 
-    private void givenOverridePushTeams()
+    private void givenLabelDefaults()
     {
-        oBuilder.addTeamPushAccess("master", "override");
+        dBuilder.addLabel("default", Color.from("#00000"));
     }
 
-    private void givenOverrideStatusChecks()
+    private void givenLabelOverrides()
     {
-        oBuilder.addRequiredContext("master", "override");
+        oBuilder.addLabel("override", Color.from("#00001"));
+    }
+
+    private void givenLabelOverridesEmpty()
+    {
+        oBuilder.addLabels(Collections.emptyMap());
+    }
+
+    private void givenLabelOverridesNull()
+    {
+        oBuilder.addLabels();
+    }
+
+    private void givenNullOrganizations()
+    {
+        dBuilder.setOrganization(null);
+        oBuilder.setOrganization(null);
     }
 
     private void givenOverrideWorkflow()
@@ -232,112 +500,198 @@ public class RepositoryMergerTest
         oBuilder.addWorkflow("override");
     }
 
-    private void thenDefaultLabelsReturned()
+    private void givenPrimaryBranchNoSet()
     {
-        assertThat(repository.getSettings().getLabels(), notNullValue());
-        assertThat(repository.getSettings().getLabels().keySet().containsAll(defaults.getSettings().getLabels().keySet()),
-                equalTo(true));
+        primaryBranch = "master";
+        // nothing set on builders...
     }
 
-    private void thenDefaultOrganizationReturned()
+    private void givenTeamDefaults()
     {
-        assertThat(repository.getOrganization(), equalTo(defaults.getOrganization()));
+        dBuilder.addTeam("default", Permission.write);
     }
 
-    private void thenDefaultPluginReturned()
+    private void givenTeamOverrides()
     {
-        assertPluginValues("default", "{\"default\":\"true\"}");
+        oBuilder.addTeam("override", Permission.admin);
     }
 
-    private void thenDefaultPushTeamsReturned()
+    private void givenTeamOverridesAreEmpty()
     {
-        Protection dProtection = getProtection(defaults, "master");
-        Protection rProtection = getProtection(repository, "master");
-
-        assertThat(rProtection, notNullValue());
-        assertThat(rProtection.getPushTeams().containsAll(dProtection.getPushTeams()), equalTo(true));
+        oBuilder.addTeams(Collections.emptyMap());
     }
 
-    private void thenDefaultStatusChecksReturned()
+    private void givenTeamOverridesAreNull()
     {
-        Protection dProtection = getProtection(defaults, "master");
-        Protection rProtection = getProtection(repository, "master");
+        oBuilder.addTeams();
+    }
 
-        assertThat(rProtection, notNullValue());
-        assertThat(rProtection.getRequiredChecks().getContexts().containsAll(dProtection.getRequiredChecks().getContexts()),
-                equalTo(true));
+    private void setEnabledBranchProtections(RepositoryBuilder builder)
+    {
+        builder.enableBranchProtection("master")
+               .requireSignedCommits("master", true)
+               .enforceForAdminstrators("master", true);
+
+        setEnableRequiredReviews(builder);
+        setEnableRequiredChecks(builder);
+        setEnableRestricedPushAccess(builder);
+    }
+
+    private void setEnableRequiredChecks(RepositoryBuilder builder)
+    {
+        builder.enableBranchProtection("master")
+               .requireBranchUpToDate("master", true)
+               .addRequiredContext("master", "repository");
+    }
+
+    private void setEnableRequiredReviews(RepositoryBuilder builder)
+    {
+        builder.enableBranchProtection("master")
+               .requireReviews("master")
+               .requiredReviewers("master", 2)
+               .dismissStaleApprovals("master", true)
+               .requireCodeOwnerReview("master", true)
+               .addTeamReviewDismisser("master", "default")
+               .addUserReviewDismisser("master", "default");
+    }
+
+    private void setEnableRestricedPushAccess(RepositoryBuilder builder)
+    {
+        builder.enableBranchProtection("master")
+               .restrictPushAccess("master")
+               .addTeamPushAccess("master", "default")
+               .addUserPushAccess("master", "default");
+    }
+
+    private void thenBranchProtectionDefaultRequireUpToDateOnly()
+    {
+        verifyRequireUpToDateEnabled(repository, "master");
+        verifyNoStatusChecksAreRequired(repository, "master");
+    }
+
+    private void thenBranchProtectionDefaultsAreCorrect()
+    {
+        verifyBranchProtectionIsDisabled(repository, "master");
+    }
+
+    private void thenBranchProtectionIsNotEnabled()
+    {
+        verifyBranchProtectionIsDisabled(repository, "master");
+    }
+
+    private void thenBranchProtectionOnlyIsEnabled(Repository repository)
+    {
+        verifyBranchProtectionEnabledOnly(repository, "master");
+    }
+
+    private void thenBranchProtectionsAreEnabled(Repository expected)
+    {
+        verifyBranchProtectionsAreAllEnabled(repository, expected, "master");
+    }
+
+    private void thenCollaboratorsAreEmpty()
+    {
+        verifyCollaboratorsAreEmpty(repository);
+    }
+
+    private void thenCollaboratorsAreReturned(Repository expected)
+    {
+        verifyCollaborators(repository, expected);
+    }
+
+    private void thenDefaultPluginsReturned()
+    {
+        assertThat(repository.getPlugins().size(), equalTo(2));
+        assertThat(((JsonObject) repository.getPlugin("default")).getString("foo"), equalTo("bar"));
     }
 
     private void thenDefaultWorkflowReturned()
     {
-        assertThat(repository.getWorkflow().containsAll(defaults.getWorkflow()), equalTo(true));
+        assertThat(repository.getWorkflow(), contains(defaults.getWorkflow().toArray()));
     }
 
-    private void thenMergedPluginReturned()
+    private void thenEnforceForAdminsDisabled()
     {
-        assertPluginValues("merged", "{\"merged\":\"true\"}");
+        verifyEnforeForAdministratorsDisabled(repository, "master");
     }
 
-    private void thenOverrideColorIsCorrect()
+    private void thenIllegalStateExceptionThrown()
     {
-        assertThat(repository.getSettings().getLabels().get("default"),
-                equalTo(overrides.getSettings().getLabels().get("default")));
+        assertThat(exception, notNullValue());
+        assertThat(exception, instanceOf(IllegalStateException.class));
     }
 
-    private void thenOverrideLabelsReturned()
+    private void thenInitializationIsFalse()
     {
-        assertThat(repository.getSettings().getLabels(), notNullValue());
-        assertThat(repository.getSettings().getLabels().keySet().containsAll(overrides.getSettings().getLabels().keySet()),
-                equalTo(true));
+        verifyRepositoryNotInitialized(repository);
     }
 
-    private void thenOverridenPluginIsReturned()
+    private void thenInitializationIsTrue()
     {
-        assertPluginValues("default", "{\"default\":\"false\"}");
+        verifyRepositoryInitialized(repository);
     }
 
-    private void thenOverrideOrganizationReturned()
+    private void thenLabelsAreEmpty()
     {
-        assertThat(repository.getOrganization(), equalTo(overrides.getOrganization()));
+        verifyLabelsAreEmpty(repository.getSettings().getLabels());
     }
 
-    private void thenOverridePushTeamsReturned()
+    private void thenLabelsAreReturned(Repository expected)
     {
-        Protection oProtection = getProtection(overrides, "master");
-        Protection rProtection = getProtection(repository, "master");
-
-        assertThat(rProtection, notNullValue());
-        assertThat(rProtection.getPushTeams().containsAll(oProtection.getPushTeams()), equalTo(true));
+        verifyLabels(repository.getSettings().getLabels(), expected.getSettings().getLabels());
     }
 
-    private void thenOverrideStatusCheckesReturned()
+    private void thenOrganizationDefaultIsReturned()
     {
-        Protection oProtection = getProtection(overrides, "master");
-        Protection rProtection = getProtection(repository, "master");
+        verifyOrganization(repository, defaults);
+    }
 
-        assertThat(rProtection, notNullValue());
-        assertThat(rProtection.getRequiredChecks().getContexts().containsAll(oProtection.getRequiredChecks().getContexts()),
-                equalTo(true));
+    private void thenOrganizationOverrideIsReturned()
+    {
+        verifyOrganization(repository, overrides);
+    }
+
+    private void thenOtherProtectionsAreDisabled()
+    {
+        verifyRequireReviewsDisabled(repository, "master");
+        verifyRequiredStatusChecksDisabled(repository, "master");
+        verifyPushAccessIsUnrestricted(repository, "master");
+    }
+
+    private void thenOverridePluginsReturned()
+    {
+        assertThat(repository.getPlugins().size(), equalTo(3));
+        assertThat(((JsonObject) repository.getPlugin("default")).getString("foo"), equalTo("baz"));
     }
 
     private void thenOverrideWorkflowReturned()
     {
-        assertThat(repository.getWorkflow().containsAll(overrides.getWorkflow()), equalTo(true));
-        assertThat(repository.getWorkflow().containsAll(defaults.getWorkflow()), equalTo(false));
+        assertThat(repository.getWorkflow(), contains(overrides.getWorkflow().toArray()));
     }
 
-    private void thenPrimaryBranchIsMaster()
+    private void thenPrimaryBranchIsCorrect()
     {
-        assertThat(repository.getSettings().getBranches().getDefault(), equalTo("master"));
+        verifyPrimaryBranch(repository, primaryBranch);
     }
 
-    private void thenRepositoryDefaultsAreReturned()
+    private void thenSignedCommitsAreDisabled()
     {
-        Protection protection = getProtection(repository, "master");
+        verifyRequireSignedCommitsDisabled(repository, "master");
+    }
 
-        verifyCommitsAdminsDisabled(protection);
-        verifyRequireReviewsDisabled(protection);
-        verifyRequiredStatusChecksDisabled(protection);
+    private void thenTeamsAreEmpty()
+    {
+        verifyTeamsAreEmpty(repository);
+    }
+
+    private void thenTeamsAreReturned(Repository expected)
+    {
+        verifyTeams(repository, expected);
+    }
+
+    private JsonObject toJson(String json)
+    {
+        return JsonTransformer.deserialize(json);
     }
 
     private void whenBuildRepositories()
@@ -345,6 +699,13 @@ public class RepositoryMergerTest
         defaults = dBuilder.build();
         overrides = oBuilder.build();
 
-        repository = new RepositoryMerger(defaults, overrides).merge();
+        try
+        {
+            repository = new RepositoryMerger(defaults, overrides).merge();
+        }
+        catch (Exception e)
+        {
+            exception = e;
+        }
     }
 }

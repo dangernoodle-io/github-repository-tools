@@ -1,0 +1,10 @@
+{
+    "name": "branch-protection",
+    "settings": {
+        "branches": {
+            "protections": {
+                "master": null
+            }
+        }
+    }
+}

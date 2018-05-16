@@ -1,46 +1,49 @@
 package io.dangernoodle.grt;
 
 import static io.dangernoodle.grt.Repository.GITHUB;
-import static io.dangernoodle.grt.json.DefaultJsonTransformer.transformer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
+
+import io.dangernoodle.grt.json.JsonTransformer;
+import io.dangernoodle.grt.json.JsonTransformer.JsonObject;
 
 
 public class Credentials
 {
     public static final String FILENAME = "credentials.json";
 
-    private final Map<String, Object> credentials;
+    private final JsonObject json;
 
-    private final String githubToken;
-
-    private Credentials(Map<String, Object> credentials)
+    private Credentials(JsonObject json)
     {
-        this.credentials = credentials;
-        this.githubToken = credentials.remove(GITHUB).toString();
+        this.json = json;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T getCredentials(String key)
+    public String getAuthToken(String key)
     {
-        return (T) credentials.get(key);
+        return json.getString(key);
+    }
+
+    public JsonObject getCredentials(String key)
+    {
+        return json.getJsonObject(key);
     }
 
     public String getGithubToken() throws IllegalStateException
     {
-        if (githubToken == null)
+        String token = json.getString(GITHUB);
+        if (token == null)
         {
             throw new IllegalStateException("github oauth token not found");
         }
 
-        return githubToken;
+        return token;
     }
 
     @SuppressWarnings("unchecked")
     public static Credentials load(File file) throws IOException
     {
-        return new Credentials(transformer.deserialize(file, Map.class));
+        return new Credentials(JsonTransformer.deserialize(file));
     }
 }

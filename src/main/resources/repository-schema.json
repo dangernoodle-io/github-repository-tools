@@ -90,7 +90,7 @@
                     "type": "boolean"
                 },
                 "requireReviews": {
-                    "type": "object",
+                    "type": ["object", "null"],
                     "properties": {
                         "requiredReviewers": {
                             "description": "number of required reviewers",
@@ -113,7 +113,7 @@
                     "additionalProperties": false
                 },
                 "requiredStatusChecks": {
-                    "type": "object",
+                    "type": ["object", "null"],
                     "properties": {
                         "requireUpToDate": {
                             "description": "require the branch to be up-to-date before merge",
@@ -121,7 +121,7 @@
                         },
                         "contexts": {
                             "description": "required status contexts",
-                            "type": "array",
+                            "type": ["array", "null"],
                             "items": {
                                 "type": "string"
                             },
