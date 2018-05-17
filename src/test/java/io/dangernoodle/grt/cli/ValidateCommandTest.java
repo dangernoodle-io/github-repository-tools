@@ -1,7 +1,5 @@
 package io.dangernoodle.grt.cli;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.io.File;
@@ -13,7 +11,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import io.dangernoodle.grt.Arguments;
-import io.dangernoodle.grt.json.JsonSchemaValidator;
+import io.dangernoodle.grt.utils.JsonTransformer;
 
 
 public class ValidateCommandTest
@@ -30,13 +28,13 @@ public class ValidateCommandTest
     private File mockFile2;
 
     @Mock
-    private JsonSchemaValidator mockValidator;
+    private JsonTransformer mockTransformer;
 
     @BeforeEach
     public void beforeEach()
     {
         MockitoAnnotations.initMocks(this);
-        executor = new ValidateCommand.Executor(mockArguments, mockValidator);
+        executor = new ValidateCommand.Executor(mockArguments, mockTransformer);
     }
 
     @Test
@@ -48,7 +46,8 @@ public class ValidateCommandTest
 
     private void thenSchemaWasValidated() throws IOException
     {
-        verify(mockValidator, times(2)).validate(any());
+        verify(mockTransformer).validate(mockFile1);
+        verify(mockTransformer).validate(mockFile2);
     }
 
     private void whenValidateSchema() throws Exception

@@ -6,7 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.dangernoodle.grt.Arguments;
-import io.dangernoodle.grt.FileLoader;
+import io.dangernoodle.grt.internal.FileLoader;
+import io.dangernoodle.grt.utils.JsonTransformer;
 
 
 public abstract class CommandLineExecutor
@@ -15,9 +16,13 @@ public abstract class CommandLineExecutor
 
     protected final Logger logger;
 
-    public CommandLineExecutor(Arguments arguments)
+    protected final JsonTransformer transformer;
+
+    public CommandLineExecutor(Arguments arguments, JsonTransformer transformer)
     {
+        this.transformer = transformer;
         this.loader = new FileLoader(arguments.getRepoDir());
+
         this.logger = LoggerFactory.getLogger(getClass());
     }
 
@@ -25,9 +30,9 @@ public abstract class CommandLineExecutor
 
     public static abstract class RepositoryExecutor extends CommandLineExecutor
     {
-        public RepositoryExecutor(Arguments arguments)
+        public RepositoryExecutor(Arguments arguments, JsonTransformer transformer)
         {
-            super(arguments);
+            super(arguments, transformer);
         }
 
         @Override

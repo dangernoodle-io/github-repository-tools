@@ -1,18 +1,15 @@
 package io.dangernoodle.grt;
 
-import static io.dangernoodle.grt.json.JsonTransformer.deserialize;
 import static java.util.Optional.ofNullable;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
-import io.dangernoodle.grt.json.JsonTransformer.JsonArray;
-import io.dangernoodle.grt.json.JsonTransformer.JsonObject;
-import io.dangernoodle.grt.json.JsonTransformer.JsonObject.Deserializer;
+import io.dangernoodle.grt.utils.JsonTransformer.JsonArray;
+import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
+import io.dangernoodle.grt.utils.JsonTransformer.JsonObject.Deserializer;
 
 
 /**
@@ -30,7 +27,7 @@ public class Repository
 
     private final Settings settings;
 
-    private Repository(JsonObject json)
+    public Repository(JsonObject json)
     {
         this.json = json;
 
@@ -85,16 +82,6 @@ public class Repository
                 return json;
             }
         });
-    }
-
-    public static Repository load(File file) throws IOException
-    {
-        return load(deserialize(file));
-    }
-
-    public static Repository load(JsonObject json)
-    {
-        return new Repository(json);
     }
 
     public static class Settings

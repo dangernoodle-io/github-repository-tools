@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.json;
+package io.dangernoodle.grt.utils;
 
 import java.io.IOException;
 

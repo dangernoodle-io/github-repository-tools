@@ -10,8 +10,10 @@ import com.beust.jcommander.Parameters;
 
 import io.dangernoodle.grt.Arguments;
 import io.dangernoodle.grt.Repository;
-import io.dangernoodle.grt.internal.RepositoryMerger;
 import io.dangernoodle.grt.internal.WorkflowExecutor;
+import io.dangernoodle.grt.utils.JsonTransformer;
+import io.dangernoodle.grt.utils.RepositoryBuilder;
+import io.dangernoodle.grt.utils.RepositoryMerger;
 
 
 @Parameters(commandNames = "repository", resourceBundle = "GithubRepositoryTools", commandDescriptionKey = "repository")
@@ -31,16 +33,21 @@ public class RepositoryCommand implements CommandLineParser.Command
         private final WorkflowExecutor workflow;
 
         @Inject
-        public Executor(Arguments arguments, WorkflowExecutor workflow)
+        public Executor(Arguments arguments, WorkflowExecutor workflow, JsonTransformer transformer)
         {
-            super(arguments);
+            super(arguments, transformer);
             this.workflow = workflow;
         }
 
         @Override
         protected void execute(File defaults, File overrides) throws Exception
         {
-            RepositoryMerger merger = createRepositoryMerger(defaults, overrides);
+            RepositoryBuilder builder = new RepositoryBuilder(transformer);
+
+            Repository deRepo = createRepository(defaults);
+            Repository ovRepo = createRepository(overrides);
+
+            RepositoryMerger merger = createRepositoryMerger(deRepo, ovRepo, builder);
             Repository repository = merger.merge();
 
             workflow.execute(repository);
@@ -52,9 +59,14 @@ public class RepositoryCommand implements CommandLineParser.Command
             return name;
         }
 
-        RepositoryMerger createRepositoryMerger(File defaults, File overrides) throws IOException
+        Repository createRepository(File file) throws IOException
         {
-            return new RepositoryMerger(Repository.load(defaults), Repository.load(overrides));
+            return new Repository(transformer.validate(file));
+        }
+
+        RepositoryMerger createRepositoryMerger(Repository defaults, Repository overrides, RepositoryBuilder builder)
+        {
+            return new RepositoryMerger(defaults, overrides, builder);
         }
     }
 }

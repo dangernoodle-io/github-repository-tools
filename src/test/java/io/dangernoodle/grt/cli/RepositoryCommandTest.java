@@ -16,8 +16,10 @@ import org.mockito.MockitoAnnotations;
 
 import io.dangernoodle.grt.Arguments;
 import io.dangernoodle.grt.Repository;
-import io.dangernoodle.grt.internal.RepositoryMerger;
 import io.dangernoodle.grt.internal.WorkflowExecutor;
+import io.dangernoodle.grt.utils.JsonTransformer;
+import io.dangernoodle.grt.utils.RepositoryBuilder;
+import io.dangernoodle.grt.utils.RepositoryMerger;
 
 
 public class RepositoryCommandTest
@@ -39,21 +41,33 @@ public class RepositoryCommandTest
     private RepositoryMerger mockMerger;
 
     @Mock
+    private Repository mockOverrides;
+
+    @Mock
     private Repository mockRepository;
+
+    @Mock
+    private JsonTransformer mockTransformer;
 
     @Mock
     private WorkflowExecutor mockWorkflowExecutor;
 
     @BeforeEach
-    public void beforeEach()
+    public void beforeEach() throws Exception
     {
         MockitoAnnotations.initMocks(this);
 
         when(mockMerger.merge()).thenReturn(mockRepository);
-        executor = new RepositoryCommand.Executor(mockArguments, mockWorkflowExecutor)
+        executor = new RepositoryCommand.Executor(mockArguments, mockWorkflowExecutor, mockTransformer)
         {
             @Override
-            RepositoryMerger createRepositoryMerger(File defaults, File overrides) throws IOException
+            Repository createRepository(File file) throws IOException
+            {
+                return mockRepository;
+            }
+
+            @Override
+            RepositoryMerger createRepositoryMerger(Repository defaults, Repository overrides, RepositoryBuilder builder)
             {
                 return mockMerger;
             }

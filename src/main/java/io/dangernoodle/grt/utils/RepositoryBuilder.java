@@ -1,5 +1,6 @@
-package io.dangernoodle.grt.internal;
+package io.dangernoodle.grt.utils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,16 +9,18 @@ import java.util.Map;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Repository.Settings.Permission;
-import io.dangernoodle.grt.json.JsonTransformer;
-import io.dangernoodle.grt.json.JsonTransformer.JsonObject;
+import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
 
 
 public class RepositoryBuilder
 {
     private final Map<String, Object> repository;
 
-    public RepositoryBuilder()
+    private final JsonTransformer transformer;
+
+    public RepositoryBuilder(JsonTransformer transformer)
     {
+        this.transformer = transformer;
         this.repository = createEmptyMap();
     }
 
@@ -129,10 +132,10 @@ public class RepositoryBuilder
 
     public Repository build()
     {
-        JsonObject json = JsonTransformer.serialize(repository);
+        JsonObject json = transformer.serialize(repository);
         // System.out.println(json.prettyPrint());
 
-        return Repository.load(json);
+        return new Repository(json);
     }
 
     public RepositoryBuilder disableBranchProtection(String branch)

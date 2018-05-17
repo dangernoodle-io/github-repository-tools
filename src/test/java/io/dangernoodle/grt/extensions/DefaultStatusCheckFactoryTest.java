@@ -27,7 +27,7 @@ public class DefaultStatusCheckFactoryTest
     public void beforeEach() throws Exception
     {
         factory = new DefaultStatusCheckFactory();
-        repository = Repository.load(RepositoryFiles.mockRepository.getFile());
+        repository = new Repository(RepositoryFiles.mockRepository.toJsonObject());
     }
 
     @Test

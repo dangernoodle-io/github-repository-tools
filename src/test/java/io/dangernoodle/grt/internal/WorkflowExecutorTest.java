@@ -20,6 +20,8 @@ import org.mockito.MockitoAnnotations;
 
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow;
+import io.dangernoodle.grt.utils.JsonTransformer;
+import io.dangernoodle.grt.utils.RepositoryBuilder;
 
 
 public class WorkflowExecutorTest
@@ -51,7 +53,7 @@ public class WorkflowExecutorTest
         when(mockPlugin1Workflow.getName()).thenReturn("plugin1");
         when(mockPlugin2Workflow.getName()).thenReturn("plugin2");
 
-        repoBuilder = new RepositoryBuilder();
+        repoBuilder = new RepositoryBuilder(new JsonTransformer());
         executor = new WorkflowExecutor(Arrays.asList(mockGithubWorkflow, mockPlugin1Workflow, mockPlugin2Workflow));
     }
 
@@ -88,7 +90,7 @@ public class WorkflowExecutorTest
         whenExecuteWorkflow();
         thenAllPluginsExecutedInOrder();
     }
-    
+
     @Test
     public void testWorflowNotFound() throws Exception
     {
@@ -97,7 +99,7 @@ public class WorkflowExecutorTest
         whenExecuteWorkflow();
         thenOnlyGithubWorkflowCalled();
     }
-    
+
     private void givenAGithubWorkflowException() throws Exception
     {
         doThrow(Exception.class).when(mockGithubWorkflow).execute(eq(repository), any());

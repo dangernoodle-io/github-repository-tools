@@ -9,7 +9,6 @@ import javax.enterprise.inject.Produces;
 
 import io.dangernoodle.grt.Arguments;
 import io.dangernoodle.grt.Credentials;
-import io.dangernoodle.grt.FileLoader;
 import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.cli.CommandLineParser;
@@ -18,7 +17,7 @@ import io.dangernoodle.grt.cli.RepositoryCommand;
 import io.dangernoodle.grt.cli.ValidateCommand;
 import io.dangernoodle.grt.extensions.DefaultStatusCheckFactory;
 import io.dangernoodle.grt.extensions.StatusCheckFactory;
-import io.dangernoodle.grt.json.JsonSchemaValidator;
+import io.dangernoodle.grt.utils.JsonTransformer;
 
 
 @ApplicationScoped
@@ -43,9 +42,9 @@ public class ProducerFactory
     @Produces
     @ApplicationScoped
     @SuppressWarnings("unchecked")
-    public Credentials getCredentials(Arguments arguments) throws IOException
+    public Credentials getCredentials(Arguments arguments, JsonTransformer transformer) throws IOException
     {
-        return Credentials.load(new FileLoader(arguments.getRepoDir()).loadCredentials());
+        return new Credentials(transformer.deserialize(new FileLoader(arguments.getRepoDir()).loadCredentials()));
     }
 
     @Produces
@@ -71,9 +70,9 @@ public class ProducerFactory
 
     @Produces
     @ApplicationScoped
-    public JsonSchemaValidator getJsonSchemaValidator() throws IOException
+    public JsonTransformer getJsonTransformer()
     {
-        return new EveritSchemaValidator(() -> getClass().getResourceAsStream(JsonSchemaValidator.SCHEMA));
+        return new JsonTransformer();
     }
 
     @Produces
@@ -85,16 +84,10 @@ public class ProducerFactory
 
     @Produces
     @ApplicationScoped
-    public ValidateCommand.Executor getRepositoryExecutor(Arguments arguments, JsonSchemaValidator validator)
+    public RepositoryCommand.Executor getRepositoryExecutor(Arguments arguments, WorkflowExecutor workflow,
+            JsonTransformer transformer)
     {
-        return new ValidateCommand.Executor(arguments, validator);
-    }
-
-    @Produces
-    @ApplicationScoped
-    public RepositoryCommand.Executor getRepositoryExecutor(Arguments arguments, WorkflowExecutor workflow)
-    {
-        return new RepositoryCommand.Executor(arguments, workflow);
+        return new RepositoryCommand.Executor(arguments, workflow, transformer);
     }
 
     @Produces
@@ -109,5 +102,12 @@ public class ProducerFactory
     public ValidateCommand getValidateCommand()
     {
         return new ValidateCommand();
+    }
+
+    @Produces
+    @ApplicationScoped
+    public ValidateCommand.Executor getValidateExecutor(Arguments arguments, JsonTransformer transformer)
+    {
+        return new ValidateCommand.Executor(arguments, transformer);
     }
 }

@@ -11,8 +11,8 @@ import com.beust.jcommander.Parameters;
 
 import io.dangernoodle.grt.Arguments;
 import io.dangernoodle.grt.cli.CommandLineExecutor.RepositoryExecutor;
-import io.dangernoodle.grt.json.JsonSchemaValidator;
-import io.dangernoodle.grt.json.JsonValidationException;
+import io.dangernoodle.grt.utils.JsonTransformer;
+import io.dangernoodle.grt.utils.JsonValidationException;
 
 
 @Parameters(commandNames = "validate", resourceBundle = "GithubRepositoryTools", commandDescriptionKey = "validate")
@@ -29,13 +29,10 @@ public class ValidateCommand implements CommandLineParser.Command
 
     public static class Executor extends RepositoryExecutor
     {
-        private final JsonSchemaValidator validator;
-
         @Inject
-        public Executor(Arguments arguments, JsonSchemaValidator validator)
+        public Executor(Arguments arguments, JsonTransformer transformer)
         {
-            super(arguments);
-            this.validator = validator;
+            super(arguments, transformer);
         }
 
         @Override
@@ -58,7 +55,7 @@ public class ValidateCommand implements CommandLineParser.Command
             try
             {
                 logger.info("validating [{}]", name);
-                validator.validate(() -> new FileInputStream(toValidate));
+                transformer.validate(toValidate);
             }
             catch (@SuppressWarnings("unused") JsonValidationException e)
             {

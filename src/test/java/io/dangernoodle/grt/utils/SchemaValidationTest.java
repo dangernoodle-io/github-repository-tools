@@ -1,30 +1,36 @@
-package io.dangernoodle.grt.json;
+package io.dangernoodle.grt.utils;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.dangernoodle.RepositoryFiles;
-import io.dangernoodle.grt.internal.EveritSchemaValidator;
 
 
 public class SchemaValidationTest
 {
     private Exception exception;
-    
+
     private RepositoryFiles toValidate;
 
-    private EveritSchemaValidator validator;
+    private JsonTransformer transformer;
 
     @BeforeEach
     public void beforeEach() throws Exception
     {
-        validator = new EveritSchemaValidator(() -> getInputStream("/repository-schema.json"));
+        transformer = new JsonTransformer();
+    }
+    
+    @Test
+    public void testNullBranchProtection()
+    {
+        givenNullBranchProtection();
+        whenValidateJson();
+        thenJsonIsValid();
     }
 
     @Test
@@ -34,7 +40,7 @@ public class SchemaValidationTest
         whenValidateJson();
         thenJsonIsValid();
     }
-    
+
     @Test
     public void testSchemaIsValid() throws Exception
     {
@@ -42,12 +48,7 @@ public class SchemaValidationTest
         whenValidateJson();
         thenJsonIsValid();
     }
-    
-    private InputStream getInputStream(String path)
-    {
-        return getClass().getResourceAsStream(path);
-    }
-    
+
     private void givenANullWorkflow()
     {
         toValidate = RepositoryFiles.nullWorkflow;
@@ -56,6 +57,11 @@ public class SchemaValidationTest
     private void givenAValidJsonFile()
     {
         toValidate = RepositoryFiles.mockRepository;
+    }
+
+    private void givenNullBranchProtection()
+    {
+        toValidate = RepositoryFiles.nullBranchProtection;
     }
 
     private void thenJsonIsValid()
@@ -67,7 +73,7 @@ public class SchemaValidationTest
     {
         try
         {
-            validator.validate(() -> toValidate.getInputStream());
+            transformer.validate(toValidate.getFile());
         }
         catch (IOException e)
         {
