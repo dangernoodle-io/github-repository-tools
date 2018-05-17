@@ -12,6 +12,7 @@ import java.io.UncheckedIOException;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.kohsuke.github.GHBranchProtection;
@@ -30,6 +31,7 @@ import io.dangernoodle.grt.utils.JsonTransformer;
 import io.dangernoodle.grt.utils.RepositoryBuilder;
 
 
+@Disabled
 public class UserRepositoryIT
 {
     @RegisterExtension
