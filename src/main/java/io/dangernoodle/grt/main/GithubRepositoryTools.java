@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import io.dangernoodle.grt.cli.CommandLineExecutor;
 import io.dangernoodle.grt.cli.CommandLineParser;
+import io.dangernoodle.grt.utils.JsonValidationException;
 
 
 public class GithubRepositoryTools
@@ -24,9 +25,9 @@ public class GithubRepositoryTools
                      .get()
                      .execute();
         }
-        catch (@SuppressWarnings("unused") IllegalArgumentException e)
+        catch (@SuppressWarnings("unused") IllegalArgumentException | JsonValidationException e)
         {
-            // no-op thrown/catch so the container can shutdown cleanly
+            // no-op so the container can shutdown cleanly, these have already been logged accordingly
         }
         catch (Exception e)
         {
