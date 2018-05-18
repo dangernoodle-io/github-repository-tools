@@ -10,7 +10,7 @@
 
   <artifactId>github-repository-tools</artifactId>
   <name>${project.artifactId}</name>
-  <version>0.1.3-SNAPSHOT</version>
+  <version>0.2.0-SNAPSHOT</version>
 
   <url>https://github.com/dangernoodle-io/github-repository-tools</url>
   <description>github repository tools</description>

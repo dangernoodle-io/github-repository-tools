@@ -20,86 +20,64 @@ import io.dangernoodle.grt.Repository.Settings.Permission;
 
 public class RepositoryMerger
 {
-    private final Branches deBranches;
+    private JsonTransformer transformer;
 
-    private final Repository deRepository;
-
-    private final Settings deSettings;
-
-    private final Branches ovBranches;
-
-    private final Repository ovRepository;
-
-    private final Settings ovSettings;
-
-    private final RepositoryBuilder repoBuilder;
-
-    public RepositoryMerger(Repository defaults, Repository overrides, RepositoryBuilder builder)
+    public RepositoryMerger(JsonTransformer transformer)
     {
-        this.deRepository = defaults;
-        this.ovRepository = overrides;
-
-        this.deSettings = deRepository.getSettings();
-        this.ovSettings = ovRepository.getSettings();
-
-        this.deBranches = deSettings.getBranches();
-        this.ovBranches = ovSettings.getBranches();
-
-        this.repoBuilder = builder;
+        this.transformer = transformer;
     }
 
-    public Repository merge() throws IllegalStateException
+    public Repository merge(Repository repository) throws IllegalStateException
     {
-        // there can be only one
-        repoBuilder.setName(ovRepository.getName());
-
-        mergeOrganization();
-        mergeAutoInitialize();
-        mergePrivate();
-        mergeLabels();
-        mergeTeams();
-        mergeColaborators();
-        mergeBranches();
-        mergePlugins();
-        mergeWorkflow();
-
-        return repoBuilder.build();
+        RepositoryBuilder builder = createBuilder();
+        return merge(repository, builder.build(), builder);
     }
 
-    private void addBranchProtection(String branch, Protection protection)
+    public Repository merge(Repository overrides, Repository defaults) throws IllegalStateException
     {
-        repoBuilder.requireSignedCommits(branch, merge(protection.getRequireSignedCommits(), false))
-                   .enforceForAdminstrators(branch, merge(protection.getIncludeAdministrators(), false));
+        return merge(overrides, defaults, createBuilder());
+    }
+
+    // visible for testing
+    RepositoryBuilder createBuilder()
+    {
+        return new RepositoryBuilder(transformer);
+    }
+
+    private void addBranchProtection(String branch, Protection protection, RepositoryBuilder builder)
+    {
+        builder.requireSignedCommits(branch, merge(protection.getRequireSignedCommits(), false))
+               .enforceForAdminstrators(branch, merge(protection.getIncludeAdministrators(), false));
 
         if (protection.hasRequireReviews())
         {
-            addRequireReviews(branch, protection.getRequireReviews());
+            addRequireReviews(branch, protection.getRequireReviews(), builder);
         }
 
         if (protection.hasRequiredChecks())
         {
-            addRequireChecks(branch, protection.getRequiredChecks());
+            addRequireChecks(branch, protection.getRequiredChecks(), builder);
         }
 
         if (protection.hasRestrictedPushAccess())
         {
-            addRestrictedPushAccess(branch, protection);
+            addRestrictedPushAccess(branch, protection, builder);
         }
     }
 
-    private void addRequireChecks(String branch, RequiredChecks requireChecks)
+    private void addRequireChecks(String branch, RequiredChecks requireChecks, RepositoryBuilder builder)
     {
-        repoBuilder.requireBranchUpToDate(branch, requireChecks.getRequireUpToDate());
+        builder.requireBranchUpToDate(branch, requireChecks.getRequireUpToDate());
         if (requireChecks.hasContexts())
         {
             requireChecks.getContexts()
-                         .forEach(context -> repoBuilder.addRequiredContext(branch, context));
+                         .forEach(context -> builder.addRequiredContext(branch, context));
         }
     }
 
-    private void addRequireReviews(String branch, RequireReviews requireReviews)
+    private void addRequireReviews(String branch, RequireReviews requireReviews, RepositoryBuilder builder)
     {
-        repoBuilder.requireReviews(branch)
+        builder.requireReviews(branch)
                    .requiredReviewers(branch, merge(requireReviews.getRequiredReviewers(), 1))
                    .dismissStaleApprovals(branch, merge(requireReviews.getDismissStaleApprovals(), false))
                    .requireCodeOwnerReview(branch, merge(requireReviews.getRequireCodeOwner(), false));
@@ -110,41 +88,41 @@ public class RepositoryMerger
             if (restrictions.hasTeams())
             {
                 restrictions.getTeams()
-                            .forEach(team -> repoBuilder.addTeamReviewDismisser(branch, team));
+                            .forEach(team -> builder.addTeamReviewDismisser(branch, team));
             }
 
             if (restrictions.hasUsers())
             {
                 restrictions.getUsers()
-                            .forEach(user -> repoBuilder.addUserReviewDismisser(branch, user));
+                            .forEach(user -> builder.addUserReviewDismisser(branch, user));
             }
         }
     }
 
-    private void addRestrictedPushAccess(String branch, Protection protection)
+    private void addRestrictedPushAccess(String branch, Protection protection, RepositoryBuilder builder)
     {
-        repoBuilder.restrictPushAccess(branch);
+        builder.restrictPushAccess(branch);
 
         AccessRestrictions restrictions = protection.getPushAccess();
         if (restrictions.hasTeams())
         {
             restrictions.getTeams()
-                        .forEach(team -> repoBuilder.addTeamPushAccess(branch, team));
+                        .forEach(team -> builder.addTeamPushAccess(branch, team));
         }
 
         if (restrictions.hasUsers())
         {
             restrictions.getUsers()
-                        .forEach(user -> repoBuilder.addUserPushAccess(branch, user));
+                        .forEach(user -> builder.addUserPushAccess(branch, user));
         }
     }
 
-    private String getPrimaryBranch()
+    private String getPrimaryBranch(Branches overrides, Branches defaults)
     {
-        String branch = ovBranches.getDefault();
+        String branch = overrides.getDefault();
         if (branch == null)
         {
-            branch = deBranches.getDefault();
+            branch = defaults.getDefault();
             if (branch == null)
             {
                 branch = "master";
@@ -183,6 +161,20 @@ public class RepositoryMerger
         }
     }
 
+    private Repository merge(Repository overrides, Repository defaults, RepositoryBuilder builder) throws IllegalStateException
+    {
+        // there can be only one
+        builder.setName(overrides.getName());
+        builder.setOrganization(mergeOrganization(overrides, defaults));
+
+        mergeSettings(overrides.getSettings(), defaults.getSettings(), builder);
+
+        mergePlugins(overrides, defaults, builder);
+        mergeWorkflow(overrides, defaults, builder);
+
+        return builder.build();
+    }
+
     private <T> T merge(T override, T defaults, T dflt)
     {
         if (override != null)
@@ -198,135 +190,124 @@ public class RepositoryMerger
         return dflt;
     }
 
-    private void mergeAutoInitialize()
+    private void mergeBranches(Branches overrides, Branches defaults, RepositoryBuilder builder)
     {
-        repoBuilder.setInitialize(merge(ovSettings.autoInitialize(), deSettings.autoInitialize()));
-    }
+        String primary = getPrimaryBranch(overrides, defaults);
+        builder.setPrimaryBranch(primary);
 
-    private void mergeBranches()
-    {
-        String primary = getPrimaryBranch();
-        repoBuilder.setPrimaryBranch(primary);
-
-        Collection<String> branches = new ArrayList<>(merge(deBranches.getOther(), ovBranches.getOther()));
-        repoBuilder.addOtherBranches(branches);
+        Collection<String> branches = new ArrayList<>(merge(overrides.getOther(), defaults.getOther()));
+        builder.addOtherBranches(branches);
 
         branches.add(primary);
-        branches.forEach(this::mergeProtections);
+        branches.forEach(branch -> mergeProtections(overrides, defaults, branch, builder));
     }
 
-    private void mergeColaborators()
+    private String mergeOrganization(Repository overrides, Repository defaults) throws IllegalStateException
     {
-        merge(ovSettings.getCollaborators(), deSettings.getCollaborators(), new Callback<Permission>()
-        {
-            @Override
-            public void add()
-            {
-                repoBuilder.addCollaborators();
-            }
-
-            @Override
-            public void add(String key, Permission value)
-            {
-                repoBuilder.addCollaborator(key, value);
-            }
-        });
-    }
-
-    private void mergeLabels()
-    {
-        merge(ovSettings.getLabels(), deSettings.getLabels(), new Callback<Color>()
-        {
-            @Override
-            public void add()
-            {
-                repoBuilder.addLabels();
-            }
-
-            @Override
-            public void add(String key, Color value)
-            {
-                repoBuilder.addLabel(key, value);
-            }
-        });
-    }
-
-    private void mergeOrganization() throws IllegalStateException
-    {
-        String organization = ovRepository.getOrganization();
+        String organization = overrides.getOrganization();
         if (organization == null)
         {
-            organization = deRepository.getOrganization();
+            organization = defaults.getOrganization();
             if (organization == null)
             {
                 throw new IllegalStateException("organization must be specified");
             }
         }
 
-        repoBuilder.setOrganization(organization);
+        return organization;
     }
 
-    private void mergePlugins()
+    private void mergePlugins(Repository overrides, Repository defaults, RepositoryBuilder builder)
     {
-        Map<String, Object> dePlugins = Optional.ofNullable(deRepository.getPlugins())
+        Map<String, Object> dePlugins = Optional.ofNullable(overrides.getPlugins())
                                                 .orElse(Collections.emptyMap());
 
-        Map<String, Object> ovPlugins = Optional.ofNullable(ovRepository.getPlugins())
+        Map<String, Object> ovPlugins = Optional.ofNullable(defaults.getPlugins())
                                                 .orElse(Collections.emptyMap());
 
         Map<String, Object> merged = new HashMap<>(dePlugins);
         merged.putAll(ovPlugins);
 
-        merged.forEach(repoBuilder::addPlugin);
+        merged.forEach(builder::addPlugin);
     }
 
-    private void mergePrivate()
+    private void mergeProtections(Branches overrides, Branches defaults, String branch, RepositoryBuilder builder)
     {
-        repoBuilder.setPrivate(merge(ovSettings.isPrivate(), deSettings.isPrivate()));
-    }
+        Protection deProtection = defaults.getProtection(branch);
+        Protection ovProtection = overrides.getProtection(branch);
 
-    private void mergeProtections(String branch)
-    {
-        Protection deProtection = deBranches.getProtection(branch);
-        Protection ovProtection = ovBranches.getProtection(branch);
-
-        if (ovBranches.hasProtection(branch))
+        if (overrides.hasProtection(branch))
         {
             if (ovProtection.isEnabled())
             {
-                addBranchProtection(branch, ovProtection);
+                addBranchProtection(branch, ovProtection, builder);
             }
         }
-        else if (deBranches.hasProtection(branch))
+        else if (defaults.hasProtection(branch))
         {
             if (deProtection.isEnabled())
             {
-                addBranchProtection(branch, deProtection);
+                addBranchProtection(branch, deProtection, builder);
             }
         }
     }
 
-    private void mergeTeams()
+    private void mergeSettings(Settings overrides, Settings defaults, RepositoryBuilder builder)
     {
-        merge(ovSettings.getTeams(), deSettings.getTeams(), new Callback<Permission>()
+        builder.setInitialize(merge(overrides.autoInitialize(), defaults.autoInitialize()));
+        builder.setPrivate(merge(overrides.isPrivate(), defaults.isPrivate()));
+
+        merge(overrides.getLabels(), defaults.getLabels(), new Callback<Color>()
         {
             @Override
             public void add()
             {
-                repoBuilder.addTeams();
+                builder.addLabels();
+            }
+
+            @Override
+            public void add(String key, Color value)
+            {
+                builder.addLabel(key, value);
+            }
+        });
+
+        merge(overrides.getCollaborators(), defaults.getCollaborators(), new Callback<Permission>()
+        {
+            @Override
+            public void add()
+            {
+                builder.addCollaborators();
             }
 
             @Override
             public void add(String key, Permission value)
             {
-                repoBuilder.addTeam(key, value);
+                builder.addCollaborator(key, value);
             }
         });
+
+        merge(overrides.getTeams(), defaults.getTeams(), new Callback<Permission>()
+        {
+            @Override
+            public void add()
+            {
+                builder.addTeams();
+            }
+
+            @Override
+            public void add(String key, Permission value)
+            {
+                builder.addTeam(key, value);
+            }
+        });
+
+        mergeBranches(overrides.getBranches(), defaults.getBranches(), builder);
     }
 
-    private void mergeWorkflow()
+    private void mergeWorkflow(Repository overrides, Repository defaults, RepositoryBuilder builder)
     {
-        merge(ovRepository.getWorkflow(), deRepository.getWorkflow()).forEach(repoBuilder::addWorkflow);
+        merge(overrides.getWorkflow(), defaults.getWorkflow()).forEach(builder::addWorkflow);
     }
 
     private interface Callback<V>
