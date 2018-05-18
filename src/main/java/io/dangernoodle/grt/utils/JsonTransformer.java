@@ -61,7 +61,7 @@ public class JsonTransformer
         return new JsonObject(new JSONObject(adjustPlugins(object)));
     }
 
-    public JsonObject serialize(Object object) 
+    public JsonObject serialize(Object object)
     {
         return new JsonObject(new JSONObject(object));
     }
@@ -95,7 +95,7 @@ public class JsonTransformer
 
         return object;
     }
-    
+
     private JsonObject deserialize(Reader reader)
     {
         return new JsonObject(loadJson(() -> reader));
@@ -156,7 +156,7 @@ public class JsonTransformer
         {
             this((JSONArray) json);
         }
-        
+
         public boolean isNotNull()
         {
             return this != NULL;
@@ -219,7 +219,14 @@ public class JsonTransformer
             return convert(key, () -> Boolean.valueOf(json.getBoolean(key)));
         }
 
-        public <T> Collection<String> getCollection(String key)
+        public boolean getBoolean(String key, boolean dflt)
+        {
+            return Optional.ofNullable(getBoolean(key))
+                           .map(Boolean::booleanValue)
+                           .orElse(dflt);
+        }
+
+        public Collection<String> getCollection(String key)
         {
             return Optional.ofNullable(json.optJSONArray(key))
                            .map(array -> {
@@ -231,11 +238,24 @@ public class JsonTransformer
                            .orElse(null);
         }
 
+        public Collection<String> getCollection(String key, Collection<String> dflt)
+        {
+            return Optional.ofNullable(getCollection(key))
+                           .orElse(dflt);
+        }
+
         public Integer getInteger(String key)
         {
             return convert(key, () -> Integer.valueOf(json.getInt(key)));
         }
-        
+
+        public int getInteger(String key, int dflt)
+        {
+            return Optional.ofNullable(getInteger(key))
+                           .map(Integer::intValue)
+                           .orElse(dflt);
+        }
+
         public JsonObject getJsonObject(String key)
         {
             return Optional.ofNullable(json.optJSONObject(key))
@@ -274,9 +294,20 @@ public class JsonTransformer
             })).orElse(null);
         }
 
+        public <T> Map<String, T> getMap(String key, Deserializer<T> deserializer, Map<String, T> dflt)
+        {
+            return Optional.ofNullable(getMap(key, deserializer))
+                           .orElse(dflt);
+        }
+
         public String getString(String key)
         {
-            return json.optString(key, null);
+            return getString(key, null);
+        }
+        
+        public String getString(String key, String dlft)
+        {
+            return json.optString(key, dlft);
         }
 
         public boolean has(String key)
