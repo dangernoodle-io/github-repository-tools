@@ -12,7 +12,6 @@ import java.io.UncheckedIOException;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.kohsuke.github.GHBranchProtection;
@@ -29,11 +28,13 @@ import io.dangernoodle.grt.extensions.DefaultStatusCheckFactory;
 import io.dangernoodle.grt.internal.GithubWorkflow;
 import io.dangernoodle.grt.utils.JsonTransformer;
 import io.dangernoodle.grt.utils.RepositoryBuilder;
+import io.dangernoodle.grt.utils.RepositoryMerger;
 
 
-@Disabled
 public class UserRepositoryIT
 {
+    private static final JsonTransformer transformer = new JsonTransformer();
+
     @RegisterExtension
     protected static final GitHub github = createGitHub();
 
@@ -60,7 +61,7 @@ public class UserRepositoryIT
     public void beforeEach() throws Exception
     {
         context = new Workflow.Context();
-        builder = new RepositoryBuilder(new JsonTransformer());
+        builder = new RepositoryBuilder(transformer);
 
         workflow = new GithubWorkflow(new GithubClient(github), new DefaultStatusCheckFactory());
 
@@ -132,9 +133,11 @@ public class UserRepositoryIT
 
     private void whenExecuteWorkflow() throws IOException
     {
-        repository = builder.build();
-        workflow.execute(repository, context);
+        // the steps will always be invoked w/ a merged repo - duplicated here to prevent NPEs
+        RepositoryMerger merger = new RepositoryMerger(transformer);
+        repository = merger.merge(builder.build());
 
+        workflow.execute(repository, context);
         ghRepo = context.get(GHRepository.class);
     }
 
