@@ -3,5 +3,4 @@
 .project
 .settings
 target
-.README.md.html
-
+.*.md.html
