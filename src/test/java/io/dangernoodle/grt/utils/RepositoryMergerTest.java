@@ -52,6 +52,8 @@ import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
 
 public class RepositoryMergerTest
 {
+    private static final JsonTransformer transformer = new JsonTransformer();
+
     private RepositoryBuilder dBuilder;
 
     private Repository defaults;
@@ -66,6 +68,8 @@ public class RepositoryMergerTest
 
     private Repository repository;
 
+    private RepositoryMerger merger;
+
     @BeforeEach
     public void setup()
     {
@@ -77,6 +81,8 @@ public class RepositoryMergerTest
         // these are required values, so just set defaults here
         oBuilder.setName("repository");
         dBuilder.setOrganization("default-org");
+
+        merger = new RepositoryMerger(transformer);
     }
 
     @Test
@@ -377,7 +383,7 @@ public class RepositoryMergerTest
 
     private RepositoryBuilder createBuilder()
     {
-        return new RepositoryBuilder(new JsonTransformer());
+        return new RepositoryBuilder(transformer);
     }
 
     private void givenADefaultPlugin()
@@ -729,7 +735,7 @@ public class RepositoryMergerTest
 
         try
         {
-            repository = new RepositoryMerger(defaults, overrides, createBuilder()).merge();
+            repository = merger.merge(overrides, defaults);
         }
         catch (Exception e)
         {

@@ -18,7 +18,6 @@ import io.dangernoodle.grt.Arguments;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.internal.WorkflowExecutor;
 import io.dangernoodle.grt.utils.JsonTransformer;
-import io.dangernoodle.grt.utils.RepositoryBuilder;
 import io.dangernoodle.grt.utils.RepositoryMerger;
 
 
@@ -57,7 +56,7 @@ public class RepositoryCommandTest
     {
         MockitoAnnotations.initMocks(this);
 
-        when(mockMerger.merge()).thenReturn(mockRepository);
+        when(mockMerger.merge(mockRepository, mockRepository)).thenReturn(mockRepository);
         executor = new RepositoryCommand.Executor(mockArguments, mockWorkflowExecutor, mockTransformer)
         {
             @Override
@@ -67,7 +66,7 @@ public class RepositoryCommandTest
             }
 
             @Override
-            RepositoryMerger createRepositoryMerger(Repository defaults, Repository overrides, RepositoryBuilder builder)
+            RepositoryMerger createRepositoryMerger()
             {
                 return mockMerger;
             }
@@ -98,7 +97,7 @@ public class RepositoryCommandTest
 
     private void thenRepositoriesMerged()
     {
-        verify(mockMerger).merge();
+        verify(mockMerger).merge(mockRepository, mockRepository);
     }
 
     private void thenWorkflowExecuted() throws Exception

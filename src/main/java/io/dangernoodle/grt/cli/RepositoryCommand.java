@@ -12,7 +12,6 @@ import io.dangernoodle.grt.Arguments;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.internal.WorkflowExecutor;
 import io.dangernoodle.grt.utils.JsonTransformer;
-import io.dangernoodle.grt.utils.RepositoryBuilder;
 import io.dangernoodle.grt.utils.RepositoryMerger;
 
 
@@ -42,13 +41,12 @@ public class RepositoryCommand implements CommandLineParser.Command
         @Override
         protected void execute(File defaults, File overrides) throws Exception
         {
-            RepositoryBuilder builder = new RepositoryBuilder(transformer);
+            RepositoryMerger merger = createRepositoryMerger();
 
             Repository deRepo = createRepository(defaults);
             Repository ovRepo = createRepository(overrides);
 
-            RepositoryMerger merger = createRepositoryMerger(deRepo, ovRepo, builder);
-            Repository repository = merger.merge();
+            Repository repository = merger.merge(ovRepo, deRepo);
 
             workflow.execute(repository);
         }
@@ -64,9 +62,9 @@ public class RepositoryCommand implements CommandLineParser.Command
             return new Repository(transformer.validate(file));
         }
 
-        RepositoryMerger createRepositoryMerger(Repository defaults, Repository overrides, RepositoryBuilder builder)
+        RepositoryMerger createRepositoryMerger()
         {
-            return new RepositoryMerger(defaults, overrides, builder);
+            return new RepositoryMerger(transformer);
         }
     }
 }
