@@ -1,5 +1,8 @@
 ## ChangeLog
 
+* **0.2.1-SNAPSHOT
+  - Added `-XX:+TieredCompilation` `-XX:TieredStopAtLevel=1` to container java args
+
 * **0.2.0** (05/17/2018)
   - Added additional methods to `JsonObject`
   - Refactored `RepositoryMerger` to merge against empty defaults
