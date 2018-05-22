@@ -54,13 +54,13 @@ public class RepositoryMergerTest
 {
     private static final JsonTransformer transformer = new JsonTransformer();
 
-    private RepositoryBuilder dBuilder;
+    private RepositoryBuilder deBuilder;
 
     private Repository defaults;
 
     private Exception exception;
 
-    private RepositoryBuilder oBuilder;
+    private RepositoryBuilder ovBuilder;
 
     private Repository overrides;
 
@@ -75,12 +75,12 @@ public class RepositoryMergerTest
     {
         primaryBranch = "master";
 
-        dBuilder = createBuilder();
-        oBuilder = createBuilder();
+        deBuilder = createBuilder();
+        ovBuilder = createBuilder();
 
         // these are required values, so just set defaults here
-        oBuilder.setName("repository");
-        dBuilder.setOrganization("default-org");
+        ovBuilder.setName("repository");
+        deBuilder.setOrganization("default-org");
 
         merger = new RepositoryMerger(transformer);
     }
@@ -388,139 +388,139 @@ public class RepositoryMergerTest
 
     private void givenADefaultPlugin()
     {
-        dBuilder.addPlugin("default", toJson("{\"foo\": \"bar\"}"))
+        deBuilder.addPlugin("default", toJson("{\"foo\": \"bar\"}"))
                 .addPlugin("other", toJson("{\"foo\": \"bar\"}"));
     }
 
     private void givenAnOrganizationOverride()
     {
-        oBuilder.setOrganization("override-org");
+        ovBuilder.setOrganization("override-org");
     }
 
     private void givenAnOverridenPlugin()
     {
-        dBuilder.addPlugin("default", toJson("{\"foo\": \"baz\"}"))
+        ovBuilder.addPlugin("default", toJson("{\"foo\": \"baz\"}"))
                 .addPlugin("override", toJson("{\"foo\": \"baz\"}"));
     }
 
     private void givenAPrimaryBranchDefault()
     {
         primaryBranch = "primary";
-        dBuilder.setPrimaryBranch(primaryBranch);
+        deBuilder.setPrimaryBranch(primaryBranch);
     }
 
     private void givenAPrimaryBranchOverride()
     {
         primaryBranch = "override";
-        oBuilder.setPrimaryBranch(primaryBranch);
+        ovBuilder.setPrimaryBranch(primaryBranch);
     }
 
     private void givenBranchProtectionDefaultRequireUpToDateOnly()
     {
-        dBuilder.requireBranchUpToDate("master", true);
+        deBuilder.requireBranchUpToDate("master", true);
     }
 
     private void givenBranchProtectionDefaults()
     {
-        setEnabledBranchProtections(dBuilder);
+        setEnabledBranchProtections(deBuilder);
     }
 
     private void givenBranchProtectionDefaultsDisables()
     {
-        dBuilder.disableBranchProtection("master");
+        deBuilder.disableBranchProtection("master");
     }
 
     private void givenBranchProtectionOnlyOverride()
     {
-        oBuilder.enableBranchProtection("master");
+        ovBuilder.enableBranchProtection("master");
     }
 
     private void givenBranchProtectionOverrideDisables()
     {
-        oBuilder.disableBranchProtection("master");
+        ovBuilder.disableBranchProtection("master");
     }
 
     private void givenBranchProtectionOverrides()
     {
-        setEnabledBranchProtections(oBuilder);
+        setEnabledBranchProtections(ovBuilder);
     }
 
     private void givenBranchProtectionOverridesEnforceForAdmins()
     {
-        oBuilder.enableBranchProtection("master")
+        ovBuilder.enableBranchProtection("master")
                 .enforceForAdminstrators("master", false);
     }
 
     private void givenBranchProtectionOverridesSignedCommits()
     {
-        oBuilder.enableBranchProtection("master")
+        ovBuilder.enableBranchProtection("master")
                 .requireSignedCommits("master", false);
     }
 
     private void givenCollaboratorDefaults()
     {
-        dBuilder.addCollaborator("default", Permission.write);
+        deBuilder.addCollaborator("default", Permission.write);
     }
 
     private void givenCollaboratorOverrides()
     {
-        oBuilder.addCollaborator("override", Permission.admin);
+        ovBuilder.addCollaborator("override", Permission.admin);
     }
 
     private void givenCollaboratorOverridesAreEmpty()
     {
-        oBuilder.addCollaborators(Collections.emptyMap());
+        ovBuilder.addCollaborators(Collections.emptyMap());
     }
 
     private void givenCollaboratorOverridesAreNull()
     {
-        oBuilder.addCollaborators();
+        ovBuilder.addCollaborators();
     }
 
     private void givenDefaultWorkflow()
     {
-        dBuilder.addWorkflow("default");
+        deBuilder.addWorkflow("default");
     }
 
     private void givenInitializeDefault()
     {
-        dBuilder.setInitialize(true);
+        deBuilder.setInitialize(true);
     }
 
     private void givenInitializeOverride()
     {
-        oBuilder.setInitialize(false);
+        ovBuilder.setInitialize(false);
     }
 
     private void givenLabelDefaults()
     {
-        dBuilder.addLabel("default", Color.from("#00000"));
+        deBuilder.addLabel("default", Color.from("#00000"));
     }
 
     private void givenLabelOverrides()
     {
-        oBuilder.addLabel("override", Color.from("#00001"));
+        ovBuilder.addLabel("override", Color.from("#00001"));
     }
 
     private void givenLabelOverridesEmpty()
     {
-        oBuilder.addLabels(Collections.emptyMap());
+        ovBuilder.addLabels(Collections.emptyMap());
     }
 
     private void givenLabelOverridesNull()
     {
-        oBuilder.addLabels();
+        ovBuilder.addLabels();
     }
 
     private void givenNullOrganizations()
     {
-        dBuilder.setOrganization(null);
-        oBuilder.setOrganization(null);
+        deBuilder.setOrganization(null);
+        ovBuilder.setOrganization(null);
     }
 
     private void givenOverrideWorkflow()
     {
-        oBuilder.addWorkflow("override");
+        ovBuilder.addWorkflow("override");
     }
 
     private void givenPrimaryBranchNoSet()
@@ -531,22 +531,22 @@ public class RepositoryMergerTest
 
     private void givenTeamDefaults()
     {
-        dBuilder.addTeam("default", Permission.write);
+        deBuilder.addTeam("default", Permission.write);
     }
 
     private void givenTeamOverrides()
     {
-        oBuilder.addTeam("override", Permission.admin);
+        ovBuilder.addTeam("override", Permission.admin);
     }
 
     private void givenTeamOverridesAreEmpty()
     {
-        oBuilder.addTeams(Collections.emptyMap());
+        ovBuilder.addTeams(Collections.emptyMap());
     }
 
     private void givenTeamOverridesAreNull()
     {
-        oBuilder.addTeams();
+        ovBuilder.addTeams();
     }
 
     private void setEnabledBranchProtections(RepositoryBuilder builder)
@@ -730,8 +730,8 @@ public class RepositoryMergerTest
 
     private void whenBuildRepositories()
     {
-        defaults = dBuilder.build();
-        overrides = oBuilder.build();
+        defaults = deBuilder.build();
+        overrides = ovBuilder.build();
 
         try
         {

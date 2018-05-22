@@ -219,10 +219,10 @@ public class RepositoryMerger
 
     private void mergePlugins(Repository overrides, Repository defaults, RepositoryBuilder builder)
     {
-        Map<String, Object> dePlugins = Optional.ofNullable(overrides.getPlugins())
+        Map<String, Object> dePlugins = Optional.ofNullable(defaults.getPlugins())
                                                 .orElse(Collections.emptyMap());
 
-        Map<String, Object> ovPlugins = Optional.ofNullable(defaults.getPlugins())
+        Map<String, Object> ovPlugins = Optional.ofNullable(overrides.getPlugins())
                                                 .orElse(Collections.emptyMap());
 
         Map<String, Object> merged = new HashMap<>(dePlugins);
