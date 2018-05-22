@@ -1,7 +1,8 @@
 ## ChangeLog
 
-* **0.2.1-SNAPSHOT
+* **0.2.1**
   - Added `-XX:+TieredCompilation` `-XX:TieredStopAtLevel=1` to container java args
+  - Fixed plugin merging 
 
 * **0.2.0** (05/17/2018)
   - Added additional methods to `JsonObject`
