@@ -1,5 +1,9 @@
 ## ChangeLog
 
+* **0.2.2** (05/25/2018)
+  - Schema documentation updates, allow `labels`, `teams`, and `collaborators` to be `null`
+  - Return an empty collection from the `DefaultStatusCheckFactory` if no contexts are found
+
 * **0.2.1** (05/22/2018)
   - Added `-XX:+TieredCompilation` `-XX:TieredStopAtLevel=1` to container java args
   - Fixed plugin merging 
