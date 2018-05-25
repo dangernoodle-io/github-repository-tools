@@ -9,6 +9,11 @@ import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.Stereotype;
 
 
+/**
+ * Annotation used on a <code>StatusCheckFactory</code> implementation to override the default.
+ * 
+ * @since 0.1.0
+ */
 @Alternative
 @Stereotype
 @Retention(RetentionPolicy.RUNTIME)

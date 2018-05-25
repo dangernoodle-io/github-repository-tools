@@ -2,15 +2,16 @@ package io.dangernoodle.grt.extensions;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.Collection;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.dangernoodle.RepositoryFiles;
 import io.dangernoodle.grt.Repository;
+import io.dangernoodle.grt.utils.JsonTransformer;
+import io.dangernoodle.grt.utils.RepositoryBuilder;
 
 
 public class DefaultStatusCheckFactoryTest
@@ -23,11 +24,16 @@ public class DefaultStatusCheckFactoryTest
 
     private Collection<String> result;
 
+    private RepositoryBuilder builder;
+
     @BeforeEach
     public void beforeEach() throws Exception
     {
         factory = new DefaultStatusCheckFactory();
-        repository = new Repository(RepositoryFiles.mockRepository.toJsonObject());
+        builder = new RepositoryBuilder(new JsonTransformer());
+
+        builder.setName("grt-test-repository")
+               .setOrganization("organization");
     }
 
     @Test
@@ -35,7 +41,7 @@ public class DefaultStatusCheckFactoryTest
     {
         givenABranchWithNoProtection();
         whenGetStatusCheck();
-        thenStatusCheckIsNull();
+        thenStatusCheckIsEmptyList();
     }
 
     @Test
@@ -54,11 +60,13 @@ public class DefaultStatusCheckFactoryTest
     private void givenABranchWithProtection()
     {
         branchName = "master";
+        builder.addRequiredContext(branchName, "grt-test-repository");
     }
 
-    private void thenStatusCheckIsNull()
+    private void thenStatusCheckIsEmptyList()
     {
-        assertThat(result, nullValue());
+        assertThat(result, notNullValue());
+        assertThat(result.isEmpty(), equalTo(true));
     }
 
     private void thenStatusCheckIsReturned()
@@ -69,6 +77,7 @@ public class DefaultStatusCheckFactoryTest
 
     private void whenGetStatusCheck()
     {
+        repository = builder.build();
         result = factory.getRequiredStatusChecks(branchName, repository);
     }
 }
