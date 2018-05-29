@@ -1,6 +1,8 @@
 {
     "name": "grt-test-repository",
     "organization": "dangernoodle-io",
+    "description": "test repository",
+    "homepage": "https://github.com/dangernoodle-io/grt-test-repository",
     "settings": {
         "initialize": true,
         "hidden": true,

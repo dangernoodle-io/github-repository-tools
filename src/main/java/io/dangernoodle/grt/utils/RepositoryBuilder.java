@@ -1,6 +1,5 @@
 package io.dangernoodle.grt.utils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -195,6 +194,18 @@ public class RepositoryBuilder
     public RepositoryBuilder restrictPushAccess(String branch)
     {
         pushAccess(branch);
+        return this;
+    }
+
+    public RepositoryBuilder setDescription(String description)
+    {
+        repository.put("description", description);
+        return this;
+    }
+
+    public RepositoryBuilder setHomepage(String homepage)
+    {
+        repository.put("homepage", homepage);
         return this;
     }
 

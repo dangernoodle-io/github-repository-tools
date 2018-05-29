@@ -116,6 +116,9 @@ public class UserRepositoryIT
         assertThat(ghRepo, notNullValue());
         assertThat(ghRepo.getName(), equalTo(repository.getName()));
         assertThat(ghRepo.getOwnerName(), equalTo(getOrganization()));
+
+        assertThat(ghRepo.getDescription(), equalTo(repository.getDescription()));
+        assertThat(ghRepo.getHomepage(), equalTo(repository.getHomepage()));
     }
 
     private void thenStatusChecksOnlyWereConfigured() throws IOException

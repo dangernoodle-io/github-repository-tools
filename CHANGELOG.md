@@ -1,5 +1,8 @@
 ## ChangeLog
 
+* **0.3.0-SNAPSHOT**
+  - Support for setting description / homepage
+
 * **0.2.2** (05/25/2018)
   - Schema documentation updates, allow `labels`, `teams`, and `collaborators` to be `null`
   - Return an empty collection from the `DefaultStatusCheckFactory` if no contexts are found

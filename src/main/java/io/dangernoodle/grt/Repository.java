@@ -35,6 +35,16 @@ public class Repository
         this.settings = new Settings(json.getJsonObject("settings"));
     }
 
+    public String getDescription()
+    {
+        return json.getString("description");
+    }
+
+    public String getHomepage()
+    {
+        return json.getString("homepage");
+    }
+
     public String getName()
     {
         return json.getString("name");
