@@ -78,9 +78,9 @@ public class RepositoryMerger
     private void addRequireReviews(String branch, RequireReviews requireReviews, RepositoryBuilder builder)
     {
         builder.requireReviews(branch)
-                   .requiredReviewers(branch, merge(requireReviews.getRequiredReviewers(), 1))
-                   .dismissStaleApprovals(branch, merge(requireReviews.getDismissStaleApprovals(), false))
-                   .requireCodeOwnerReview(branch, merge(requireReviews.getRequireCodeOwner(), false));
+               .requiredReviewers(branch, merge(requireReviews.getRequiredReviewers(), 1))
+               .dismissStaleApprovals(branch, merge(requireReviews.getDismissStaleApprovals(), false))
+               .requireCodeOwnerReview(branch, merge(requireReviews.getRequireCodeOwner(), false));
 
         if (requireReviews.hasDismissalRestrictions())
         {
@@ -164,8 +164,10 @@ public class RepositoryMerger
     private Repository merge(Repository overrides, Repository defaults, RepositoryBuilder builder) throws IllegalStateException
     {
         // there can be only one
-        builder.setName(overrides.getName());
-        builder.setOrganization(mergeOrganization(overrides, defaults));
+        builder.setName(overrides.getName())
+               .setOrganization(mergeOrganization(overrides, defaults))
+               .setDescription(overrides.getDescription())
+               .setHomepage(overrides.getHomepage());
 
         mergeSettings(overrides.getSettings(), defaults.getSettings(), builder);
 

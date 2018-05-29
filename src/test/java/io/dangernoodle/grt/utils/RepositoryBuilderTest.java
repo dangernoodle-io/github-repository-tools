@@ -2,7 +2,9 @@ package io.dangernoodle.grt.utils;
 
 import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionDisabled;
 import static io.dangernoodle.RepositoryAsserts.verifyCollaborators;
+import static io.dangernoodle.RepositoryAsserts.verifyDescription;
 import static io.dangernoodle.RepositoryAsserts.verifyEnforeForAdministratorsEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyHomepage;
 import static io.dangernoodle.RepositoryAsserts.verifyLabels;
 import static io.dangernoodle.RepositoryAsserts.verifyOrganization;
 import static io.dangernoodle.RepositoryAsserts.verifyOtherBranches;
@@ -38,7 +40,6 @@ import io.dangernoodle.RepositoryFiles;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Repository.Settings.Permission;
-import io.dangernoodle.grt.utils.RepositoryBuilder;
 import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
 
 
@@ -83,6 +84,8 @@ public class RepositoryBuilderTest
 
         builder.setName("grt-test-repository")
                .setOrganization("dangernoodle-io")
+               .setDescription("test repository")
+               .setHomepage("https://github.com/dangernoodle-io/grt-test-repository")
                .setInitialize(true)
                .setPrivate(true)
                .addLabel("label", Color.from("#00000"))
@@ -116,6 +119,8 @@ public class RepositoryBuilderTest
     {
         verifyRepositoryName(actual, expected);
         verifyOrganization(actual, expected);
+        verifyDescription(actual, expected);
+        verifyHomepage(actual, expected);
         verifyRepositoryInitialized(actual);
         verifyRepositoryIsPrivate(actual);
         verifyLabels(actual, expected);

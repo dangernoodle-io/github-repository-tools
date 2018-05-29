@@ -2,7 +2,7 @@ package io.dangernoodle.grt.utils;
 
 import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionDisabled;
 import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionEnabled;
-import static io.dangernoodle.RepositoryAsserts.verifyBranchesIsNotNull;
+import static io.dangernoodle.RepositoryAsserts.verifyBranches;
 import static io.dangernoodle.RepositoryAsserts.verifyCollaborators;
 import static io.dangernoodle.RepositoryAsserts.verifyEnforeForAdministratorsEnabled;
 import static io.dangernoodle.RepositoryAsserts.verifyLabels;
@@ -79,7 +79,7 @@ public class RepositoryDeserlizationTest
         whenParseIntoObject();
         thenBranchProtectionIsEnabled();
     }
-    
+
     @Test
     public void testRepository() throws Exception
     {
@@ -126,7 +126,7 @@ public class RepositoryDeserlizationTest
 
     private void thenBranchesIsNotNull()
     {
-        verifyBranchesIsNotNull(repository);
+        verifyBranches(repository);
     }
 
     private void thenBranchProtectionIsDisabled()

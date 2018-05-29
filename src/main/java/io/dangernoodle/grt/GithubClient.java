@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import org.kohsuke.github.GHCreateRepositoryBuilder;
 import org.kohsuke.github.GHEventPayload;
@@ -40,14 +41,25 @@ public class GithubClient
         this.orgTeams = createMap();
     }
 
-    public GHRepository createRepository(String name, Settings settings) throws IOException
+    public GHRepository createOrgRepository(Repository repository) throws IOException
     {
-        return createRepository(name, settings, github.createRepository(name));
+        GHOrganization ghOrg = getOrganization(repository.getOrganization());
+        return createRepository(repository, name -> {
+            try
+            {
+                return ghOrg.createRepository(name);
+            }
+            catch (IOException e)
+            {
+                // TODO: remove if https://github.com/kohsuke/github-api/pull/436 merged
+                throw new UncheckedIOException(e);
+            }
+        });
     }
 
-    public GHRepository createRepository(String name, String organization, Settings settings) throws IOException
+    public GHRepository createUserRepository(Repository repository) throws IOException
     {
-        return createRepository(name, settings, getOrganization(organization).createRepository(name));
+        return createRepository(repository, name -> github.createRepository(name));
     }
 
     public String getCurrentLogin() throws IOException
@@ -57,7 +69,7 @@ public class GithubClient
 
     public GHMyself getMyself() throws IOException
     {
-        return (GHMyself) computeIfAbsent(collaborators, GHMyself.class.toString(), l -> {
+        return (GHMyself) computeIfAbsent(collaborators, GHMyself.class.getName(), n -> {
             return github.getMyself();
         });
     }
@@ -125,12 +137,22 @@ public class GithubClient
         return new ConcurrentHashMap<>(8, 0.9f);
     }
 
-    private GHRepository createRepository(String name, Settings settings, GHCreateRepositoryBuilder builder) throws IOException
+    private GHRepository createRepository(Repository repository, Function<String, GHCreateRepositoryBuilder> function)
+        throws IOException
     {
+        String name = repository.getName();
+        Settings settings = repository.getSettings();
+
+        GHCreateRepositoryBuilder builder = function.apply(name);
+
         return computeIfAbsent(repositories, name, n -> {
-            return builder.autoInit(settings.autoInitialize())
-                          .private_(settings.isPrivate())
-                          .create();
+            // would be nice to chain, but then the all these would have to be mocked to return the builder
+            builder.autoInit(settings.autoInitialize());
+            builder.private_(settings.isPrivate());
+            builder.description(repository.getDescription());
+            builder.homepage(repository.getHomepage());
+
+            return builder.create();
         });
     }
 

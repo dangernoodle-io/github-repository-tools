@@ -10,6 +10,14 @@
             "description": "github organization or username",
             "type": "string"
         },
+        "description": {
+            "description": "short description of the repository",
+            "type": "string"
+        },
+        "homepage": {
+            "description": "project homepage",
+            "type": "string"
+        },
         "settings": {
             "type": "object",
             "properties": {

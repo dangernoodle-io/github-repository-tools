@@ -4,8 +4,10 @@ import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionDisabled;
 import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionEnabled;
 import static io.dangernoodle.RepositoryAsserts.verifyCollaborators;
 import static io.dangernoodle.RepositoryAsserts.verifyCollaboratorsAreEmpty;
+import static io.dangernoodle.RepositoryAsserts.verifyDescription;
 import static io.dangernoodle.RepositoryAsserts.verifyEnforeForAdministratorsDisabled;
 import static io.dangernoodle.RepositoryAsserts.verifyEnforeForAdministratorsEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyHomepage;
 import static io.dangernoodle.RepositoryAsserts.verifyLabels;
 import static io.dangernoodle.RepositoryAsserts.verifyLabelsAreEmpty;
 import static io.dangernoodle.RepositoryAsserts.verifyOrganization;
@@ -45,8 +47,6 @@ import org.junit.jupiter.api.Test;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Repository.Settings.Permission;
-import io.dangernoodle.grt.utils.RepositoryBuilder;
-import io.dangernoodle.grt.utils.RepositoryMerger;
 import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
 
 
@@ -60,6 +60,8 @@ public class RepositoryMergerTest
 
     private Exception exception;
 
+    private RepositoryMerger merger;
+
     private RepositoryBuilder ovBuilder;
 
     private Repository overrides;
@@ -67,8 +69,6 @@ public class RepositoryMergerTest
     private String primaryBranch;
 
     private Repository repository;
-
-    private RepositoryMerger merger;
 
     @BeforeEach
     public void setup()
@@ -198,6 +198,40 @@ public class RepositoryMergerTest
         givenCollaboratorOverridesAreNull();
         whenBuildRepositories();
         thenCollaboratorsAreEmpty();
+    }
+
+    @Test
+    public void testDescriptionDefaults()
+    {
+        givenADefaultDecription();
+        whenBuildRepositories();
+        thenDescriptionIsNull();
+    }
+
+    @Test
+    public void testDescriptionOverrides()
+    {
+        givenADefaultDecription();
+        givenAnOverrideDescription();
+        whenBuildRepositories();
+        thenDescriptionIsCorrect();
+    }
+
+    @Test
+    public void testHomepageDefaults()
+    {
+        givenADefaultHomepage();
+        whenBuildRepositories();
+        thenHompageIsNull();
+    }
+
+    @Test
+    public void testHomepageOverrides()
+    {
+        givenADefaultHomepage();
+        givenAnOverrideHomepage();
+        whenBuildRepositories();
+        thenHompageIsCorrect();
     }
 
     @Test
@@ -386,10 +420,20 @@ public class RepositoryMergerTest
         return new RepositoryBuilder(transformer);
     }
 
+    private void givenADefaultDecription()
+    {
+        deBuilder.setDescription("default");
+    }
+
+    private void givenADefaultHomepage()
+    {
+        deBuilder.setHomepage("default");
+    }
+
     private void givenADefaultPlugin()
     {
         deBuilder.addPlugin("default", toJson("{\"foo\": \"bar\"}"))
-                .addPlugin("other", toJson("{\"foo\": \"bar\"}"));
+                 .addPlugin("other", toJson("{\"foo\": \"bar\"}"));
     }
 
     private void givenAnOrganizationOverride()
@@ -397,10 +441,20 @@ public class RepositoryMergerTest
         ovBuilder.setOrganization("override-org");
     }
 
+    private void givenAnOverrideDescription()
+    {
+        ovBuilder.setDescription("override");
+    }
+
+    private void givenAnOverrideHomepage()
+    {
+        ovBuilder.setHomepage("override");
+    }
+
     private void givenAnOverridenPlugin()
     {
         ovBuilder.addPlugin("default", toJson("{\"foo\": \"baz\"}"))
-                .addPlugin("override", toJson("{\"foo\": \"baz\"}"));
+                 .addPlugin("override", toJson("{\"foo\": \"baz\"}"));
     }
 
     private void givenAPrimaryBranchDefault()
@@ -448,13 +502,13 @@ public class RepositoryMergerTest
     private void givenBranchProtectionOverridesEnforceForAdmins()
     {
         ovBuilder.enableBranchProtection("master")
-                .enforceForAdminstrators("master", false);
+                 .enforceForAdminstrators("master", false);
     }
 
     private void givenBranchProtectionOverridesSignedCommits()
     {
         ovBuilder.enableBranchProtection("master")
-                .requireSignedCommits("master", false);
+                 .requireSignedCommits("master", false);
     }
 
     private void givenCollaboratorDefaults()
@@ -644,9 +698,29 @@ public class RepositoryMergerTest
         assertThat(repository.getWorkflow(), contains(defaults.getWorkflow().toArray()));
     }
 
+    private void thenDescriptionIsCorrect()
+    {
+        verifyDescription(repository, overrides);
+    }
+
+    private void thenDescriptionIsNull()
+    {
+        verifyDescription(repository);
+    }
+
     private void thenEnforceForAdminsDisabled()
     {
         verifyEnforeForAdministratorsDisabled(repository, "master");
+    }
+
+    private void thenHompageIsCorrect()
+    {
+        verifyHomepage(overrides, repository);
+    }
+
+    private void thenHompageIsNull()
+    {
+        verifyHomepage(repository);
     }
 
     private void thenIllegalStateExceptionThrown()

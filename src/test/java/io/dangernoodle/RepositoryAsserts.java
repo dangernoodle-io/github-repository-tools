@@ -20,7 +20,7 @@ import io.dangernoodle.grt.Repository.Settings.Permission;
 
 public final class RepositoryAsserts
 {
-    public static void verifyBranchesIsNotNull(Repository actual)
+    public static void verifyBranches(Repository actual)
     {
         assertThat(actual.getSettings(), notNullValue());
         assertThat(actual.getSettings().getBranches(), notNullValue());
@@ -51,6 +51,16 @@ public final class RepositoryAsserts
         verifyPermissionsAreEmpty(actual.getSettings().getCollaborators());
     }
 
+    public static void verifyDescription(Repository actual, Repository expected)
+    {
+        assertThat(actual.getDescription(), equalTo(expected.getDescription()));
+    }
+
+    public static void verifyDescription(Repository actual)
+    {
+        assertThat(actual.getDescription(), nullValue());
+    }
+
     public static void verifyEnforeForAdministratorsDisabled(Repository actual, String branch)
     {
         assertThat(getProtection(actual, branch).getIncludeAdministrators(), equalTo(false));
@@ -64,6 +74,16 @@ public final class RepositoryAsserts
     public static void verifyEnforeForAdministratorsNullValue(Repository actual, String branch)
     {
         assertThat(getProtection(actual, branch).getIncludeAdministrators(), nullValue());
+    }
+
+    public static void verifyHomepage(Repository actual, Repository expected)
+    {
+        assertThat(actual.getHomepage(), equalTo(expected.getHomepage()));
+    }
+
+    public static void verifyHomepage(Repository actual)
+    {
+        assertThat(actual.getHomepage(), nullValue());
     }
 
     public static void verifyLabels(Repository actual, Map<String, Color> expected)
@@ -255,7 +275,7 @@ public final class RepositoryAsserts
         assertThat(getProtection(actual, branch).getRequireSignedCommits(), equalTo(true));
     }
 
-    public static void verifyRequireSignedCommitsNullValue(Repository actual, String branch)
+    public static void verifyRequireSignedCommits(Repository actual, String branch)
     {
         assertThat(getProtection(actual, branch).getRequireSignedCommits(), nullValue());
     }
