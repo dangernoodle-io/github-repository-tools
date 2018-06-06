@@ -8,15 +8,18 @@ import static io.dangernoodle.RepositoryAsserts.verifyDescription;
 import static io.dangernoodle.RepositoryAsserts.verifyEnforeForAdministratorsDisabled;
 import static io.dangernoodle.RepositoryAsserts.verifyEnforeForAdministratorsEnabled;
 import static io.dangernoodle.RepositoryAsserts.verifyHomepage;
+import static io.dangernoodle.RepositoryAsserts.verifyInitialized;
+import static io.dangernoodle.RepositoryAsserts.verifyIssues;
 import static io.dangernoodle.RepositoryAsserts.verifyLabels;
 import static io.dangernoodle.RepositoryAsserts.verifyLabelsAreEmpty;
+import static io.dangernoodle.RepositoryAsserts.verifyMergeCommits;
 import static io.dangernoodle.RepositoryAsserts.verifyOrganization;
 import static io.dangernoodle.RepositoryAsserts.verifyPrimaryBranch;
 import static io.dangernoodle.RepositoryAsserts.verifyPushAccessRestricted;
 import static io.dangernoodle.RepositoryAsserts.verifyPushAccessTeams;
 import static io.dangernoodle.RepositoryAsserts.verifyPushAccessUnrestricted;
 import static io.dangernoodle.RepositoryAsserts.verifyPushAccessUsers;
-import static io.dangernoodle.RepositoryAsserts.verifyRepositoryInitialized;
+import static io.dangernoodle.RepositoryAsserts.verifyRebaseMerge;
 import static io.dangernoodle.RepositoryAsserts.verifyRepositoryNotInitialized;
 import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsDisabled;
 import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsDismissStaleApprovalsEnabled;
@@ -31,8 +34,10 @@ import static io.dangernoodle.RepositoryAsserts.verifyRequireSignedCommitsEnable
 import static io.dangernoodle.RepositoryAsserts.verifyRequiredChecksContextsEnabled;
 import static io.dangernoodle.RepositoryAsserts.verifyRequiredChecksRequireUpToDateEnabled;
 import static io.dangernoodle.RepositoryAsserts.verifyRequiredStatusChecksDisabled;
+import static io.dangernoodle.RepositoryAsserts.verifySquashMerge;
 import static io.dangernoodle.RepositoryAsserts.verifyTeams;
 import static io.dangernoodle.RepositoryAsserts.verifyTeamsAreEmpty;
+import static io.dangernoodle.RepositoryAsserts.verifyWiki;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -232,6 +237,13 @@ public class RepositoryMergerTest
         givenAnOverrideHomepage();
         whenBuildRepositories();
         thenHompageIsCorrect();
+    }
+
+    @Test
+    public void testImplicitDefaults()
+    {
+        whenBuildRepositories();
+        thenImplicitDefaultsAreCorrect();
     }
 
     @Test
@@ -729,6 +741,15 @@ public class RepositoryMergerTest
         assertThat(exception, instanceOf(IllegalStateException.class));
     }
 
+    private void thenImplicitDefaultsAreCorrect()
+    {
+        verifyIssues(repository, true);
+        verifyMergeCommits(repository, true);
+        verifyRebaseMerge(repository, true);
+        verifySquashMerge(repository, true);
+        verifyWiki(repository, true);
+    }
+
     private void thenInitializationIsFalse()
     {
         verifyRepositoryNotInitialized(repository);
@@ -736,7 +757,7 @@ public class RepositoryMergerTest
 
     private void thenInitializationIsTrue()
     {
-        verifyRepositoryInitialized(repository);
+        verifyInitialized(repository, true);
     }
 
     private void thenLabelsAreEmpty()

@@ -33,10 +33,10 @@ import io.dangernoodle.grt.utils.RepositoryMerger;
 
 public class UserRepositoryIT
 {
-    private static final JsonTransformer transformer = new JsonTransformer();
-
     @RegisterExtension
     protected static final GitHub github = createGitHub();
+
+    private static final JsonTransformer transformer = new JsonTransformer();
 
     protected RepositoryBuilder builder;
 

@@ -24,7 +24,7 @@ public class SchemaValidationTest
     {
         transformer = new JsonTransformer();
     }
-    
+
     @Test
     public void testNullBranchProtection()
     {

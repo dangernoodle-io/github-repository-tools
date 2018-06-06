@@ -140,17 +140,22 @@ public class GithubClient
     private GHRepository createRepository(Repository repository, Function<String, GHCreateRepositoryBuilder> function)
         throws IOException
     {
-        String name = repository.getName();
-        Settings settings = repository.getSettings();
+        return computeIfAbsent(repositories, repository.getName(), name -> {
+            Settings settings = repository.getSettings();
+            GHCreateRepositoryBuilder builder = function.apply(name);
 
-        GHCreateRepositoryBuilder builder = function.apply(name);
-
-        return computeIfAbsent(repositories, name, n -> {
             // would be nice to chain, but then the all these would have to be mocked to return the builder
+            builder.allowMergeCommit(settings.enableMergeCommits());
+            builder.allowRebaseMerge(settings.enableRebaseMerge());
+            builder.allowSquashMerge(settings.enableSquashMerge());
             builder.autoInit(settings.autoInitialize());
-            builder.private_(settings.isPrivate());
             builder.description(repository.getDescription());
+            builder.gitignoreTemplate(repository.getIgnoreTemplate());
             builder.homepage(repository.getHomepage());
+            builder.issues(settings.enableIssues());
+            builder.licenseTemplate(repository.getLicenseTemplate());
+            builder.private_(settings.isPrivate());
+            builder.wiki(settings.enableWiki());
 
             return builder.create();
         });

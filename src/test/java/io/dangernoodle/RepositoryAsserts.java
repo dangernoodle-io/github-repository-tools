@@ -51,14 +51,19 @@ public final class RepositoryAsserts
         verifyPermissionsAreEmpty(actual.getSettings().getCollaborators());
     }
 
-    public static void verifyDescription(Repository actual, Repository expected)
-    {
-        assertThat(actual.getDescription(), equalTo(expected.getDescription()));
-    }
-
     public static void verifyDescription(Repository actual)
     {
         assertThat(actual.getDescription(), nullValue());
+    }
+
+    public static void verifyDescription(Repository actual, Repository expected)
+    {
+        verifyDescription(actual, expected.getDescription());
+    }
+
+    public static void verifyDescription(Repository actual, String expected)
+    {
+        assertThat(actual.getDescription(), equalTo(expected));
     }
 
     public static void verifyEnforeForAdministratorsDisabled(Repository actual, String branch)
@@ -76,14 +81,49 @@ public final class RepositoryAsserts
         assertThat(getProtection(actual, branch).getIncludeAdministrators(), nullValue());
     }
 
-    public static void verifyHomepage(Repository actual, Repository expected)
-    {
-        assertThat(actual.getHomepage(), equalTo(expected.getHomepage()));
-    }
-
     public static void verifyHomepage(Repository actual)
     {
         assertThat(actual.getHomepage(), nullValue());
+    }
+
+    public static void verifyHomepage(Repository actual, Repository expected)
+    {
+        verifyHomepage(actual, expected.getHomepage());
+    }
+
+    public static void verifyHomepage(Repository actual, String expected)
+    {
+        assertThat(actual.getHomepage(), equalTo(expected));
+    }
+
+    public static void verifyIgnoreTemplate(Repository actual, Repository expected)
+    {
+        verifyIgnoreTemplate(actual, expected.getIgnoreTemplate());
+    }
+
+    public static void verifyIgnoreTemplate(Repository actual, String expected)
+    {
+        assertThat(actual.getIgnoreTemplate(), equalTo(expected));
+    }
+
+    public static void verifyInitialized(Repository actual, boolean expected)
+    {
+        assertThat(actual.getSettings().autoInitialize(), equalTo(expected));
+    }
+
+    public static void verifyInitialized(Repository actual, Repository expected)
+    {
+        verifyInitialized(actual, expected.getSettings().autoInitialize());
+    }
+
+    public static void verifyIssues(Repository actual, boolean expected)
+    {
+        assertThat(actual.getSettings().enableIssues(), equalTo(expected));
+    }
+
+    public static void verifyIssues(Repository actual, Repository expected)
+    {
+        verifyIssues(actual, expected.getSettings().enableIssues());
     }
 
     public static void verifyLabels(Repository actual, Map<String, Color> expected)
@@ -102,9 +142,34 @@ public final class RepositoryAsserts
         assertThat(actual.isEmpty(), equalTo(true));
     }
 
+    public static void verifyLicenseTemplate(Repository actual, Repository expected)
+    {
+        verifyLicenseTemplate(actual, expected.getLicenseTemplate());
+    }
+
+    public static void verifyLicenseTemplate(Repository actual, String expected)
+    {
+        assertThat(actual.getLicenseTemplate(), equalTo(expected));
+    }
+
+    public static void verifyMergeCommits(Repository actual, boolean expected)
+    {
+        assertThat(actual.getSettings().enableMergeCommits(), equalTo(expected));
+    }
+
+    public static void verifyMergeCommits(Repository actual, Repository expected)
+    {
+        verifyMergeCommits(actual, expected.getSettings().enableMergeCommits());
+    }
+
     public static void verifyOrganization(Repository actual, Repository expected)
     {
-        assertThat(actual.getOrganization(), equalTo(expected.getOrganization()));
+        verifyOrganization(actual, expected.getOrganization());
+    }
+
+    public static void verifyOrganization(Repository actual, String expected)
+    {
+        assertThat(actual.getOrganization(), equalTo(expected));
     }
 
     public static void verifyOtherBranches(Repository actual, String branch, Collection<String> other)
@@ -117,6 +182,16 @@ public final class RepositoryAsserts
     public static void verifyPrimaryBranch(Repository actual, String expectedBranch)
     {
         assertThat(actual.getSettings().getBranches().getDefault(), equalTo(expectedBranch));
+    }
+
+    public static void verifyPrivate(Repository actual, boolean expected)
+    {
+        assertThat(actual.getSettings().isPrivate(), equalTo(expected));
+    }
+
+    public static void verifyPrivate(Repository actual, Repository expected)
+    {
+        verifyPrivate(actual, expected.getSettings().isPrivate());
     }
 
     public static void verifyPushAccessRestricted(Repository actual, String branch)
@@ -149,14 +224,14 @@ public final class RepositoryAsserts
         verifyPushAccessUsers(actual, branch, getProtection(expected, branch).getPushAccess().getUsers());
     }
 
-    public static void verifyRepositoryInitialized(Repository actual)
+    public static void verifyRebaseMerge(Repository actual, boolean expected)
     {
-        assertThat(actual.getSettings().autoInitialize(), equalTo(true));
+        assertThat(actual.getSettings().enableRebaseMerge(), equalTo(expected));
     }
 
-    public static void verifyRepositoryIsPrivate(Repository actual)
+    public static void verifyRebaseMerge(Repository actual, Repository expected)
     {
-        assertThat(actual.getSettings().isPrivate(), equalTo(true));
+        verifyRebaseMerge(actual, expected.getSettings().enableRebaseMerge());
     }
 
     public static void verifyRepositoryName(Repository actual, Repository expected)
@@ -172,16 +247,6 @@ public final class RepositoryAsserts
     public static void verifyRepositoryNotInitialized(Repository actual)
     {
         assertThat(actual.getSettings().autoInitialize(), equalTo(false));
-    }
-
-    public static void verifyRepositoryOrganization(Repository actual, Repository expected)
-    {
-        verifyRepositoryOrganization(actual, expected.getOrganization());
-    }
-
-    public static void verifyRepositoryOrganization(Repository actual, String organization)
-    {
-        assertThat(actual.getOrganization(), equalTo(organization));
     }
 
     public static void verifyRequiredChecksContextsDisabled(Repository actual, String branch)
@@ -265,6 +330,11 @@ public final class RepositoryAsserts
         verifyRequireReviewsDismissalTeams(actual, branch, getProtection(expected, branch).getPushAccess().getTeams());
     }
 
+    public static void verifyRequireSignedCommits(Repository actual, String branch)
+    {
+        assertThat(getProtection(actual, branch).getRequireSignedCommits(), nullValue());
+    }
+
     public static void verifyRequireSignedCommitsDisabled(Repository actual, String branch)
     {
         assertThat(getProtection(actual, branch).getRequireSignedCommits(), equalTo(false));
@@ -275,14 +345,19 @@ public final class RepositoryAsserts
         assertThat(getProtection(actual, branch).getRequireSignedCommits(), equalTo(true));
     }
 
-    public static void verifyRequireSignedCommits(Repository actual, String branch)
-    {
-        assertThat(getProtection(actual, branch).getRequireSignedCommits(), nullValue());
-    }
-
     public static void verifyRequireUpToDateDisabled(Repository actual, String branch)
     {
         assertThat(getProtection(actual, branch).getRequiredChecks().getRequireUpToDate(), equalTo(false));
+    }
+
+    public static void verifySquashMerge(Repository actual, boolean expected)
+    {
+        assertThat(actual.getSettings().enableSquashMerge(), equalTo(expected));
+    }
+
+    public static void verifySquashMerge(Repository actual, Repository expected)
+    {
+        verifySquashMerge(actual, expected.getSettings().enableSquashMerge());
     }
 
     public static void verifyTeams(Repository actual, Map<String, Permission> expected)
@@ -298,6 +373,16 @@ public final class RepositoryAsserts
     public static void verifyTeamsAreEmpty(Repository actual)
     {
         verifyPermissionsAreEmpty(actual.getSettings().getTeams());
+    }
+
+    public static void verifyWiki(Repository actual, boolean expected)
+    {
+        assertThat(actual.getSettings().enableWiki(), equalTo(expected));
+    }
+
+    public static void verifyWiki(Repository actual, Repository expected)
+    {
+        verifyWiki(actual, expected.getSettings().enableWiki());
     }
 
     private static Protection getProtection(Repository repository, String branch)

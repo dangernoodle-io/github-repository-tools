@@ -304,7 +304,7 @@ public class JsonTransformer
         {
             return getString(key, null);
         }
-        
+
         public String getString(String key, String dlft)
         {
             return json.optString(key, dlft);

@@ -38,7 +38,7 @@ public enum RepositoryFiles
     {
         return new File(find(file -> getClass().getResource(file)).getFile());
     }
-    
+
     public JsonObject toJsonObject() throws IOException
     {
         return new JsonTransformer().deserialize(getFile());

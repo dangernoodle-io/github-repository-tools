@@ -167,7 +167,9 @@ public class RepositoryMerger
         builder.setName(overrides.getName())
                .setOrganization(mergeOrganization(overrides, defaults))
                .setDescription(overrides.getDescription())
-               .setHomepage(overrides.getHomepage());
+               .setHomepage(overrides.getHomepage())
+               .setIgnoreTemplate(mergeIgnoreTemplate(overrides, defaults))
+               .setLicenseTemplate(mergeLicenseTemplate(overrides, defaults));
 
         mergeSettings(overrides.getSettings(), defaults.getSettings(), builder);
 
@@ -202,6 +204,16 @@ public class RepositoryMerger
 
         branches.add(primary);
         branches.forEach(branch -> mergeProtections(overrides, defaults, branch, builder));
+    }
+
+    private String mergeIgnoreTemplate(Repository overrides, Repository defaults)
+    {
+        return merge(overrides.getIgnoreTemplate(), defaults.getIgnoreTemplate(), null);
+    }
+
+    private String mergeLicenseTemplate(Repository overrides, Repository defaults)
+    {
+        return merge(overrides.getLicenseTemplate(), defaults.getLicenseTemplate(), null);
     }
 
     private String mergeOrganization(Repository overrides, Repository defaults) throws IllegalStateException
@@ -256,8 +268,13 @@ public class RepositoryMerger
 
     private void mergeSettings(Settings overrides, Settings defaults, RepositoryBuilder builder)
     {
-        builder.setInitialize(merge(overrides.autoInitialize(), defaults.autoInitialize()));
-        builder.setPrivate(merge(overrides.isPrivate(), defaults.isPrivate()));
+        builder.setInitialize(merge(overrides.autoInitialize(), defaults.autoInitialize()))
+               .setIssues(merge(overrides.enableIssues(), defaults.enableIssues(), true))
+               .setMergeCommits(merge(overrides.enableMergeCommits(), defaults.enableMergeCommits(), true))
+               .setRebaseMerge(merge(overrides.enableRebaseMerge(), defaults.enableRebaseMerge(), true))
+               .setSquashMerge(merge(overrides.enableSquashMerge(), defaults.enableSquashMerge(), true))
+               .setPrivate(merge(overrides.isPrivate(), defaults.isPrivate()))
+               .setWiki(merge(overrides.enableWiki(), defaults.enableWiki(), true));
 
         merge(overrides.getLabels(), defaults.getLabels(), new Callback<Color>()
         {
