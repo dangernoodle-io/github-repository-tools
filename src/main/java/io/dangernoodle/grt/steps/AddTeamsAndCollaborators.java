@@ -73,7 +73,7 @@ public class AddTeamsAndCollaborators extends GithubWorkflow.Step
                 logger.warn("failed to find user [{}]", user);
                 continue;
             }
-            
+
             if (isOrg)
             {
                 // TODO: allow for permission to be set, requires change to github-api

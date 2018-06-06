@@ -18,13 +18,13 @@ public class DefaultStatusCheckFactoryTest
 {
     private String branchName;
 
+    private RepositoryBuilder builder;
+
     private DefaultStatusCheckFactory factory;
 
     private Repository repository;
 
     private Collection<String> result;
-
-    private RepositoryBuilder builder;
 
     @BeforeEach
     public void beforeEach() throws Exception

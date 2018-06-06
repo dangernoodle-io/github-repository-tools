@@ -18,15 +18,43 @@
             "description": "project homepage",
             "type": "string"
         },
+        "ignoreTemplate": {
+            "description": "git ignore template (https://github.com/github/gitignore) to use",
+            "type": "string"
+        },
+        "licenseTemplate": {
+            "description": "license keyword (https://help.github.com/articles/licensing-a-repository/#searching-github-by-license-type)",
+            "type": "string"
+        },
         "settings": {
             "type": "object",
             "properties": {
                 "initialize": {
-                    "description": "initialze the repositry when created",
+                    "description": "initialze the repositry when created (default: false)",
                     "type": "boolean"
                 },
                 "hidden": {
-                    "description": "make the repository private",
+                    "description": "make the repository private (default: false)",
+                    "type": "boolean"
+                },
+                "issues": {
+                    "description": "enable the issue tracker (default: true)",
+                    "type": "boolean"
+                },
+                "wiki": {
+                    "description": "make the repository private (default: true)",
+                    "type": "boolean"
+                },
+                "mergeCommits": {
+                    "description": "allow merge commits for pull requests (default: true)",
+                    "type": "boolean"
+                },
+                "rebaseMerge": {
+                    "description": "allow rebase merging for pull requests (default: true)",
+                    "type": "boolean"
+                },
+                "squashMerge": {
+                    "description": "allow squash merging for pull requests (default: true)",
                     "type": "boolean"
                 },
                 "labels": {
@@ -106,31 +134,31 @@
             ],
             "properties": {
                 "requireSignedCommits": {
-                    "description": "require gpg signed commits",
+                    "description": "require gpg signed commits (default: false)",
                     "type": "boolean"
                 },
                 "includeAdministrators": {
-                    "description": "enforce all restrictions for admins",
+                    "description": "enforce all restrictions for admins (default: false)",
                     "type": "boolean"
                 },
                 "requireReviews": {
                     "type": "object",
                     "properties": {
                         "requiredReviewers": {
-                            "description": "number of required reviewers",
+                            "description": "number of required reviewers (default: 1)",
                             "type": "integer",
                             "minimum": 1
                         },
                         "dismissStaleApprovals": {
-                            "description": "dismiss stale approvals",
+                            "description": "dismiss stale approvals (default: false)",
                             "type": "boolean"
                         },
                         "requireCodeOwner": {
-                            "description": "require review from code owner",
+                            "description": "require review from code owner (default: false)",
                             "type": "boolean"
                         },
                         "restrictDismissals": {
-                            "description": "restrict who can dismiss reviews",
+                            "description": "restrict who can dismiss reviews (default: false)",
                             "$ref": "#/definitions/access"
                         }
                     },
@@ -140,7 +168,7 @@
                     "type": "object",
                     "properties": {
                         "requireUpToDate": {
-                            "description": "require the branch to be up-to-date before merge",
+                            "description": "require the branch to be up-to-date before merge (default: false)",
                             "type": "boolean"
                         },
                         "contexts": {

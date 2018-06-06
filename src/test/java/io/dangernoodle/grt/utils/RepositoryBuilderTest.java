@@ -5,15 +5,20 @@ import static io.dangernoodle.RepositoryAsserts.verifyCollaborators;
 import static io.dangernoodle.RepositoryAsserts.verifyDescription;
 import static io.dangernoodle.RepositoryAsserts.verifyEnforeForAdministratorsEnabled;
 import static io.dangernoodle.RepositoryAsserts.verifyHomepage;
+import static io.dangernoodle.RepositoryAsserts.verifyIgnoreTemplate;
+import static io.dangernoodle.RepositoryAsserts.verifyInitialized;
+import static io.dangernoodle.RepositoryAsserts.verifyIssues;
 import static io.dangernoodle.RepositoryAsserts.verifyLabels;
+import static io.dangernoodle.RepositoryAsserts.verifyLicenseTemplate;
+import static io.dangernoodle.RepositoryAsserts.verifyMergeCommits;
 import static io.dangernoodle.RepositoryAsserts.verifyOrganization;
 import static io.dangernoodle.RepositoryAsserts.verifyOtherBranches;
 import static io.dangernoodle.RepositoryAsserts.verifyPrimaryBranch;
+import static io.dangernoodle.RepositoryAsserts.verifyPrivate;
 import static io.dangernoodle.RepositoryAsserts.verifyPushAccessRestricted;
 import static io.dangernoodle.RepositoryAsserts.verifyPushAccessTeams;
 import static io.dangernoodle.RepositoryAsserts.verifyPushAccessUsers;
-import static io.dangernoodle.RepositoryAsserts.verifyRepositoryInitialized;
-import static io.dangernoodle.RepositoryAsserts.verifyRepositoryIsPrivate;
+import static io.dangernoodle.RepositoryAsserts.verifyRebaseMerge;
 import static io.dangernoodle.RepositoryAsserts.verifyRepositoryName;
 import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsDismissStaleApprovalsEnabled;
 import static io.dangernoodle.RepositoryAsserts.verifyRequireReviewsDismissalRestrictionsEnabled;
@@ -25,7 +30,9 @@ import static io.dangernoodle.RepositoryAsserts.verifyRequireReviwsDismissalTeam
 import static io.dangernoodle.RepositoryAsserts.verifyRequireSignedCommitsEnabled;
 import static io.dangernoodle.RepositoryAsserts.verifyRequiredChecksContextsEnabled;
 import static io.dangernoodle.RepositoryAsserts.verifyRequiredChecksRequireUpToDateEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifySquashMerge;
 import static io.dangernoodle.RepositoryAsserts.verifyTeams;
+import static io.dangernoodle.RepositoryAsserts.verifyWiki;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -86,8 +93,15 @@ public class RepositoryBuilderTest
                .setOrganization("dangernoodle-io")
                .setDescription("test repository")
                .setHomepage("https://github.com/dangernoodle-io/grt-test-repository")
+               .setIgnoreTemplate("Java")
+               .setIssues(true)
                .setInitialize(true)
+               .setLicenseTemplate("mit")
+               .setMergeCommits(true)
+               .setRebaseMerge(true)
+               .setSquashMerge(true)
                .setPrivate(true)
+               .setWiki(true)
                .addLabel("label", Color.from("#00000"))
                .addTeam("admin", Permission.admin)
                .addCollaborator("user", Permission.read)
@@ -121,8 +135,15 @@ public class RepositoryBuilderTest
         verifyOrganization(actual, expected);
         verifyDescription(actual, expected);
         verifyHomepage(actual, expected);
-        verifyRepositoryInitialized(actual);
-        verifyRepositoryIsPrivate(actual);
+        verifyInitialized(actual, expected);
+        verifyIgnoreTemplate(actual, expected);
+        verifyIssues(actual, expected);
+        verifyLicenseTemplate(actual, expected);
+        verifyMergeCommits(actual, expected);
+        verifyRebaseMerge(actual, expected);
+        verifySquashMerge(actual, expected);
+        verifyPrivate(actual, expected);
+        verifyWiki(actual, expected);
         verifyLabels(actual, expected);
         verifyTeams(actual, expected);
         verifyCollaborators(actual, expected);

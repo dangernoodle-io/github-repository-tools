@@ -114,9 +114,16 @@ public class GithubClientTest
         RepositoryBuilder repoBuilder = new RepositoryBuilder(new JsonTransformer());
         repoBuilder.setName("repository")
                    .setInitialize(true)
-                   .setPrivate(true)
                    .setDescription("description")
-                   .setHomepage("homepage");
+                   .setHomepage("homepage")
+                   .setIgnoreTemplate("Java")
+                   .setIssues(false)
+                   .setLicenseTemplate("mit")
+                   .setMergeCommits(false)
+                   .setRebaseMerge(false)
+                   .setSquashMerge(true)
+                   .setPrivate(true)
+                   .setWiki(false);
 
         return repoBuilder;
     }
@@ -194,10 +201,17 @@ public class GithubClientTest
     {
         Settings settings = repository.getSettings();
 
+        verify(mockRepoBuilder).allowMergeCommit(settings.enableMergeCommits());
+        verify(mockRepoBuilder).allowRebaseMerge(settings.enableRebaseMerge());
+        verify(mockRepoBuilder).allowSquashMerge(settings.enableSquashMerge());
         verify(mockRepoBuilder).autoInit(settings.autoInitialize());
-        verify(mockRepoBuilder).private_(settings.isPrivate());
         verify(mockRepoBuilder).description(repository.getDescription());
+        verify(mockRepoBuilder).gitignoreTemplate(repository.getIgnoreTemplate());
         verify(mockRepoBuilder).homepage(repository.getHomepage());
+        verify(mockRepoBuilder).issues(settings.enableIssues());
+        verify(mockRepoBuilder).licenseTemplate(repository.getLicenseTemplate());
+        verify(mockRepoBuilder).private_(settings.isPrivate());
+        verify(mockRepoBuilder).wiki(settings.enableWiki());
     }
 
     private void whenCreateOrgRepository() throws IOException

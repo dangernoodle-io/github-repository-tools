@@ -45,6 +45,16 @@ public class Repository
         return json.getString("homepage");
     }
 
+    public String getIgnoreTemplate()
+    {
+        return json.getString("ignoreTemplate");
+    }
+
+    public String getLicenseTemplate()
+    {
+        return json.getString("licenseTemplate");
+    }
+
     public String getName()
     {
         return json.getString("name");
@@ -109,6 +119,31 @@ public class Repository
         public Boolean autoInitialize()
         {
             return json.getBoolean("initialize");
+        }
+
+        public Boolean enableIssues()
+        {
+            return json.getBoolean("issues");
+        }
+
+        public Boolean enableMergeCommits()
+        {
+            return json.getBoolean("mergeCommits");
+        }
+
+        public Boolean enableRebaseMerge()
+        {
+            return json.getBoolean("rebaseMerge");
+        }
+
+        public Boolean enableSquashMerge()
+        {
+            return json.getBoolean("squashMerge");
+        }
+
+        public Boolean enableWiki()
+        {
+            return json.getBoolean("wiki");
         }
 
         public Branches getBranches()

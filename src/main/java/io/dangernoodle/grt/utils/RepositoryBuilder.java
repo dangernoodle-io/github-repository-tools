@@ -143,9 +143,9 @@ public class RepositoryBuilder
         return this;
     }
 
-    public RepositoryBuilder dismissStaleApprovals(String branch, boolean bool)
+    public RepositoryBuilder dismissStaleApprovals(String branch, boolean enabled)
     {
-        reviews(branch).put("dismissStaleApprovals", bool);
+        reviews(branch).put("dismissStaleApprovals", enabled);
         return this;
     }
 
@@ -155,21 +155,21 @@ public class RepositoryBuilder
         return this;
     }
 
-    public RepositoryBuilder enforceForAdminstrators(String branch, boolean bool)
+    public RepositoryBuilder enforceForAdminstrators(String branch, boolean enabled)
     {
-        protections(branch).put("includeAdministrators", bool);
+        protections(branch).put("includeAdministrators", enabled);
         return this;
     }
 
-    public RepositoryBuilder requireBranchUpToDate(String branch, boolean bool)
+    public RepositoryBuilder requireBranchUpToDate(String branch, boolean enabled)
     {
-        statusChecks(branch).put("requireUpToDate", bool);
+        statusChecks(branch).put("requireUpToDate", enabled);
         return this;
     }
 
-    public RepositoryBuilder requireCodeOwnerReview(String branch, boolean bool)
+    public RepositoryBuilder requireCodeOwnerReview(String branch, boolean enabled)
     {
-        reviews(branch).put("requireCodeOwner", bool);
+        reviews(branch).put("requireCodeOwner", enabled);
         return this;
     }
 
@@ -185,9 +185,9 @@ public class RepositoryBuilder
         return this;
     }
 
-    public RepositoryBuilder requireSignedCommits(String branch, boolean bool)
+    public RepositoryBuilder requireSignedCommits(String branch, boolean enabled)
     {
-        protections(branch).put("requireSignedCommits", bool);
+        protections(branch).put("requireSignedCommits", enabled);
         return this;
     }
 
@@ -209,9 +209,33 @@ public class RepositoryBuilder
         return this;
     }
 
-    public RepositoryBuilder setInitialize(boolean bool)
+    public RepositoryBuilder setIgnoreTemplate(String template)
     {
-        settings().put("initialize", bool);
+        repository.put("ignoreTemplate", template);
+        return this;
+    }
+
+    public RepositoryBuilder setInitialize(boolean enabled)
+    {
+        settings().put("initialize", enabled);
+        return this;
+    }
+
+    public RepositoryBuilder setIssues(boolean enabled)
+    {
+        settings().put("issues", enabled);
+        return this;
+    }
+
+    public RepositoryBuilder setLicenseTemplate(String template)
+    {
+        repository.put("licenseTemplate", template);
+        return this;
+    }
+
+    public RepositoryBuilder setMergeCommits(boolean enabled)
+    {
+        settings().put("mergeCommits", enabled);
         return this;
     }
 
@@ -233,9 +257,27 @@ public class RepositoryBuilder
         return this;
     }
 
-    public RepositoryBuilder setPrivate(boolean bool)
+    public RepositoryBuilder setPrivate(boolean enabled)
     {
-        settings().put("hidden", bool);
+        settings().put("hidden", enabled);
+        return this;
+    }
+
+    public RepositoryBuilder setRebaseMerge(boolean enabled)
+    {
+        settings().put("rebaseMerge", enabled);
+        return this;
+    }
+
+    public RepositoryBuilder setSquashMerge(boolean enabled)
+    {
+        settings().put("squashMerge", enabled);
+        return this;
+    }
+
+    public RepositoryBuilder setWiki(boolean enabled)
+    {
+        settings().put("wiki", enabled);
         return this;
     }
 
