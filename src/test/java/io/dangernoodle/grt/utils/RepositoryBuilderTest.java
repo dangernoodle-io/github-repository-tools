@@ -102,7 +102,7 @@ public class RepositoryBuilderTest
                .setSquashMerge(true)
                .setPrivate(true)
                .setWiki(true)
-               .addLabel("label", Color.from("#00000"))
+               .addLabel("label", Color.from("#006b75"))
                .addTeam("admin", Permission.admin)
                .addCollaborator("user", Permission.read)
                .setPrimaryBranch("master")

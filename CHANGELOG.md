@@ -3,6 +3,7 @@
 * **0.3.0-SNAPSHOT**
   - Support for setting description / homepage
   - Support for additional repository settings during creation
+  - Create 'other' branches / change default branch
 
 * **0.2.2** (05/25/2018)
   - Schema documentation updates, allow `labels`, `teams`, and `collaborators` to be `null`

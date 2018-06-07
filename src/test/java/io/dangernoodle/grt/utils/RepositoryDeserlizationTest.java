@@ -194,7 +194,7 @@ public class RepositoryDeserlizationTest
         verifySquashMerge(repository, true);
         verifyPrivate(repository, true);
         verifyWiki(repository, true);
-        verifyLabels(repository, Collections.singletonMap("label", Color.from("#00000")));
+        verifyLabels(repository, Collections.singletonMap("label", Color.from("#006b75")));
         verifyTeams(repository, Collections.singletonMap("admin", Permission.admin));
         verifyCollaborators(repository, Collections.singletonMap("user", Permission.read));
         verifyPrimaryBranch(repository, "master");
