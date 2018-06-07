@@ -10,7 +10,7 @@
 
   <artifactId>github-repository-tools</artifactId>
   <name>${project.artifactId}</name>
-  <version>0.3.0</version>
+  <version>0.3.1-SNAPSHOT</version>
 
   <url>https://github.com/dangernoodle-io/github-repository-tools</url>
   <description>github repository tools</description>
@@ -124,7 +124,7 @@
     <connection>scm:git:git@github.com:dangernoodle-io/github-repository-tools</connection>
     <developerConnection>scm:git:git@github.com:dangernoodle-io/github-repository-tools</developerConnection>
     <url>https://github.com:dangernoodle-io/github-repository-tools</url>
-    <tag>github-repository-tools-0.3.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
