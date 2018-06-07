@@ -14,7 +14,7 @@
         "rebaseMerge": true,
         "squashMerge": true,
         "labels": {
-            "label": "#00000"
+            "label": "#006b75"
         },
         "teams": {
             "admin": "admin"
