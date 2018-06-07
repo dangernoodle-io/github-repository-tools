@@ -1,5 +1,8 @@
 ## ChangeLog
 
+* **0.3.1** (06/07/2018)
+  - Fix NPE merging 'requireUpToDate'
+
 * **0.3.0** (06/07/2018)
   - Support for setting description / homepage
   - Support for additional repository settings during creation
