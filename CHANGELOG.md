@@ -1,6 +1,6 @@
 ## ChangeLog
 
-* **0.3.0-SNAPSHOT**
+* **0.3.0** (06/07/2018)
   - Support for setting description / homepage
   - Support for additional repository settings during creation
   - Create 'other' branches / change default branch
