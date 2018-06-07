@@ -67,7 +67,7 @@ public class RepositoryMerger
 
     private void addRequireChecks(String branch, RequiredChecks requireChecks, RepositoryBuilder builder)
     {
-        builder.requireBranchUpToDate(branch, requireChecks.getRequireUpToDate());
+        builder.requireBranchUpToDate(branch, merge(requireChecks.getRequireUpToDate(), false));
         if (requireChecks.hasContexts())
         {
             requireChecks.getContexts()
