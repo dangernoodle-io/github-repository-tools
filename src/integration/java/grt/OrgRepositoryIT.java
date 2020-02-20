@@ -2,10 +2,10 @@ package grt;
 
 import java.io.IOException;
 
-import org.junit.jupiter.api.condition.EnabledIf;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 
-@EnabledIf("systemProperty.get('grt.it.organization') != null")
+@EnabledIfSystemProperty(named = "grt.it.organization", matches = "^\\s*\\S.*$")
 public class OrgRepositoryIT extends UserRepositoryIT
 {
     @Override
