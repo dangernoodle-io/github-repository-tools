@@ -35,21 +35,33 @@ public class Repository
         this.settings = new Settings(json.getJsonObject("settings"));
     }
 
+    /**
+     * @since 0.3.0
+     */
     public String getDescription()
     {
         return json.getString("description");
     }
 
+    /**
+     * @since 0.3.0
+     */
     public String getHomepage()
     {
         return json.getString("homepage");
     }
 
+    /**
+     * @since 0.3.0
+     */
     public String getIgnoreTemplate()
     {
         return json.getString("ignoreTemplate");
     }
 
+    /**
+     * @since 0.3.0
+     */
     public String getLicenseTemplate()
     {
         return json.getString("licenseTemplate");
@@ -121,26 +133,41 @@ public class Repository
             return json.getBoolean("initialize");
         }
 
+        /**
+         * @since 0.3.0
+         */
         public Boolean enableIssues()
         {
             return json.getBoolean("issues");
         }
 
+        /**
+         * @since 0.3.0
+         */
         public Boolean enableMergeCommits()
         {
             return json.getBoolean("mergeCommits");
         }
 
+        /**
+         * @since 0.3.0
+         */
         public Boolean enableRebaseMerge()
         {
             return json.getBoolean("rebaseMerge");
         }
 
+        /**
+         * @since 0.3.0
+         */
         public Boolean enableSquashMerge()
         {
             return json.getBoolean("squashMerge");
         }
 
+        /**
+         * @since 0.3.0
+         */
         public Boolean enableWiki()
         {
             return json.getBoolean("wiki");
