@@ -8,7 +8,6 @@ import java.util.Map;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Repository.Settings.Permission;
-import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
 
 
 public class RepositoryBuilder
@@ -69,7 +68,7 @@ public class RepositoryBuilder
         return this;
     }
 
-    public RepositoryBuilder addPlugin(String key, Object plugin)
+    public RepositoryBuilder addPlugin(String key, Map<String, Object> plugin)
     {
         computeMapIfAbsent("plugins", repository).put(key, plugin);
         return this;
@@ -131,10 +130,7 @@ public class RepositoryBuilder
 
     public Repository build()
     {
-        JsonObject json = transformer.serialize(repository);
-        // System.out.println(json.prettyPrint());
-
-        return new Repository(json);
+        return new Repository(transformer.serialize(repository));
     }
 
     public RepositoryBuilder disableBranchProtection(String branch)
@@ -278,6 +274,13 @@ public class RepositoryBuilder
     public RepositoryBuilder setWiki(boolean enabled)
     {
         settings().put("wiki", enabled);
+        return this;
+    }
+
+    // for use only by the 'RepositoryMerger'
+    RepositoryBuilder addPlugin(String key, Object plugin)
+    {
+        computeMapIfAbsent("plugins", repository).put(key, plugin);
         return this;
     }
 

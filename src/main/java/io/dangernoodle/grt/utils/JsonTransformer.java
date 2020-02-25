@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -58,7 +57,7 @@ public class JsonTransformer
 
     public JsonObject serialize(Map<?, ?> object)
     {
-        return new JsonObject(new JSONObject(adjustPlugins(object)));
+        return new JsonObject(new JSONObject(object));
     }
 
     public JsonObject serialize(Object object)
@@ -69,31 +68,6 @@ public class JsonTransformer
     public JsonObject validate(File file) throws IOException
     {
         return validate(deserialize(file));
-    }
-
-    private Map<?, ?> adjustPlugins(Map<?, ?> object)
-    {
-        // pull out the JSONObject/Array objects being wrapped and insert back into map for proper serialization
-        if (object.containsKey("plugins"))
-        {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> plugins = (Map<String, Object>) object.get("plugins");
-
-            for (Entry<String, Object> entry : plugins.entrySet())
-            {
-                Object value = entry.getValue();
-                if (value instanceof JsonObject)
-                {
-                    plugins.replace(entry.getKey(), ((JsonObject) value).json);
-                }
-                else
-                {
-                    plugins.replace(entry.getKey(), ((JsonArray) value).json);
-                }
-            }
-        }
-
-        return object;
     }
 
     private JsonObject deserialize(Reader reader)
@@ -294,12 +268,6 @@ public class JsonTransformer
             })).orElse(null);
         }
 
-        public <T> Map<String, T> getMap(String key, Deserializer<T> deserializer, Map<String, T> dflt)
-        {
-            return Optional.ofNullable(getMap(key, deserializer))
-                           .orElse(dflt);
-        }
-
         public String getString(String key)
         {
             return getString(key, null);
@@ -329,6 +297,11 @@ public class JsonTransformer
         public String toString()
         {
             return json.toString();
+        }
+
+        Map<String, Object> toMap()
+        {
+            return json.toMap();
         }
 
         private <T> T convert(String key, Supplier<T> supplier)

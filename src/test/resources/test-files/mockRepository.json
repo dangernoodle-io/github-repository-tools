@@ -67,11 +67,9 @@
             "enabled": true,
             "foo": "bar"
         },
-        "jenkins": [
-            {
-                "container": "maven"
-            }
-        ]
+        "jenkins": {
+            "container": "maven"
+        }
     },
     "workflow": [
         "jenkins"

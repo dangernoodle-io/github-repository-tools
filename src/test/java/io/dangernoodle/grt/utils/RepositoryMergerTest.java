@@ -46,6 +46,8 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.Collections;
 
+import com.google.common.collect.ImmutableMap;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -444,8 +446,9 @@ public class RepositoryMergerTest
 
     private void givenADefaultPlugin()
     {
-        deBuilder.addPlugin("default", toJson("{\"foo\": \"bar\"}"))
-                 .addPlugin("other", toJson("{\"foo\": \"bar\"}"));
+        deBuilder.addPlugin("p1", ImmutableMap.of("enabled", true))
+                 .addPlugin("p2", ImmutableMap.of("enabled", false))
+                 .addPlugin("p3", ImmutableMap.of("enabled", true, "object", ImmutableMap.of("k1", 1, "k2", "v")));
     }
 
     private void givenAnOrganizationOverride()
@@ -465,8 +468,9 @@ public class RepositoryMergerTest
 
     private void givenAnOverridenPlugin()
     {
-        ovBuilder.addPlugin("default", toJson("{\"foo\": \"baz\"}"))
-                 .addPlugin("override", toJson("{\"foo\": \"baz\"}"));
+        ovBuilder.addPlugin("p2", ImmutableMap.of("enabled", true))
+                 .addPlugin("p3", ImmutableMap.of("enabled", false, "object", ImmutableMap.of("k1", 5, "k3", "3")))
+                 .addPlugin("p4", ImmutableMap.of("enabled", true));
     }
 
     private void givenAPrimaryBranchDefault()
@@ -701,8 +705,24 @@ public class RepositoryMergerTest
 
     private void thenDefaultPluginsReturned()
     {
-        assertThat(repository.getPlugins().size(), equalTo(2));
-        assertThat(((JsonObject) repository.getPlugin("default")).getString("foo"), equalTo("bar"));
+        assertThat(repository.getPlugins().size(), equalTo(3));
+        assertThat(repository.getPlugins().containsKey("p1"), equalTo(true));
+        assertThat(repository.getPlugins().containsKey("p2"), equalTo(true));
+        assertThat(repository.getPlugins().containsKey("p3"), equalTo(true));
+
+        JsonObject p1 = repository.getPlugin("p1");
+        assertThat(p1.getBoolean("enabled"), equalTo(true));
+
+        JsonObject p2 = repository.getPlugin("p2");
+        assertThat(p2.getBoolean("enabled"), equalTo(false));
+
+        JsonObject p3 = repository.getPlugin("p3");
+        assertThat(p3.getBoolean("enabled"), equalTo(true));
+        assertThat(p3.has("object"), equalTo(true));
+
+        JsonObject object = p3.getJsonObject("object");
+        assertThat(object.getInteger("k1"), equalTo(1));
+        assertThat(object.getString("k2"), equalTo("v"));
     }
 
     private void thenDefaultWorkflowReturned()
@@ -789,8 +809,29 @@ public class RepositoryMergerTest
 
     private void thenOverridePluginsReturned()
     {
-        assertThat(repository.getPlugins().size(), equalTo(3));
-        assertThat(((JsonObject) repository.getPlugin("default")).getString("foo"), equalTo("baz"));
+        assertThat(repository.getPlugins().size(), equalTo(4));
+        assertThat(repository.getPlugins().containsKey("p1"), equalTo(true));
+        assertThat(repository.getPlugins().containsKey("p2"), equalTo(true));
+        assertThat(repository.getPlugins().containsKey("p3"), equalTo(true));
+        assertThat(repository.getPlugins().containsKey("p4"), equalTo(true));
+
+        JsonObject p1 = repository.getPlugin("p1");
+        assertThat(p1.getBoolean("enabled"), equalTo(true));
+
+        JsonObject p2 = repository.getPlugin("p2");
+        assertThat(p2.getBoolean("enabled"), equalTo(true));
+
+        JsonObject p3 = repository.getPlugin("p3");
+        assertThat(p3.getBoolean("enabled"), equalTo(false));
+        assertThat(p3.has("object"), equalTo(true));
+
+        JsonObject object = p3.getJsonObject("object");
+        assertThat(object.getInteger("k1"), equalTo(5));
+        assertThat(object.getString("k2"), equalTo("v"));
+        assertThat(object.getInteger("k3"), equalTo(3));
+
+        JsonObject p4 = repository.getPlugin("p4");
+        assertThat(p4.getBoolean("enabled"), equalTo(true));
     }
 
     private void thenOverrideWorkflowReturned()
@@ -816,11 +857,6 @@ public class RepositoryMergerTest
     private void thenTeamsAreReturned(Repository expected)
     {
         verifyTeams(repository, expected);
-    }
-
-    private JsonObject toJson(String json)
-    {
-        return new JsonTransformer().deserialize(json);
     }
 
     private void whenBuildRepositories()
