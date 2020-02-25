@@ -4,6 +4,7 @@ import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionDisabled;
 import static io.dangernoodle.RepositoryAsserts.verifyCollaborators;
 import static io.dangernoodle.RepositoryAsserts.verifyDescription;
 import static io.dangernoodle.RepositoryAsserts.verifyEnforeForAdministratorsEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyFullName;
 import static io.dangernoodle.RepositoryAsserts.verifyHomepage;
 import static io.dangernoodle.RepositoryAsserts.verifyIgnoreTemplate;
 import static io.dangernoodle.RepositoryAsserts.verifyInitialized;
@@ -134,6 +135,7 @@ public class RepositoryBuilderTest
         verifyRepositoryName(actual, expected);
         verifyOrganization(actual, expected);
         verifyDescription(actual, expected);
+        verifyFullName(actual, expected);
         verifyHomepage(actual, expected);
         verifyInitialized(actual, expected);
         verifyIgnoreTemplate(actual, expected);

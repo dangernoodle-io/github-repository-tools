@@ -44,6 +44,14 @@ public class Repository
     }
 
     /**
+     * @since 0.4.0
+     */
+    public String getFullName()
+    {
+        return getOrganization() + "/" + getName();
+    }
+
+    /**
      * @since 0.3.0
      */
     public String getHomepage()
@@ -82,6 +90,9 @@ public class Repository
         return plugins.get(name);
     }
 
+    /**
+     * @since 0.4.0
+     */
     public Map<String, JsonObject> getPlugins()
     {
         return plugins == null ? null : Collections.unmodifiableMap(plugins);

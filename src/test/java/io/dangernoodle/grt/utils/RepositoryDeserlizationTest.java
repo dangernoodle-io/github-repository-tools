@@ -6,6 +6,7 @@ import static io.dangernoodle.RepositoryAsserts.verifyBranches;
 import static io.dangernoodle.RepositoryAsserts.verifyCollaborators;
 import static io.dangernoodle.RepositoryAsserts.verifyDescription;
 import static io.dangernoodle.RepositoryAsserts.verifyEnforeForAdministratorsEnabled;
+import static io.dangernoodle.RepositoryAsserts.verifyFullName;
 import static io.dangernoodle.RepositoryAsserts.verifyHomepage;
 import static io.dangernoodle.RepositoryAsserts.verifyIgnoreTemplate;
 import static io.dangernoodle.RepositoryAsserts.verifyInitialized;
@@ -183,6 +184,7 @@ public class RepositoryDeserlizationTest
         verifyRepositoryName(repository, "grt-test-repository");
         verifyOrganization(repository, "dangernoodle-io");
         verifyDescription(repository, "test repository");
+        verifyFullName(repository, "dangernoodle-io/grt-test-repository");
         verifyHomepage(repository, "https://github.com/dangernoodle-io/grt-test-repository");
         verifyInitialized(repository, true);
         verifyIgnoreTemplate(repository, "Java");
