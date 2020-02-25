@@ -1,6 +1,7 @@
 ## ChangeLog
-* **0.4.0**
+* **0.4.0-SNAPSHOT**
   - added `getFullName` that returns name as as `<org>/<repo>`
+  - improved handling/merging of plugin settings
 
 * **0.3.1** (06/07/2018)
   - Fix NPE merging 'requireUpToDate'

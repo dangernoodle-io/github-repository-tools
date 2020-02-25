@@ -81,6 +81,16 @@ public final class RepositoryAsserts
         assertThat(getProtection(actual, branch).getIncludeAdministrators(), nullValue());
     }
 
+    public static void verifyFullName(Repository actual, Repository expected)
+    {
+        verifyFullName(actual, expected.getFullName());
+    }
+
+    public static void verifyFullName(Repository actual, String expected)
+    {
+        assertThat(actual.getFullName(), equalTo(expected));
+    }
+
     public static void verifyHomepage(Repository actual)
     {
         assertThat(actual.getHomepage(), nullValue());
