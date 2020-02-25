@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.extensions;
+package io.dangernoodle.grt.ext.statuschecks;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -10,17 +10,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.dangernoodle.grt.Repository;
+import io.dangernoodle.grt.ext.statuschecks.RepositoryStatusCheckProvider;
 import io.dangernoodle.grt.utils.JsonTransformer;
 import io.dangernoodle.grt.utils.RepositoryBuilder;
 
 
-public class DefaultStatusCheckFactoryTest
+public class RepositoryStatusCheckProviderTest
 {
     private String branchName;
 
     private RepositoryBuilder builder;
 
-    private DefaultStatusCheckFactory factory;
+    private RepositoryStatusCheckProvider factory;
 
     private Repository repository;
 
@@ -29,7 +30,7 @@ public class DefaultStatusCheckFactoryTest
     @BeforeEach
     public void beforeEach() throws Exception
     {
-        factory = new DefaultStatusCheckFactory();
+        factory = new RepositoryStatusCheckProvider();
         builder = new RepositoryBuilder(new JsonTransformer());
 
         builder.setName("grt-test-repository")

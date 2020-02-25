@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.extensions;
+package io.dangernoodle.grt.ext.statuschecks;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +16,7 @@ import io.dangernoodle.grt.Repository;
  * 
  * @since 0.1.0
  */
-public class DefaultStatusCheckFactory implements StatusCheckFactory
+public class RepositoryStatusCheckProvider implements StatusCheckProvider
 {
     @Override
     public Collection<String> getRequiredStatusChecks(String branch, Repository repository)

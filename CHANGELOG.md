@@ -2,6 +2,7 @@
 * **0.4.0-SNAPSHOT**
   - added `getFullName` that returns name as as `<org>/<repo>`
   - improved handling/merging of plugin settings
+  - added 'CompositeStatusCheckProvider' and renamed existing related classes (breaking change)
 
 * **0.3.1** (06/07/2018)
   - Fix NPE merging 'requireUpToDate'

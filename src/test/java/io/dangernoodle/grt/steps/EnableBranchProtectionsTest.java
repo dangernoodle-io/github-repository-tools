@@ -16,14 +16,14 @@ import org.kohsuke.github.GHTeam;
 import org.kohsuke.github.GHUser;
 import org.mockito.Mock;
 
-import io.dangernoodle.grt.extensions.DefaultStatusCheckFactory;
-import io.dangernoodle.grt.extensions.StatusCheckFactory;
+import io.dangernoodle.grt.ext.statuschecks.RepositoryStatusCheckProvider;
+import io.dangernoodle.grt.ext.statuschecks.StatusCheckProvider;
 import io.dangernoodle.grt.internal.GithubWorkflow;
 
 
 public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
 {
-    private StatusCheckFactory factory;
+    private StatusCheckProvider factory;
 
     @Mock
     private GHBranch mockGHBranch;
@@ -41,7 +41,7 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
     @BeforeEach
     public void beforeEach() throws Exception
     {
-        factory = new DefaultStatusCheckFactory();
+        factory = new RepositoryStatusCheckProvider();
 
         super.beforeEach();
 

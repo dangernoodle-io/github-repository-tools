@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow;
-import io.dangernoodle.grt.extensions.StatusCheckFactory;
+import io.dangernoodle.grt.ext.statuschecks.StatusCheckProvider;
 import io.dangernoodle.grt.steps.AddTeamsAndCollaborators;
 import io.dangernoodle.grt.steps.CreateRepositoryBranches;
 import io.dangernoodle.grt.steps.CreateRepositoryLabels;
@@ -24,9 +24,9 @@ public class GithubWorkflow implements Workflow
 
     private final GithubClient client;
 
-    private final StatusCheckFactory factory;
+    private final StatusCheckProvider factory;
 
-    public GithubWorkflow(GithubClient client, StatusCheckFactory factory)
+    public GithubWorkflow(GithubClient client, StatusCheckProvider factory)
     {
         this.client = client;
         this.factory = factory;

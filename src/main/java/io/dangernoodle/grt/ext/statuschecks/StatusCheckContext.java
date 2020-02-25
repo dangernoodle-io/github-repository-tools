@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.extensions;
+package io.dangernoodle.grt.ext.statuschecks;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

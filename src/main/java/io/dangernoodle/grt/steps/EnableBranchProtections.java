@@ -16,15 +16,15 @@ import io.dangernoodle.grt.Repository.Settings.Branches.Protection;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequireReviews;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequiredChecks;
 import io.dangernoodle.grt.Workflow.Context;
-import io.dangernoodle.grt.extensions.StatusCheckFactory;
+import io.dangernoodle.grt.ext.statuschecks.StatusCheckProvider;
 import io.dangernoodle.grt.internal.GithubWorkflow;
 
 
 public class EnableBranchProtections extends GithubWorkflow.Step
 {
-    private final StatusCheckFactory factory;
+    private final StatusCheckProvider factory;
 
-    public EnableBranchProtections(GithubClient client, StatusCheckFactory factory)
+    public EnableBranchProtections(GithubClient client, StatusCheckProvider factory)
     {
         super(client);
         this.factory = factory;

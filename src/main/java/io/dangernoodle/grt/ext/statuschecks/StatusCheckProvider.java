@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.extensions;
+package io.dangernoodle.grt.ext.statuschecks;
 
 import java.util.Collection;
 
@@ -8,7 +8,7 @@ import io.dangernoodle.grt.Repository;
 /**
  * @since 0.1.0
  */
-public interface StatusCheckFactory
+public interface StatusCheckProvider
 {
     /**
      * Return the required status checks for the given branch name
