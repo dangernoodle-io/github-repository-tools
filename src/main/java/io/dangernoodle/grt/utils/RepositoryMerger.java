@@ -16,6 +16,7 @@ import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequireReview
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequiredChecks;
 import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Repository.Settings.Permission;
+import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
 
 
 public class RepositoryMerger
@@ -231,16 +232,48 @@ public class RepositoryMerger
         return organization;
     }
 
+    private Map<String, Object> mergePlugins(Map<String, Object> overrides, Map<String, Object> defaults)
+    {
+        Map<String, Object> merged = new HashMap<>(defaults);
+
+        // can't use the 'merge' function b/c we need to allow null values
+        overrides.forEach((key, value) -> {
+            if (!merged.containsKey(key))
+            {
+                merged.put(key, value);
+            }
+            else
+            {
+                merged.put(key, mergePlugins(value, merged.get(key)));
+            }
+        });
+
+        return merged;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object mergePlugins(Object override, Object dflt)
+    {
+        if (dflt instanceof Map)
+        {
+            return mergePlugins((Map<String, Object>) override, (Map<String, Object>) dflt);
+        }
+
+        return override;
+    }
+
+    @SuppressWarnings("unchecked")
     private void mergePlugins(Repository overrides, Repository defaults, RepositoryBuilder builder)
     {
-        Map<String, Object> dePlugins = Optional.ofNullable(defaults.getPlugins())
-                                                .orElse(Collections.emptyMap());
+        Map<String, JsonObject> dePlugins = Optional.ofNullable(defaults.getPlugins())
+                                                    .orElse(Collections.emptyMap());
 
-        Map<String, Object> ovPlugins = Optional.ofNullable(overrides.getPlugins())
-                                                .orElse(Collections.emptyMap());
+        Map<String, JsonObject> ovPlugins = Optional.ofNullable(overrides.getPlugins())
+                                                    .orElse(Collections.emptyMap());
 
-        Map<String, Object> merged = new HashMap<>(dePlugins);
-        merged.putAll(ovPlugins);
+        Map<String, Object> merged = new HashMap<>();
+        dePlugins.forEach((key, value) -> merged.put(key, value.toMap()));
+        ovPlugins.forEach((key, value) -> merged.put(key, mergePlugins(value.toMap(), merged.get(key))));
 
         merged.forEach(builder::addPlugin);
     }

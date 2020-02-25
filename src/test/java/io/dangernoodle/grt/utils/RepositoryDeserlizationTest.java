@@ -53,7 +53,6 @@ import io.dangernoodle.RepositoryFiles;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Repository.Settings.Permission;
-import io.dangernoodle.grt.utils.JsonTransformer.JsonArray;
 import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
 
 
@@ -164,7 +163,7 @@ public class RepositoryDeserlizationTest
 
     private void thenPluginsIsCorrect()
     {
-        Map<String, Object> plugins = repository.getPlugins();
+        Map<String, JsonObject> plugins = repository.getPlugins();
 
         assertThat(plugins, notNullValue());
         assertThat(plugins.isEmpty(), equalTo(false));
@@ -172,11 +171,11 @@ public class RepositoryDeserlizationTest
         assertThat(plugins.containsKey("other"), equalTo(false));
 
         assertThat(plugins.containsKey("travis"), equalTo(true));
-        assertThat(((JsonObject) plugins.get("travis")).getBoolean("enabled"), equalTo(true));
-        assertThat(((JsonObject) plugins.get("travis")).getString("foo"), equalTo("bar"));
+        assertThat(plugins.get("travis").getBoolean("enabled"), equalTo(true));
+        assertThat(plugins.get("travis").getString("foo"), equalTo("bar"));
 
         assertThat(plugins.containsKey("jenkins"), equalTo(true));
-        assertThat(((JsonArray) plugins.get("jenkins")).iterator().hasNext(), equalTo(true));
+        assertThat(plugins.get("jenkins").getString("container"), equalTo("maven"));
     }
 
     private void thenRepositoryIsCorrect()

@@ -23,7 +23,7 @@ public class Repository
 
     private final JsonObject json;
 
-    private final Map<String, Object> plugins;
+    private final Map<String, JsonObject> plugins;
 
     private final Settings settings;
 
@@ -77,15 +77,14 @@ public class Repository
         return json.getString("organization");
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T getPlugin(String name)
+    public JsonObject getPlugin(String name)
     {
-        return (T) getPlugins().get(name);
+        return plugins.get(name);
     }
 
-    public Map<String, Object> getPlugins()
+    public Map<String, JsonObject> getPlugins()
     {
-        return plugins;
+        return plugins == null ? null : Collections.unmodifiableMap(plugins);
     }
 
     public Settings getSettings()
@@ -98,20 +97,36 @@ public class Repository
         return json.getCollection("workflow");
     }
 
-    private Map<String, Object> buildPluginMap()
+    /**
+     * @since 0.4.0
+     */
+    @Override
+    public String toString()
     {
-        return json.getMap("plugins", new Deserializer<Object>()
+        return json.prettyPrint();
+    }
+
+    private Map<String, JsonObject> buildPluginMap()
+    {
+        // only 'JsonObject's can be returned here
+        return json.getMap("plugins", new Deserializer<JsonObject>()
         {
             @Override
-            public Object apply(JsonArray json)
+            public JsonObject apply(JsonArray json)
+            {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public JsonObject apply(JsonObject json)
             {
                 return json;
             }
 
             @Override
-            public Object apply(JsonObject json)
+            public JsonObject apply(String value)
             {
-                return json;
+                throw new UnsupportedOperationException();
             }
         });
     }

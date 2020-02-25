@@ -1,4 +1,6 @@
 ## ChangeLog
+* **0.4.0**
+  - added `getFullName` that returns name as as `<org>/<repo>`
 
 * **0.3.1** (06/07/2018)
   - Fix NPE merging 'requireUpToDate'

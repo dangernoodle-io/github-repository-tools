@@ -38,7 +38,8 @@ import static org.hamcrest.Matchers.equalTo;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
+
+import com.google.common.collect.ImmutableMap;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,7 +48,6 @@ import io.dangernoodle.RepositoryFiles;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Repository.Settings.Permission;
-import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
 
 
 public class RepositoryBuilderTest
@@ -120,7 +120,7 @@ public class RepositoryBuilderTest
                .restrictPushAccess("master")
                .addTeamPushAccess("master", "team")
                .addUserPushAccess("master", "user")
-               .addPlugin("jenkins", toJson("container", "maven"))
+               .addPlugin("jenkins", ImmutableMap.of("container", "maven"))
                .addWorkflow("jenkins");
     }
 
@@ -164,13 +164,8 @@ public class RepositoryBuilderTest
         verifyPushAccessTeams(actual, "master", expected);
         verifyPushAccessUsers(actual, "master", expected);
 
-        assertThat(((JsonObject) actual.getPlugin("jenkins")).getString("container"), equalTo("maven"));
+        assertThat(actual.getPlugin("jenkins").getString("container"), equalTo("maven"));
         assertThat(actual.getWorkflow().containsAll(expected.getWorkflow()), equalTo(true));
-    }
-
-    private JsonObject toJson(String key, String value)
-    {
-        return new JsonTransformer().serialize(Collections.singletonMap(key, value));
     }
 
     private void whenBuildRepository()
