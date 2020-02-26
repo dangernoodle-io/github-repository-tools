@@ -23,8 +23,8 @@ import org.kohsuke.github.GitHubBuilder;
 import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Color;
+import io.dangernoodle.grt.ext.statuschecks.RepositoryStatusCheckProvider;
 import io.dangernoodle.grt.Workflow;
-import io.dangernoodle.grt.extensions.DefaultStatusCheckFactory;
 import io.dangernoodle.grt.internal.GithubWorkflow;
 import io.dangernoodle.grt.utils.JsonTransformer;
 import io.dangernoodle.grt.utils.RepositoryBuilder;
@@ -63,7 +63,7 @@ public class UserRepositoryIT
         context = new Workflow.Context();
         builder = new RepositoryBuilder(transformer);
 
-        workflow = new GithubWorkflow(new GithubClient(github), new DefaultStatusCheckFactory());
+        workflow = new GithubWorkflow(new GithubClient(github), new RepositoryStatusCheckProvider());
 
         // meh - the github api uses commons-lang, so...
         builder.setName("github-repository-tools-test-" + RandomStringUtils.randomAlphanumeric(5).toLowerCase())

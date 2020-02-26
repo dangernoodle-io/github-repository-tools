@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/beans_2_0.xsd"
   bean-discovery-mode="annotated">
   <alternatives>
-    <stereotype>io.dangernoodle.grt.extensions.StatusCheckContext</stereotype>
+    <stereotype>io.dangernoodle.grt.ext.statuschecks.StatusCheckContext</stereotype>
   </alternatives>  
   <scan>
     <exclude name="org.jboss.weld.**" />
