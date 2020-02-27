@@ -57,12 +57,12 @@ public class JsonTransformer
 
     public JsonObject serialize(Map<?, ?> object)
     {
-        return new JsonObject(new JSONObject(object));
+        return object == null ? JsonObject.NULL : new JsonObject(new JSONObject(object));
     }
 
     public JsonObject serialize(Object object)
     {
-        return new JsonObject(new JSONObject(object));
+        return object == null ? JsonObject.NULL : new JsonObject(new JSONObject(object));
     }
 
     public JsonObject validate(File file) throws IOException

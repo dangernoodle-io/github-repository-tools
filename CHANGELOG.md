@@ -3,6 +3,7 @@
   - added `getFullName` that returns name as as `<org>/<repo>`
   - improved handling/merging of plugin settings
   - added 'CompositeStatusCheckProvider' and renamed existing related classes (breaking change)
+  - serialize to / return `JsonObject.NULL` instead of 'null' (may be breaking change)
 
 * **0.3.1** (06/07/2018)
   - Fix NPE merging 'requireUpToDate'
