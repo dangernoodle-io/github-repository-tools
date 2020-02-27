@@ -87,7 +87,7 @@ public class Repository
 
     public JsonObject getPlugin(String name)
     {
-        return plugins.get(name);
+        return plugins.getOrDefault(name, JsonObject.NULL);
     }
 
     /**
