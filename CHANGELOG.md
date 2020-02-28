@@ -4,6 +4,7 @@
   - improved handling/merging of plugin settings
   - added 'CompositeStatusCheckProvider' and renamed existing related classes (breaking change)
   - serialize to / return `JsonObject.NULL` instead of 'null' (may be breaking change)
+  - update `weld-se` to `3.1.3.Final`
 
 * **0.3.1** (06/07/2018)
   - Fix NPE merging 'requireUpToDate'
