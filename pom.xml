@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -11,7 +10,7 @@
 
   <artifactId>github-repository-tools</artifactId>
   <name>${project.artifactId}</name>
-  <version>0.4.0-SNAPSHOT</version>
+  <version>0.4.0</version>
 
   <url>https://github.com/dangernoodle-io/github-repository-tools</url>
   <description>github repository tools</description>
@@ -124,7 +123,7 @@
     <connection>scm:git:git@github.com:dangernoodle-io/github-repository-tools</connection>
     <developerConnection>scm:git:git@github.com:dangernoodle-io/github-repository-tools</developerConnection>
     <url>https://github.com:dangernoodle-io/github-repository-tools</url>
-    <tag>HEAD</tag>
+    <tag>github-repository-tools-0.4.0</tag>
   </scm>
 
   <issueManagement>
@@ -226,8 +225,7 @@
                 </filter>
               </filters>
               <transformers>
-                <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>io.dangernoodle.grt.main.GithubRepositoryTools</mainClass>
                 </transformer>
               </transformers>
