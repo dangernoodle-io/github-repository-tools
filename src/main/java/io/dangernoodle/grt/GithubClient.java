@@ -45,15 +45,7 @@ public class GithubClient
     {
         GHOrganization ghOrg = getOrganization(repository.getOrganization());
         return createRepository(repository, name -> {
-            try
-            {
-                return ghOrg.createRepository(name);
-            }
-            catch (IOException e)
-            {
-                // TODO: remove if https://github.com/kohsuke/github-api/pull/436 merged
-                throw new UncheckedIOException(e);
-            }
+            return ghOrg.createRepository(name);
         });
     }
 

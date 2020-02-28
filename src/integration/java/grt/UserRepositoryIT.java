@@ -9,11 +9,10 @@ import static org.hamcrest.Matchers.nullValue;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.kohsuke.github.GHBranchProtection;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHRepository;
@@ -33,7 +32,7 @@ import io.dangernoodle.grt.utils.RepositoryMerger;
 
 public class UserRepositoryIT
 {
-    @RegisterExtension
+    // @RegisterExtension - breaking change as of 5.6.0
     protected static final GitHub github = createGitHub();
 
     private static final JsonTransformer transformer = new JsonTransformer();
@@ -148,7 +147,7 @@ public class UserRepositoryIT
     {
         try
         {
-            GitHub github = GitHubBuilder.fromCredentials().build();
+            GitHub github = GitHubBuilder.fromEnvironment().build();
             github.checkApiUrlValidity();
 
             return github;
