@@ -1,5 +1,6 @@
 ## ChangeLog
-* **0.4.0-SNAPSHOT**
+
+* **0.4.0**
   - added `getFullName` that returns name as as `<org>/<repo>`
   - improved handling/merging of plugin settings
   - added 'CompositeStatusCheckProvider' and renamed existing related classes (breaking change)
