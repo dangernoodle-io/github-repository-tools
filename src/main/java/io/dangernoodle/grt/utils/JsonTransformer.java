@@ -230,6 +230,16 @@ public class JsonTransformer
                            .orElse(dflt);
         }
 
+        /**
+         * @since 0.5.0
+         */
+        public JsonArray getJsonArray(String key)
+        {
+            return Optional.ofNullable(json.getJSONArray(key))
+                           .map(JsonArray::new)
+                           .orElse(JsonArray.NULL);
+        }
+
         public JsonObject getJsonObject(String key)
         {
             return Optional.ofNullable(json.optJSONObject(key))
