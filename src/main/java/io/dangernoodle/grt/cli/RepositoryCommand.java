@@ -2,6 +2,7 @@ package io.dangernoodle.grt.cli;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 
 import javax.inject.Inject;
 
@@ -18,7 +19,10 @@ import io.dangernoodle.grt.utils.RepositoryMerger;
 @Parameters(commandNames = "repository", resourceBundle = "GithubRepositoryTools", commandDescriptionKey = "repository")
 public class RepositoryCommand implements CommandLineParser.Command
 {
-    @Parameter(descriptionKey = "repoName", required = true)
+    @Parameter(descriptionKey = "all", names = "--all")
+    private static boolean all;
+
+    @Parameter(descriptionKey = "name", required = true)
     private static String name;
 
     @Override
@@ -49,6 +53,17 @@ public class RepositoryCommand implements CommandLineParser.Command
             Repository repository = merger.merge(ovRepo, deRepo);
 
             workflow.execute(repository);
+        }
+
+        @Override
+        protected Collection<File> getRepositories() throws IOException
+        {
+            if (all)
+            {
+                return loader.loadRepositories(name);
+            }
+
+            return super.getRepositories();
         }
 
         @Override
