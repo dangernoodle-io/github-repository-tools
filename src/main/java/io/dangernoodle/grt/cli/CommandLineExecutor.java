@@ -1,6 +1,9 @@
 package io.dangernoodle.grt.cli;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,13 +42,28 @@ public abstract class CommandLineExecutor
         public void execute() throws Exception
         {
             File defaults = loader.loadRepositoryDefaults();
-            File overrides = loader.loadRepository(getRepositoryName());
+            Collection<File> repositories = getRepositories();
 
-            execute(defaults, overrides);
+            repositories.forEach(repo -> {
+                try
+                {
+                    logger.info("** processing repository file [{}]", repo);
+                    execute(defaults, repo);
+                }
+                catch (Exception e)
+                {
+                    logger.error("", e);
+                }
+            });
         }
 
         protected abstract void execute(File defaults, File overrides) throws Exception;
 
         protected abstract String getRepositoryName();
+
+        protected Collection<File> getRepositories() throws IOException
+        {
+            return Arrays.asList(loader.loadRepository(getRepositoryName()));
+        }
     }
 }

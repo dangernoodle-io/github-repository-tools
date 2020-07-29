@@ -1,5 +1,8 @@
 ## ChangeLog
 
+* **0.5.0-SNAPHOT** 
+  - added `--all` to `repository` command
+
 * **0.4.0**
   - added `getFullName` that returns name as as `<org>/<repo>`
   - improved handling/merging of plugin settings

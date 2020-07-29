@@ -7,6 +7,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,11 +30,20 @@ public class FileLoader
         return findFile(root, 1, "credentials");
     }
 
+    public Collection<File> loadRepositories(String subDir) throws IOException
+    {
+        Path start = Paths.get(repoDir, subDir == null ? "" : subDir);
+        return Files.walk(start, Integer.MAX_VALUE)
+                    .map(Path::toFile)
+                    .filter(File::isFile)
+                    .sorted()
+                    .collect(Collectors.toList());
+    }
+
     public File loadRepository(String name) throws IOException
     {
-        // depth = 10 is somewhat arbitrary - can be increased if there is ever a need
         // automatically swap '.' for '-' in the repository name
-        return findFile(repoDir, 10, name.replace('.', '-'));
+        return findFile(repoDir, Integer.MAX_VALUE, name.replace('.', '-'));
     }
 
     public File loadRepositoryDefaults() throws IOException
