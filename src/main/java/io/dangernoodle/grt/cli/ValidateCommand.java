@@ -17,7 +17,7 @@ import io.dangernoodle.grt.utils.JsonValidationException;
 @Parameters(commandNames = "validate", resourceBundle = "GithubRepositoryTools", commandDescriptionKey = "validate")
 public class ValidateCommand implements CommandLineParser.Command
 {
-    @Parameter(descriptionKey = "repoName", required = true)
+    @Parameter(descriptionKey = "name", required = true)
     private static String name;
 
     @Override
