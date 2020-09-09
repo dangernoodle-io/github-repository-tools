@@ -160,6 +160,14 @@ public class Repository
         }
 
         /**
+         * @since 0.6.0
+         */
+        public Boolean deleteBranchOnMerge()
+        {
+            return json.getBoolean("deleteBranchOnMerge");
+        }
+
+        /**
          * @since 0.3.0
          */
         public Boolean enableIssues()
@@ -238,6 +246,14 @@ public class Repository
                     return Permission.valueOf(value);
                 }
             });
+        }
+
+        /**
+         * @since 0.6.0
+         */
+        public Boolean isArchived()
+        {
+            return json.getBoolean("archived");
         }
 
         public Boolean isPrivate()

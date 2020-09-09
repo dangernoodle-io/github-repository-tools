@@ -11,6 +11,7 @@ import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Workflow.Context;
+import io.dangernoodle.grt.Workflow.Status;
 import io.dangernoodle.grt.internal.GithubWorkflow;
 
 
@@ -22,12 +23,12 @@ public class CreateRepositoryLabels extends GithubWorkflow.Step
     }
 
     @Override
-    public void execute(Repository repository, Context context) throws IOException
+    public Status execute(Repository repository, Context context) throws IOException
     {
-        GHRepository ghRepo = context.get(GHRepository.class);
+        GHRepository ghRepo = context.getGHRepository();
 
         Map<String, Color> labels = repository.getSettings().getLabels();
-        Set<GHLabel> existing = ghRepo.listLabels().asSet();
+        Set<GHLabel> existing = ghRepo.listLabels().toSet();
 
         for (String name : labels.keySet())
         {
@@ -37,7 +38,7 @@ public class CreateRepositoryLabels extends GithubWorkflow.Step
             if (label == null)
             {
                 ghRepo.createLabel(name, color);
-                logger.info("created label [{} / {}]", name, color);
+                logger.debug("created label [{} / {}]", name, color);
             }
             else if (!label.getColor().equals(color))
             {
@@ -45,9 +46,11 @@ public class CreateRepositoryLabels extends GithubWorkflow.Step
             }
             else
             {
-                logger.info("label [{} / {}] already exists", name, color);
+                logger.debug("label [{} / {}] already exists", name, color);
             }
         }
+
+        return Status.CONTINUE;
     }
 
     private GHLabel findLabel(String name, Set<GHLabel> existing)

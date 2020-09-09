@@ -301,7 +301,9 @@ public class RepositoryMerger
 
     private void mergeSettings(Settings overrides, Settings defaults, RepositoryBuilder builder)
     {
-        builder.setInitialize(merge(overrides.autoInitialize(), defaults.autoInitialize()))
+        builder.setArchived(merge(overrides.isArchived(), defaults.isArchived()))
+               .setDeleteBranchOnMerge(merge(overrides.deleteBranchOnMerge(), defaults.deleteBranchOnMerge()))
+               .setInitialize(merge(overrides.autoInitialize(), defaults.autoInitialize()))
                .setIssues(merge(overrides.enableIssues(), defaults.enableIssues(), true))
                .setMergeCommits(merge(overrides.enableMergeCommits(), defaults.enableMergeCommits(), true))
                .setRebaseMerge(merge(overrides.enableRebaseMerge(), defaults.enableRebaseMerge(), true))

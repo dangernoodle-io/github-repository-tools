@@ -8,7 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -30,14 +32,37 @@ public class FileLoader
         return findFile(root, 1, "credentials");
     }
 
+    /**
+     * @since 0.5.0
+     */
     public Collection<File> loadRepositories(String subDir) throws IOException
     {
+        Set<File> seen = new HashSet<>();
+        Set<File> dups = new HashSet<>();
+
         Path start = Paths.get(repoDir, subDir == null ? "" : subDir);
-        return Files.walk(start, Integer.MAX_VALUE)
-                    .map(Path::toFile)
-                    .filter(File::isFile)
-                    .sorted()
-                    .collect(Collectors.toList());
+        Collection<File> found = Files.walk(start, Integer.MAX_VALUE)
+                                      .map(Path::toFile)
+                                      .filter(File::isFile)
+                                      .filter(file -> file.getName().endsWith(".json"))
+                                      .map(file -> {
+                                          if (seen.contains(file))
+                                          {
+                                              dups.add(file);
+                                          }
+
+                                          seen.add(file);
+                                          return file;
+                                      })
+                                      .sorted()
+                                      .collect(Collectors.toList());
+
+        if (!dups.isEmpty())
+        {
+            throw new FileAlreadyExistsException("multiple repository files found for: " + dups);
+        }
+
+        return found;
     }
 
     public File loadRepository(String name) throws IOException
@@ -65,7 +90,7 @@ public class FileLoader
 
         if (files.size() > 1)
         {
-            throw new FileAlreadyExistsException("multiple repsository files named [" + name + "] found");
+            throw new FileAlreadyExistsException("multiple repository files named [" + name + "] found");
         }
 
         return files.get(0).toFile();

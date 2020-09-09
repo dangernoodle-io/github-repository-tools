@@ -11,7 +11,6 @@ import java.util.HashSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHLabel;
-import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.PagedIterable;
 import org.mockito.Mock;
 
@@ -35,7 +34,6 @@ public class CreateRepositoryLabelsTest extends AbstractGithubWorkflowStepTest
 
         when(mockGHLabel.getName()).thenReturn("name");
         when(mockGHRepository.listLabels()).thenReturn(mockPagedIterable);
-        when(mockContext.get(GHRepository.class)).thenReturn(mockGHRepository);
     }
 
     @Test
@@ -44,6 +42,7 @@ public class CreateRepositoryLabelsTest extends AbstractGithubWorkflowStepTest
         givenALabelToCreate();
         whenExecuteStep();
         thenLabelWasCreated();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -53,6 +52,7 @@ public class CreateRepositoryLabelsTest extends AbstractGithubWorkflowStepTest
         givenALabelThatAlreadyExists();
         whenExecuteStep();
         thenLabelWasNotCreated();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -63,6 +63,7 @@ public class CreateRepositoryLabelsTest extends AbstractGithubWorkflowStepTest
         whenExecuteStep();
         // not the best but works for now
         thenLabelWasNotCreated();
+        thenStatusIsContinue();
     }
 
     @Override
@@ -71,10 +72,10 @@ public class CreateRepositoryLabelsTest extends AbstractGithubWorkflowStepTest
         return new CreateRepositoryLabels(mockClient);
     }
 
-    private void givenALabelThatAlreadyExists()
+    private void givenALabelThatAlreadyExists() throws IOException
     {
         when(mockGHLabel.getColor()).thenReturn("000000");
-        when(mockPagedIterable.asSet()).thenReturn(new HashSet<>(Arrays.asList(mockGHLabel)));
+        when(mockPagedIterable.toSet()).thenReturn(new HashSet<>(Arrays.asList(mockGHLabel)));
     }
 
     private void givenALabelToCreate()
@@ -82,10 +83,10 @@ public class CreateRepositoryLabelsTest extends AbstractGithubWorkflowStepTest
         repoBuilder.addLabel("name", Color.from("000000"));
     }
 
-    private void givenAnExistingNonMatchingColors()
+    private void givenAnExistingNonMatchingColors() throws IOException
     {
         when(mockGHLabel.getColor()).thenReturn("000001");
-        when(mockPagedIterable.asSet()).thenReturn(new HashSet<>(Arrays.asList(mockGHLabel)));
+        when(mockPagedIterable.toSet()).thenReturn(new HashSet<>(Arrays.asList(mockGHLabel)));
     }
 
     private void thenLabelWasCreated() throws IOException

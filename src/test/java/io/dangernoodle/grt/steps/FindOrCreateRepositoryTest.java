@@ -22,7 +22,6 @@ public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
         whenExecuteStep();
         thenOrgRepositoryIsCreated();
         thenGHRepositoryAddedToContext();
-        thenContextIndicatesOrganization();
     }
 
     @Test
@@ -33,43 +32,6 @@ public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
         whenExecuteStep();
         thenUserRepositoryIsCreated();
         thenGHRepositoryAddedToContext();
-        thenContextIndicatesUser();
-    }
-
-    @Test
-    public void testDescriptionAlreadySet() throws Exception
-    {
-        givenADescription();
-        givenAnExistingOrgRepo();
-        givenAnExistingDescription();
-        whenExecuteStep();
-        thenDescriptionIsNotChanged();
-    }
-
-    @Test
-    public void testDescriptionNull() throws Exception
-    {
-        whenExecuteStep();
-        thenDescriptionIsNotChanged();
-    }
-
-    @Test
-    public void testDescriptionSet() throws Exception
-    {
-        givenADescription();
-        givenAnExistingOrgRepo();
-        whenExecuteStep();
-        thenDescriptionIsSet();
-    }
-
-    @Test
-    public void testDescriptionTheSame() throws Exception
-    {
-        givenADescription();
-        givenAnExistingOrgRepo();
-        givenTheSameDescription();
-        whenExecuteStep();
-        thenDescriptionIsNotChanged();
     }
 
     @Test
@@ -80,7 +42,6 @@ public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
         whenExecuteStep();
         thenOrgRepositoryIsFound();
         thenGHRepositoryAddedToContext();
-        thenContextIndicatesOrganization();
     }
 
     @Test
@@ -91,43 +52,6 @@ public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
         whenExecuteStep();
         thenUserRepositoryIsFound();
         thenGHRepositoryAddedToContext();
-        thenContextIndicatesUser();
-    }
-
-    @Test
-    public void testHomepageAlreadySet() throws Exception
-    {
-        givenAHomepage();
-        givenAnExistingOrgRepo();
-        givenAnExistingHomepage();
-        whenExecuteStep();
-        thenHomepageIsNotChanged();
-    }
-
-    @Test
-    public void testHomepageNull() throws Exception
-    {
-        whenExecuteStep();
-        thenHomepageIsNotChanged();
-    }
-
-    @Test
-    public void testHomepageSet() throws Exception
-    {
-        givenAHomepage();
-        givenAnExistingOrgRepo();
-        whenExecuteStep();
-        thenHomepageIsSet();
-    }
-
-    @Test
-    public void testHomepageTheSame() throws Exception
-    {
-        givenAHomepage();
-        givenAnExistingOrgRepo();
-        givenTheSameHomepage();
-        whenExecuteStep();
-        thenHomepageIsNotChanged();
     }
 
     @Override
@@ -144,26 +68,6 @@ public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
     private void givenACreatedUserRepo() throws IOException
     {
         when(mockClient.createUserRepository(any())).thenReturn(mockGHRepository);
-    }
-
-    private void givenADescription()
-    {
-        repoBuilder.setDescription("description");
-    }
-
-    private void givenAHomepage()
-    {
-        repoBuilder.setHomepage("homepage");
-    }
-
-    private void givenAnExistingDescription()
-    {
-        when(mockGHRepository.getDescription()).thenReturn("existing");
-    }
-
-    private void givenAnExistingHomepage()
-    {
-        when(mockGHRepository.getHomepage()).thenReturn("existing");
     }
 
     private void givenAnExistingOrgRepo() throws IOException
@@ -187,49 +91,9 @@ public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
         when(mockClient.getCurrentLogin()).thenReturn("user");
     }
 
-    private void givenTheSameDescription()
-    {
-        when(mockGHRepository.getDescription()).thenReturn("description");
-    }
-
-    private void givenTheSameHomepage()
-    {
-        when(mockGHRepository.getHomepage()).thenReturn("homepage");
-    }
-
-    private void thenContextIndicatesOrganization()
-    {
-        verify(mockContext).setOrg(true);
-    }
-
-    private void thenContextIndicatesUser()
-    {
-        verify(mockContext).setOrg(false);
-    }
-
-    private void thenDescriptionIsNotChanged() throws IOException
-    {
-        verify(mockGHRepository, times(0)).setDescription(repository.getDescription());
-    }
-
-    private void thenDescriptionIsSet() throws IOException
-    {
-        verify(mockGHRepository).setDescription(repository.getDescription());
-    }
-
     private void thenGHRepositoryAddedToContext()
     {
         verify(mockContext).add(mockGHRepository);
-    }
-
-    private void thenHomepageIsNotChanged() throws IOException
-    {
-        verify(mockGHRepository, times(0)).setHomepage(repository.getHomepage());
-    }
-
-    private void thenHomepageIsSet() throws IOException
-    {
-        verify(mockGHRepository).setHomepage(repository.getHomepage());
     }
 
     private void thenOrgRepositoryIsCreated() throws IOException

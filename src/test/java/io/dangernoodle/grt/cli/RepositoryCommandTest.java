@@ -69,6 +69,12 @@ public class RepositoryCommandTest
                 Arrays.asList(mockPrePost, mockPrePost))
         {
             @Override
+            protected Collection<File> getRepositories() throws IOException
+            {
+                return Arrays.asList(mockFile2);
+            }
+
+            @Override
             Repository createRepository(File file) throws IOException
             {
                 return mockRepository;
@@ -78,12 +84,6 @@ public class RepositoryCommandTest
             RepositoryMerger createRepositoryMerger()
             {
                 return mockMerger;
-            }
-
-            @Override
-            protected Collection<File> getRepositories() throws IOException
-            {
-                return Arrays.asList(mockFile2);
             }
 
             @Override

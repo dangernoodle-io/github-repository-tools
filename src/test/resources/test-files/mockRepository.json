@@ -7,7 +7,9 @@
     "licenseTemplate": "mit",
     "settings": {
         "initialize": true,
+        "archived": true,
         "hidden": true,
+        "deleteBranchOnMerge": true,
         "issues": true,
         "wiki": true,
         "mergeCommits": true,

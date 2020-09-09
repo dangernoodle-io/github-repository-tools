@@ -46,7 +46,7 @@ public abstract class CommandLineExecutor
             try
             {
                 preExecution();
-                
+
                 for (File repo : getRepositories())
                 {
                     doExecute(defaults, repo);
@@ -103,7 +103,7 @@ public abstract class CommandLineExecutor
             {
                 logger.info("** processing repository file [{}]", repo);
                 execute(defaults, repo);
-            
+
             }
             catch (Exception e)
             {
@@ -111,7 +111,7 @@ public abstract class CommandLineExecutor
                 {
                     throw e;
                 }
-                
+
                 logger.error("", e);
             }
         }

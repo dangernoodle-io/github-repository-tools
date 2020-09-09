@@ -1,7 +1,9 @@
 package io.dangernoodle.grt.utils;
 
+import static io.dangernoodle.RepositoryAsserts.verifyArchived;
 import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionDisabled;
 import static io.dangernoodle.RepositoryAsserts.verifyCollaborators;
+import static io.dangernoodle.RepositoryAsserts.verifyDeleteBranchOnMerge;
 import static io.dangernoodle.RepositoryAsserts.verifyDescription;
 import static io.dangernoodle.RepositoryAsserts.verifyEnforeForAdministratorsEnabled;
 import static io.dangernoodle.RepositoryAsserts.verifyFullName;
@@ -92,6 +94,8 @@ public class RepositoryBuilderTest
 
         builder.setName("grt-test-repository")
                .setOrganization("dangernoodle-io")
+               .setArchived(true)
+               .setDeleteBranchOnMerge(true)
                .setDescription("test repository")
                .setHomepage("https://github.com/dangernoodle-io/grt-test-repository")
                .setIgnoreTemplate("Java")
@@ -134,10 +138,12 @@ public class RepositoryBuilderTest
     {
         verifyRepositoryName(actual, expected);
         verifyOrganization(actual, expected);
+        verifyDeleteBranchOnMerge(actual, expected);
         verifyDescription(actual, expected);
         verifyFullName(actual, expected);
         verifyHomepage(actual, expected);
         verifyInitialized(actual, expected);
+        verifyArchived(actual, expected);
         verifyIgnoreTemplate(actual, expected);
         verifyIssues(actual, expected);
         verifyLicenseTemplate(actual, expected);

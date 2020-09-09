@@ -193,6 +193,18 @@ public class RepositoryBuilder
         return this;
     }
 
+    public RepositoryBuilder setArchived(boolean archived)
+    {
+        settings().put("archived", archived);
+        return this;
+    }
+
+    public RepositoryBuilder setDeleteBranchOnMerge(boolean enabled)
+    {
+        settings().put("deleteBranchOnMerge", enabled);
+        return this;
+    }
+
     public RepositoryBuilder setDescription(String description)
     {
         repository.put("description", description);

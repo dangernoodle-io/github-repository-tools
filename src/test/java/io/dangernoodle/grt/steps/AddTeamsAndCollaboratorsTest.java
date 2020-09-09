@@ -1,7 +1,9 @@
 package io.dangernoodle.grt.steps;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -9,7 +11,6 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHOrganization;
-import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHTeam;
 import org.kohsuke.github.GHUser;
 import org.mockito.Mock;
@@ -26,12 +27,16 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
     @Mock
     private GHUser mockGHUser;
 
+    @Mock
+    private GHUser mockOwner;
+
     @Override
     @BeforeEach
     public void beforeEach() throws Exception
     {
         super.beforeEach();
-        when(mockContext.get(GHRepository.class)).thenReturn(mockGHRepository);
+
+        when(mockGHRepository.getOwner()).thenReturn(mockOwner);
     }
 
     @Test
@@ -41,6 +46,7 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
         givenACollaborator();
         whenExecuteStep();
         thenCollaboratorIsAdded();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -50,6 +56,7 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
         givenATeamThatDoesntExist();
         whenExecuteStep();
         thenTeamIsNotAdded();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -59,6 +66,7 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
         givenACollaboratorThatDoesNotExist();
         whenExecuteStep();
         thenUserIsNotAdded();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -70,6 +78,7 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
         whenExecuteStep();
         thenTeamIsAdded();
         thenCollaboratorIsAdded();
+        thenStatusIsContinue();
     }
 
     @Override
@@ -90,10 +99,10 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
         when(mockClient.getUser("doesnotexist")).thenReturn(null);
     }
 
-    private void givenAnOrgRepo()
+    private void givenAnOrgRepo() throws IOException
     {
         repoBuilder.setOrganization("org");
-        when(mockContext.isOrg()).thenReturn(true);
+        when(mockOwner.getType()).thenReturn("Organization");
     }
 
     private void givenATeam() throws IOException
@@ -123,13 +132,13 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
         verify(mockGHTeam).add(mockGHRepository, GHOrganization.Permission.PULL);
     }
 
-    private void thenTeamIsNotAdded()
+    private void thenTeamIsNotAdded() throws IOException
     {
-        verifyZeroInteractions(mockGHTeam);
+        verify(mockGHTeam, times(0)).add(eq(mockGHRepository), any());
     }
 
-    private void thenUserIsNotAdded()
+    private void thenUserIsNotAdded() throws IOException
     {
-        verifyZeroInteractions(mockGHRepository);
+        verify(mockGHRepository, times(0)).addCollaborators(mockGHUser);
     }
 }

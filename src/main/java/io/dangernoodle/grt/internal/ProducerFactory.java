@@ -127,7 +127,7 @@ public class ProducerFactory
     {
         return new ValidateCommand.Executor(arguments, transformer);
     }
-    
+
     private <T> Collection<T> toCollection(Instance<T> instance)
     {
         return instance.stream().collect(Collectors.toList());

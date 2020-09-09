@@ -9,7 +9,6 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
 import io.dangernoodle.grt.Arguments;
-import io.dangernoodle.grt.cli.CommandLineExecutor;
 import io.dangernoodle.grt.utils.JsonTransformer;
 import io.dangernoodle.grt.utils.JsonValidationException;
 
