@@ -7,6 +7,7 @@
     "licenseTemplate": "mit",
     "settings": {
         "initialize": true,
+        "archived": true,
         "hidden": true,
         "issues": true,
         "wiki": true,

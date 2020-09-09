@@ -20,6 +20,16 @@ import io.dangernoodle.grt.Repository.Settings.Permission;
 
 public final class RepositoryAsserts
 {
+    public static void verifyArchived(Repository actual, boolean expected)
+    {
+        assertThat(actual.getSettings().isArchived(), equalTo(expected));
+    }
+
+    public static void verifyArchived(Repository actual, Repository expected)
+    {
+        verifyPrivate(actual, expected.getSettings().isArchived());
+    }
+
     public static void verifyBranches(Repository actual)
     {
         assertThat(actual.getSettings(), notNullValue());

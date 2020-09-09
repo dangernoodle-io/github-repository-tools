@@ -3,6 +3,8 @@ package io.dangernoodle.grt;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.kohsuke.github.GHRepository;
+
 
 public interface Workflow
 {
@@ -13,8 +15,6 @@ public interface Workflow
     public class Context
     {
         private Map<Class<?>, Object> map = new HashMap<>();
-
-        private boolean org;
 
         public void add(Object object)
         {
@@ -27,17 +27,26 @@ public interface Workflow
             return (T) map.get(clazz);
         }
 
-        public boolean isOrg()
+        /**
+         * @since 0.6.0
+         */
+        public GHRepository getGHRepository()
         {
-            return org;
+            return get(GHRepository.class);
         }
 
-        public void setOrg(boolean org)
+        /**
+         * @since 0.6.0
+         */
+        public boolean isArchived()
         {
-            this.org = org;
+            return getGHRepository().isArchived();
         }
     }
 
+    /**
+     * @since 0.6.0
+     */
     public interface PrePost
     {
         default void preExecution() throws Exception
@@ -51,8 +60,17 @@ public interface Workflow
         }
     }
 
+    /**
+     * @since 0.6.0
+     */
+    public enum Status
+    {
+        CONTINUE,
+        SKIP;
+    }
+
     public interface Step
     {
-        void execute(Repository repository, Context context) throws Exception;
+        Workflow.Status execute(Repository repository, Context context) throws Exception;
     }
 }

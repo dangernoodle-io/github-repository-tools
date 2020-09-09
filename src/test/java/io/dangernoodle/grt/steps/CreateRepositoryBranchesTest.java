@@ -13,7 +13,6 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHBranch;
-import org.kohsuke.github.GHRepository;
 import org.mockito.Mock;
 
 import io.dangernoodle.grt.internal.GithubWorkflow;
@@ -35,9 +34,7 @@ public class CreateRepositoryBranchesTest extends AbstractGithubWorkflowStepTest
         existingBranches = new HashMap<>();
         existingBranches.put("master", mockGHBranch);
 
-        when(mockContext.get(GHRepository.class)).thenReturn(mockGHRepository);
         when(mockGHRepository.getBranches()).thenReturn(existingBranches);
-
         when(mockGHRepository.getBranch("master")).thenReturn(mockGHBranch);
         when(mockGHRepository.getDefaultBranch()).thenReturn("master");
     }
@@ -49,6 +46,7 @@ public class CreateRepositoryBranchesTest extends AbstractGithubWorkflowStepTest
         givenOtherBranchExists();
         whenExecuteStep();
         thenDefaultBranchIsChanged();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -59,6 +57,7 @@ public class CreateRepositoryBranchesTest extends AbstractGithubWorkflowStepTest
         whenExecuteStep();
         thenOtherBranchIsCreated();
         thenDefaultBranchIsChanged();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -69,6 +68,7 @@ public class CreateRepositoryBranchesTest extends AbstractGithubWorkflowStepTest
         givenNoExistingBranches();
         whenExecuteStep();
         thenAllBranchesCreated();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -79,6 +79,7 @@ public class CreateRepositoryBranchesTest extends AbstractGithubWorkflowStepTest
         givenOtherBranchExists();
         whenExecuteStep();
         thenV2BranchesCreated();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -86,6 +87,7 @@ public class CreateRepositoryBranchesTest extends AbstractGithubWorkflowStepTest
     {
         whenExecuteStep();
         thenNoBranchesCreatedOrChanged();
+        thenStatusIsContinue();
     }
 
     @Override

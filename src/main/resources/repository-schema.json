@@ -33,6 +33,10 @@
                     "description": "initialze the repositry when created (default: false)",
                     "type": "boolean"
                 },
+                "archived": {
+                    "description": "archive the repository (default: false)",
+                    "type": "boolean"
+                },
                 "hidden": {
                     "description": "make the repository private (default: false)",
                     "type": "boolean"

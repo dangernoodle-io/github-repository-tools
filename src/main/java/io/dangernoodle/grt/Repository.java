@@ -240,6 +240,14 @@ public class Repository
             });
         }
 
+        /**
+         * @since 0.6.0
+         */
+        public Boolean isArchived()
+        {
+            return json.getBoolean("archived");
+        }
+
         public Boolean isPrivate()
         {
             return json.getBoolean("hidden");

@@ -12,6 +12,7 @@ import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Branches;
 import io.dangernoodle.grt.Workflow.Context;
+import io.dangernoodle.grt.Workflow.Status;
 import io.dangernoodle.grt.internal.GithubWorkflow;
 
 
@@ -23,9 +24,9 @@ public class CreateRepositoryBranches extends GithubWorkflow.Step
     }
 
     @Override
-    public void execute(Repository repository, Context context) throws IOException
+    public Status execute(Repository repository, Context context) throws IOException
     {
-        GHRepository ghRepo = context.get(GHRepository.class);
+        GHRepository ghRepo = context.getGHRepository();
         Branches branches = repository.getSettings().getBranches();
 
         String ghDefault = ghRepo.getDefaultBranch();
@@ -48,6 +49,8 @@ public class CreateRepositoryBranches extends GithubWorkflow.Step
             logger.info("setting default branch to [{}]", defaultBranch);
             ghRepo.setDefaultBranch(defaultBranch);
         }
+        
+        return Status.CONTINUE;
     }
 
     private void createBranches(GHRepository ghRepo, String commit, List<String> toCreate) throws IOException

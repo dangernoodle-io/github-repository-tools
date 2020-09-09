@@ -193,6 +193,12 @@ public class RepositoryBuilder
         return this;
     }
 
+    public RepositoryBuilder setArchived(boolean archived)
+    {
+        settings().put("archived", archived);
+        return this;
+    }
+
     public RepositoryBuilder setDescription(String description)
     {
         repository.put("description", description);

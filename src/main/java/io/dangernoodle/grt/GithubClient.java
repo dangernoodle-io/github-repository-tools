@@ -137,18 +137,13 @@ public class GithubClient
             GHCreateRepositoryBuilder builder = function.apply(name);
 
             // would be nice to chain, but then the all these would have to be mocked to return the builder
-            builder.allowMergeCommit(settings.enableMergeCommits());
-            builder.allowRebaseMerge(settings.enableRebaseMerge());
-            builder.allowSquashMerge(settings.enableSquashMerge());
             builder.autoInit(settings.autoInitialize());
-            builder.description(repository.getDescription());
             builder.gitignoreTemplate(repository.getIgnoreTemplate());
-            builder.homepage(repository.getHomepage());
-            builder.issues(settings.enableIssues());
             builder.licenseTemplate(repository.getLicenseTemplate());
+            
+            // set here in case a future operation fails
             builder.private_(settings.isPrivate());
-            builder.wiki(settings.enableWiki());
-
+            
             return builder.create();
         });
     }

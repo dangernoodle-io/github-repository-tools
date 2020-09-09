@@ -1,11 +1,13 @@
 ## ChangeLog
 
 * **0.6.0-SNAPSHOT**
+<<<<<<< HEAD
   - Expose and use shared `OkHttpClient` instance
   - Added 'pre/post' workflow execution hooks
+  - Added support for archiving repositories
 
 * **0.5.0** 
-  - Added `--all` to `repository` command
+  - added `--all` to `repository` command
 
 * **0.4.0**
   - Added `getFullName` that returns name as as `<org>/<repo>`

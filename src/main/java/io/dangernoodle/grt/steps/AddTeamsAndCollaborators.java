@@ -13,6 +13,7 @@ import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Permission;
 import io.dangernoodle.grt.Workflow.Context;
+import io.dangernoodle.grt.Workflow.Status;
 import io.dangernoodle.grt.internal.GithubWorkflow;
 
 
@@ -24,12 +25,12 @@ public class AddTeamsAndCollaborators extends GithubWorkflow.Step
     }
 
     @Override
-    public void execute(Repository repository, Context context) throws IOException
+    public Status execute(Repository repository, Context context) throws IOException
     {
-        GHRepository ghRepo = context.get(GHRepository.class);
+        GHRepository ghRepo = context.getGHRepository();
         Map<String, Permission> users = repository.getSettings().getCollaborators();
 
-        if (context.isOrg())
+        if ("Organization".equals(ghRepo.getOwner().getType()))
         {
             addUsers(ghRepo, users, true);
             addTeams(repository.getOrganization(), ghRepo, repository.getSettings().getTeams());
@@ -38,6 +39,8 @@ public class AddTeamsAndCollaborators extends GithubWorkflow.Step
         {
             addUsers(ghRepo, users, false);
         }
+
+        return Status.CONTINUE;
     }
 
     private void addTeams(String organization, GHRepository ghRepo, Map<String, Permission> teams) throws IOException
