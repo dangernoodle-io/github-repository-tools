@@ -7,23 +7,28 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 
+import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.extras.okhttp3.OkHttpConnector;
+
 import io.dangernoodle.grt.Arguments;
 import io.dangernoodle.grt.Credentials;
 import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.cli.CommandLineParser;
 import io.dangernoodle.grt.cli.CommandLineParser.Command;
-import io.dangernoodle.grt.ext.statuschecks.RepositoryStatusCheckProvider;
-import io.dangernoodle.grt.ext.statuschecks.StatusCheckProvider;
 import io.dangernoodle.grt.cli.RepositoryCommand;
 import io.dangernoodle.grt.cli.ValidateCommand;
+import io.dangernoodle.grt.ext.statuschecks.RepositoryStatusCheckProvider;
+import io.dangernoodle.grt.ext.statuschecks.StatusCheckProvider;
 import io.dangernoodle.grt.utils.JsonTransformer;
+import okhttp3.OkHttpClient;
 
 
 @ApplicationScoped
 public class ProducerFactory
 {
     private static final Arguments arguments = new Arguments();
+    private static final OkHttpClient okHttp = new OkHttpClient();
 
     @Produces
     public Arguments getArguments()
@@ -56,9 +61,13 @@ public class ProducerFactory
 
     @Produces
     @ApplicationScoped
-    public GithubClient getGithubClient(Credentials credentials) throws IOException
+    public GithubClient getGithubClient(Credentials credentials, OkHttpClient okHttp) throws IOException
     {
-        return GithubClient.createClient(credentials.getGithubToken());
+        GitHubBuilder builder = new GitHubBuilder();
+        builder.withOAuthToken(credentials.getGithubToken())
+               .withConnector(new OkHttpConnector(okHttp));
+
+        return GithubClient.createClient(builder.build());
     }
 
     @Produces
@@ -73,6 +82,13 @@ public class ProducerFactory
     public JsonTransformer getJsonTransformer()
     {
         return new JsonTransformer();
+    }
+
+    @Produces
+    public OkHttpClient getOkHttpClient()
+    {
+        // @ApplicationScoped causes the bean to be proxied, and okhttp has some final methods
+        return okHttp;
     }
 
     @Produces

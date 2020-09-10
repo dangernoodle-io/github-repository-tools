@@ -1,6 +1,9 @@
 ## ChangeLog
 
-* **0.5.0-SNAPHOT** 
+* **0.6.0-SNAPSHOT**
+  - expose and use shared `OkHttpClient` instance
+
+* **0.5.0** 
   - added `--all` to `repository` command
 
 * **0.4.0**
