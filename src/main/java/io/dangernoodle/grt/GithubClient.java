@@ -31,7 +31,7 @@ public class GithubClient
 
     private final Map<String, GHRepository> repositories;
 
-    public GithubClient(GitHub github)
+    GithubClient(GitHub github)
     {
         this.github = github;
 
@@ -153,12 +153,11 @@ public class GithubClient
         });
     }
 
-    public static GithubClient createClient(String token) throws IOException
+    public static GithubClient createClient(GitHub github) throws IOException
     {
-        GithubClient client = new GithubClient(GitHub.connectUsingOAuth(token));
-        client.github.checkApiUrlValidity();
+        github.checkApiUrlValidity();
 
-        return client;
+        return new GithubClient(github);
     }
 
     @FunctionalInterface

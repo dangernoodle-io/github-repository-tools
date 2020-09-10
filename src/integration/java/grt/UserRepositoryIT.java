@@ -62,7 +62,7 @@ public class UserRepositoryIT
         context = new Workflow.Context();
         builder = new RepositoryBuilder(transformer);
 
-        workflow = new GithubWorkflow(new GithubClient(github), new RepositoryStatusCheckProvider());
+        workflow = new GithubWorkflow(GithubClient.createClient(github), new RepositoryStatusCheckProvider());
 
         // meh - the github api uses commons-lang, so...
         builder.setName("github-repository-tools-test-" + RandomStringUtils.randomAlphanumeric(5).toLowerCase())
