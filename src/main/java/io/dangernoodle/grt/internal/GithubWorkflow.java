@@ -1,6 +1,5 @@
 package io.dangernoodle.grt.internal;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -33,7 +32,7 @@ public class GithubWorkflow implements Workflow
     }
 
     @Override
-    public void execute(Repository repository, Context context) throws IOException
+    public void execute(Repository repository, Context context) throws Exception
     {
         Collection<GithubWorkflow.Step> steps = new ArrayList<>();
 

@@ -1,7 +1,5 @@
 package io.dangernoodle.grt.steps;
 
-import java.io.IOException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.kohsuke.github.GHRepository;
 import org.mockito.Mock;
@@ -50,7 +48,7 @@ public abstract class AbstractGithubWorkflowStepTest
 
     protected abstract GithubWorkflow.Step createStep();
 
-    protected final void whenExecuteStep() throws IOException
+    protected final void whenExecuteStep() throws Exception
     {
         // the steps will always be invoked w/ a merged repo - duplicated here to prevent NPEs
         RepositoryMerger merger = new RepositoryMerger(transformer);

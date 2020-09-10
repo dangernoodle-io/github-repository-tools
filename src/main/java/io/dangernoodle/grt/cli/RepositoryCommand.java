@@ -11,6 +11,7 @@ import com.beust.jcommander.Parameters;
 
 import io.dangernoodle.grt.Arguments;
 import io.dangernoodle.grt.Repository;
+import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.internal.WorkflowExecutor;
 import io.dangernoodle.grt.utils.JsonTransformer;
 import io.dangernoodle.grt.utils.RepositoryMerger;
@@ -22,6 +23,9 @@ public class RepositoryCommand implements CommandLineParser.Command
     @Parameter(descriptionKey = "all", names = "--all")
     private static boolean all;
 
+    @Parameter(descriptionKey = "ignoreErrors", names = "--ignoreErrors")
+    private static boolean ignoreErrors;
+
     @Parameter(descriptionKey = "name", required = true)
     private static String name;
 
@@ -31,15 +35,19 @@ public class RepositoryCommand implements CommandLineParser.Command
         return Executor.class;
     }
 
-    public static class Executor extends CommandLineExecutor.RepositoryExecutor
+    public static class Executor extends CommandLineExecutor.RepositoryFileExecutor
     {
+        private final Collection<Workflow.PrePost> prePost;
+
         private final WorkflowExecutor workflow;
 
         @Inject
-        public Executor(Arguments arguments, WorkflowExecutor workflow, JsonTransformer transformer)
+        public Executor(Arguments arguments, WorkflowExecutor workflow, JsonTransformer transformer, Collection<Workflow.PrePost> prePost)
         {
             super(arguments, transformer);
+
             this.workflow = workflow;
+            this.prePost = prePost;
         }
 
         @Override
@@ -70,6 +78,30 @@ public class RepositoryCommand implements CommandLineParser.Command
         protected String getRepositoryName()
         {
             return name;
+        }
+
+        @Override
+        protected boolean isIgnoreErrors()
+        {
+            return ignoreErrors;
+        }
+
+        @Override
+        protected void postExecution() throws Exception
+        {
+            for (Workflow.PrePost toExecute : prePost)
+            {
+                toExecute.postExecution();
+            }
+        }
+
+        @Override
+        protected void preExecution() throws Exception
+        {
+            for (Workflow.PrePost toExecute : prePost)
+            {
+                toExecute.preExecution();
+            }
         }
 
         Repository createRepository(File file) throws IOException

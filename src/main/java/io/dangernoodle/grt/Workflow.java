@@ -1,6 +1,5 @@
 package io.dangernoodle.grt;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,8 +38,21 @@ public interface Workflow
         }
     }
 
+    public interface PrePost
+    {
+        default void preExecution() throws Exception
+        {
+            // no-op
+        }
+
+        default void postExecution() throws Exception
+        {
+            // no-op
+        }
+    }
+
     public interface Step
     {
-        void execute(Repository repository, Context context) throws IOException;
+        void execute(Repository repository, Context context) throws Exception;
     }
 }

@@ -3,11 +3,14 @@ package io.dangernoodle.grt.cli;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +19,7 @@ import org.mockito.MockitoAnnotations;
 
 import io.dangernoodle.grt.Arguments;
 import io.dangernoodle.grt.Repository;
+import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.internal.WorkflowExecutor;
 import io.dangernoodle.grt.utils.JsonTransformer;
 import io.dangernoodle.grt.utils.RepositoryMerger;
@@ -43,6 +47,9 @@ public class RepositoryCommandTest
     private Repository mockOverrides;
 
     @Mock
+    private Workflow.PrePost mockPrePost;
+
+    @Mock
     private Repository mockRepository;
 
     @Mock
@@ -57,7 +64,9 @@ public class RepositoryCommandTest
         MockitoAnnotations.initMocks(this);
 
         when(mockMerger.merge(mockRepository, mockRepository)).thenReturn(mockRepository);
-        executor = new RepositoryCommand.Executor(mockArguments, mockWorkflowExecutor, mockTransformer)
+
+        executor = new RepositoryCommand.Executor(mockArguments, mockWorkflowExecutor, mockTransformer,
+                Arrays.asList(mockPrePost, mockPrePost))
         {
             @Override
             Repository createRepository(File file) throws IOException
@@ -70,6 +79,18 @@ public class RepositoryCommandTest
             {
                 return mockMerger;
             }
+
+            @Override
+            protected Collection<File> getRepositories() throws IOException
+            {
+                return Arrays.asList(mockFile2);
+            }
+
+            @Override
+            File loadRepositoryDefaults() throws IOException
+            {
+                return mockFile1;
+            }
         };
     }
 
@@ -78,7 +99,9 @@ public class RepositoryCommandTest
     {
         whenExecuteCommand();
         thenRepositoriesMerged();
+        thenPreExecutionInvoked();
         thenWorkflowExecuted();
+        thenPostExecutionInvoked();
     }
 
     @Test
@@ -86,13 +109,25 @@ public class RepositoryCommandTest
     {
         givenAWorkflowFailure();
         whenExecuteCommand();
+        thenPreExecutionInvoked();
         thenRepositoriesMerged();
         thenWorkflowThrewException();
+        thenPostExecutionInvoked();
     }
 
     private void givenAWorkflowFailure() throws Exception
     {
         doThrow(Exception.class).when(mockWorkflowExecutor).execute(mockRepository);
+    }
+
+    private void thenPostExecutionInvoked() throws Exception
+    {
+        verify(mockPrePost, times(2)).postExecution();
+    }
+
+    private void thenPreExecutionInvoked() throws Exception
+    {
+        verify(mockPrePost, times(2)).preExecution();
     }
 
     private void thenRepositoriesMerged()
@@ -114,7 +149,7 @@ public class RepositoryCommandTest
     {
         try
         {
-            executor.execute(mockFile1, mockFile2);
+            executor.execute();
         }
         catch (Exception e)
         {

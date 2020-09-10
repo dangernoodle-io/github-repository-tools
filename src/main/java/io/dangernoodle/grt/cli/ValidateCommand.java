@@ -9,7 +9,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
 import io.dangernoodle.grt.Arguments;
-import io.dangernoodle.grt.cli.CommandLineExecutor.RepositoryExecutor;
+import io.dangernoodle.grt.cli.CommandLineExecutor;
 import io.dangernoodle.grt.utils.JsonTransformer;
 import io.dangernoodle.grt.utils.JsonValidationException;
 
@@ -21,12 +21,12 @@ public class ValidateCommand implements CommandLineParser.Command
     private static String name;
 
     @Override
-    public Class<? extends RepositoryExecutor> getCommandExectorClass()
+    public Class<? extends CommandLineExecutor.RepositoryFileExecutor> getCommandExectorClass()
     {
         return Executor.class;
     }
 
-    public static class Executor extends RepositoryExecutor
+    public static class Executor extends CommandLineExecutor.RepositoryFileExecutor
     {
         @Inject
         public Executor(Arguments arguments, JsonTransformer transformer)
