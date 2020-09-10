@@ -4,6 +4,8 @@ import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +36,20 @@ public class ValidateCommandTest
     public void beforeEach()
     {
         MockitoAnnotations.initMocks(this);
-        executor = new ValidateCommand.Executor(mockArguments, mockTransformer);
+        executor = new ValidateCommand.Executor(mockArguments, mockTransformer)
+        {
+            @Override
+            protected Collection<File> getRepositories() throws IOException
+            {
+                return Arrays.asList(mockFile2);
+            }
+
+            @Override
+            protected File loadRepositoryDefaults() throws IOException
+            {
+                return mockFile1;
+            }
+        };
     }
 
     @Test
@@ -52,6 +67,6 @@ public class ValidateCommandTest
 
     private void whenValidateSchema() throws Exception
     {
-        executor.execute(mockFile1, mockFile2);
+        executor.execute();
     }
 }

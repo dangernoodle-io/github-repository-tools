@@ -133,7 +133,7 @@ public class UserRepositoryIT
         assertThat(protection.getRequiredStatusChecks().getContexts(), hasItem("context"));
     }
 
-    private void whenExecuteWorkflow() throws IOException
+    private void whenExecuteWorkflow() throws Exception
     {
         // the steps will always be invoked w/ a merged repo - duplicated here to prevent NPEs
         RepositoryMerger merger = new RepositoryMerger(transformer);

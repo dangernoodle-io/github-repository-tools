@@ -1,18 +1,19 @@
 ## ChangeLog
 
 * **0.6.0-SNAPSHOT**
-  - expose and use shared `OkHttpClient` instance
+  - Expose and use shared `OkHttpClient` instance
+  - Added 'pre/post' workflow execution hooks
 
 * **0.5.0** 
-  - added `--all` to `repository` command
+  - Added `--all` to `repository` command
 
 * **0.4.0**
-  - added `getFullName` that returns name as as `<org>/<repo>`
-  - improved handling/merging of plugin settings
-  - added 'CompositeStatusCheckProvider' and renamed existing related classes (breaking change)
-  - serialize to / return `JsonObject.NULL` instead of 'null' (may be breaking change)
-  - update `github-api` to `1.107`
-  - update `weld-se` to `3.1.3.Final`
+  - Added `getFullName` that returns name as as `<org>/<repo>`
+  - Improved handling/merging of plugin settings
+  - Added 'CompositeStatusCheckProvider' and renamed existing related classes (breaking change)
+  - Serialize to / return `JsonObject.NULL` instead of 'null' (may be breaking change)
+  - Update `github-api` to `1.107`
+  - Update `weld-se` to `3.1.3.Final`
 
 * **0.3.1** (06/07/2018)
   - Fix NPE merging 'requireUpToDate'

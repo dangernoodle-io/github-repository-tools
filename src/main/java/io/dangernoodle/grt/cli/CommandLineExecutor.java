@@ -31,9 +31,9 @@ public abstract class CommandLineExecutor
 
     public abstract void execute() throws Exception;
 
-    public static abstract class RepositoryExecutor extends CommandLineExecutor
+    public static abstract class RepositoryFileExecutor extends CommandLineExecutor
     {
-        public RepositoryExecutor(Arguments arguments, JsonTransformer transformer)
+        public RepositoryFileExecutor(Arguments arguments, JsonTransformer transformer)
         {
             super(arguments, transformer);
         }
@@ -41,29 +41,79 @@ public abstract class CommandLineExecutor
         @Override
         public void execute() throws Exception
         {
-            File defaults = loader.loadRepositoryDefaults();
-            Collection<File> repositories = getRepositories();
+            File defaults = loadRepositoryDefaults();
 
-            repositories.forEach(repo -> {
-                try
+            try
+            {
+                preExecution();
+                
+                for (File repo : getRepositories())
                 {
-                    logger.info("** processing repository file [{}]", repo);
-                    execute(defaults, repo);
+                    doExecute(defaults, repo);
                 }
-                catch (Exception e)
-                {
-                    logger.error("", e);
-                }
-            });
+            }
+            finally
+            {
+                postExecution();
+            }
         }
 
         protected abstract void execute(File defaults, File overrides) throws Exception;
 
-        protected abstract String getRepositoryName();
-
         protected Collection<File> getRepositories() throws IOException
         {
             return Arrays.asList(loader.loadRepository(getRepositoryName()));
+        }
+
+        protected abstract String getRepositoryName();
+
+        /**
+         * @since 0.6.0
+         */
+        protected boolean isIgnoreErrors()
+        {
+            return false;
+        }
+
+        /**
+         * @since 0.6.0
+         */
+        protected void postExecution() throws Exception
+        {
+            // no-op
+        }
+
+        /**
+         * @since 0.6.0
+         */
+        protected void preExecution() throws Exception
+        {
+            // no-op
+        }
+
+        // visible for testing
+        File loadRepositoryDefaults() throws IOException
+        {
+            return loader.loadRepositoryDefaults();
+        }
+
+        private void doExecute(File defaults, File repo) throws Exception
+        {
+            try
+            {
+                logger.info("** processing repository file [{}]", repo);
+                execute(defaults, repo);
+            
+            }
+            catch (Exception e)
+            {
+                if (!isIgnoreErrors())
+                {
+                    throw e;
+                }
+                
+                logger.error("", e);
+            }
         }
     }
 }

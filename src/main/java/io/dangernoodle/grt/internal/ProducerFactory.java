@@ -1,6 +1,7 @@
 package io.dangernoodle.grt.internal;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -41,7 +42,7 @@ public class ProducerFactory
     @ApplicationScoped
     public CommandLineParser getCommandLineDelegate(Instance<Command> instance, Arguments arguments)
     {
-        return new CommandLineParser(instance.stream().collect(Collectors.toList()), arguments);
+        return new CommandLineParser(toCollection(instance), arguments);
     }
 
     @Produces
@@ -56,7 +57,7 @@ public class ProducerFactory
     @ApplicationScoped
     public WorkflowExecutor getExecutor(Instance<Workflow> instance)
     {
-        return new WorkflowExecutor(instance.stream().collect(Collectors.toList()));
+        return new WorkflowExecutor(toCollection(instance));
     }
 
     @Produces
@@ -101,9 +102,9 @@ public class ProducerFactory
     @Produces
     @ApplicationScoped
     public RepositoryCommand.Executor getRepositoryExecutor(Arguments arguments, WorkflowExecutor workflow,
-            JsonTransformer transformer)
+            JsonTransformer transformer, Instance<Workflow.PrePost> instance)
     {
-        return new RepositoryCommand.Executor(arguments, workflow, transformer);
+        return new RepositoryCommand.Executor(arguments, workflow, transformer, toCollection(instance));
     }
 
     @Produces
@@ -125,5 +126,10 @@ public class ProducerFactory
     public ValidateCommand.Executor getValidateExecutor(Arguments arguments, JsonTransformer transformer)
     {
         return new ValidateCommand.Executor(arguments, transformer);
+    }
+    
+    private <T> Collection<T> toCollection(Instance<T> instance)
+    {
+        return instance.stream().collect(Collectors.toList());
     }
 }
