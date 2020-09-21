@@ -46,7 +46,7 @@ public class GithubWorkflow implements Workflow
 
             if (status != Status.CONTINUE)
             {
-                logger.warn("github workflow interrupted by [{}], continuing with plugin execution...", stepName);
+                logger.debug("github workflow interrupted by [{}], continuing with plugin execution...", stepName);
                 return;
             }
         }

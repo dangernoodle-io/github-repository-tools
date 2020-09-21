@@ -8,24 +8,15 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.dangernoodle.grt.Arguments;
 import io.dangernoodle.grt.internal.FileLoader;
-import io.dangernoodle.grt.utils.JsonTransformer;
 
 
 public abstract class CommandLineExecutor
 {
-    protected final FileLoader loader;
-
     protected final Logger logger;
 
-    protected final JsonTransformer transformer;
-
-    public CommandLineExecutor(Arguments arguments, JsonTransformer transformer)
+    public CommandLineExecutor()
     {
-        this.transformer = transformer;
-        this.loader = new FileLoader(arguments.getRepoDir());
-
         this.logger = LoggerFactory.getLogger(getClass());
     }
 
@@ -33,9 +24,11 @@ public abstract class CommandLineExecutor
 
     public static abstract class RepositoryFileExecutor extends CommandLineExecutor
     {
-        public RepositoryFileExecutor(Arguments arguments, JsonTransformer transformer)
+        protected final FileLoader fileLoader;
+
+        public RepositoryFileExecutor(FileLoader fileLoader)
         {
-            super(arguments, transformer);
+            this.fileLoader = fileLoader;
         }
 
         @Override
@@ -62,7 +55,7 @@ public abstract class CommandLineExecutor
 
         protected Collection<File> getRepositories() throws IOException
         {
-            return Arrays.asList(loader.loadRepository(getRepositoryName()));
+            return Arrays.asList(fileLoader.loadRepository(getRepositoryName()));
         }
 
         protected abstract String getRepositoryName();
@@ -94,7 +87,7 @@ public abstract class CommandLineExecutor
         // visible for testing
         File loadRepositoryDefaults() throws IOException
         {
-            return loader.loadRepositoryDefaults();
+            return fileLoader.loadRepositoryDefaults();
         }
 
         private void doExecute(File defaults, File repo) throws Exception

@@ -3,12 +3,10 @@ package io.dangernoodle.grt.cli;
 import java.io.File;
 import java.io.IOException;
 
-import javax.inject.Inject;
-
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-import io.dangernoodle.grt.Arguments;
+import io.dangernoodle.grt.internal.FileLoader;
 import io.dangernoodle.grt.utils.JsonTransformer;
 import io.dangernoodle.grt.utils.JsonValidationException;
 
@@ -27,10 +25,12 @@ public class ValidateCommand implements CommandLineParser.Command
 
     public static class Executor extends CommandLineExecutor.RepositoryFileExecutor
     {
-        @Inject
-        public Executor(Arguments arguments, JsonTransformer transformer)
+        private final JsonTransformer transformer;
+
+        public Executor(FileLoader fileLoader, JsonTransformer transformer)
         {
-            super(arguments, transformer);
+            super(fileLoader);
+            this.transformer = transformer;
         }
 
         @Override

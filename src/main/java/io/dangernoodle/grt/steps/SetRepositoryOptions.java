@@ -32,7 +32,7 @@ public class SetRepositoryOptions extends GithubWorkflow.Step
 
         if (!archived && ghRepo.isArchived())
         {
-            logger.warn("** unarchiving of projects must first be done via github, no further github actions will be taken!");
+            logger.error("unarchiving of projects must first be done via github, no further github actions will be taken!");
             return Status.SKIP;
         }
 
@@ -51,7 +51,7 @@ public class SetRepositoryOptions extends GithubWorkflow.Step
             ghRepo.archive();
         }
 
-        logger.info("** repository is archived, no further github actions will be taken!");
+        logger.warn("repository is archived, no further github actions will be taken!");
         return Status.SKIP;
     }
 
@@ -74,13 +74,13 @@ public class SetRepositoryOptions extends GithubWorkflow.Step
             update = true;
             builder.homepage(repository.getHomepage());
         }
-        
+
         if (settings.deleteBranchOnMerge() != ghRepo.isDeleteBranchOnMerge())
         {
             update = true;
             builder.deleteBranchOnMerge(settings.deleteBranchOnMerge());
         }
-        
+
         if (settings.enableMergeCommits() != ghRepo.isAllowMergeCommit())
         {
             update = true;
