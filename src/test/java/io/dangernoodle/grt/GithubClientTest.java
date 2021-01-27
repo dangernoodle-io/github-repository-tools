@@ -190,7 +190,7 @@ public class GithubClientTest
         verify(mockGithub).createRepository(repository.getName());
     }
 
-    private void thenVerifyRepositoryBuilder()
+    private void thenVerifyRepositoryBuilder() throws IOException
     {
         Settings settings = repository.getSettings();
 

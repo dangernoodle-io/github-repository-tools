@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.kohsuke.github.GHUpdateRepositoryBuilder;
+import org.kohsuke.github.GHRepository;
 import org.mockito.Mock;
 
 import io.dangernoodle.grt.Repository.Settings;
@@ -19,7 +19,7 @@ import io.dangernoodle.grt.internal.GithubWorkflow;
 public class SetRepositoryOptionsTest extends AbstractGithubWorkflowStepTest
 {
     @Mock
-    private GHUpdateRepositoryBuilder mockUpdateBuilder;
+    private GHRepository.Updater mockUpdateBuilder;
 
     @BeforeEach
     @Override
@@ -27,8 +27,8 @@ public class SetRepositoryOptionsTest extends AbstractGithubWorkflowStepTest
     {
         super.beforeEach();
 
-        when(mockUpdateBuilder.update()).thenReturn(mockGHRepository);
-        when(mockGHRepository.updateRepository()).thenReturn(mockUpdateBuilder);
+        when(mockUpdateBuilder.done()).thenReturn(mockGHRepository);
+        when(mockGHRepository.update()).thenReturn(mockUpdateBuilder);
     }
 
     @Test
@@ -146,10 +146,10 @@ public class SetRepositoryOptionsTest extends AbstractGithubWorkflowStepTest
 
     private void thenRepositoryIsUpdated() throws IOException
     {
-        verify(mockUpdateBuilder).update();
+        verify(mockUpdateBuilder).done();
     }
 
-    private void thenRepositorySettingsMatch()
+    private void thenRepositorySettingsMatch() throws IOException
     {
         Settings settings = repository.getSettings();
 
