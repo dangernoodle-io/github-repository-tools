@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.dangernoodle.grt.Repository;
-import io.dangernoodle.grt.ext.statuschecks.RepositoryStatusCheckProvider;
 import io.dangernoodle.grt.utils.JsonTransformer;
 import io.dangernoodle.grt.utils.RepositoryBuilder;
 

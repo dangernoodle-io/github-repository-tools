@@ -15,6 +15,7 @@ import io.dangernoodle.grt.steps.CreateRepositoryBranches;
 import io.dangernoodle.grt.steps.CreateRepositoryLabels;
 import io.dangernoodle.grt.steps.EnableBranchProtections;
 import io.dangernoodle.grt.steps.FindOrCreateRepository;
+import io.dangernoodle.grt.steps.SetRepositoryOptions;
 
 
 public class GithubWorkflow implements Workflow
@@ -34,18 +35,20 @@ public class GithubWorkflow implements Workflow
     @Override
     public void execute(Repository repository, Context context) throws Exception
     {
-        Collection<GithubWorkflow.Step> steps = new ArrayList<>();
-
-        steps.add(new FindOrCreateRepository(client));
-        steps.add(new CreateRepositoryLabels(client));
-        steps.add(new AddTeamsAndCollaborators(client));
-        steps.add(new CreateRepositoryBranches(client));
-        steps.add(new EnableBranchProtections(client, factory));
+        Collection<GithubWorkflow.Step> steps = createSteps();
 
         for (GithubWorkflow.Step step : steps)
         {
-            logger.trace("executing step [{}]", step.getClass().getName());
-            step.execute(repository, context);
+            String stepName = step.getClass().getSimpleName();
+
+            logger.trace("executing step [{}]", stepName);
+            Status status = step.execute(repository, context);
+
+            if (status != Status.CONTINUE)
+            {
+                logger.debug("github workflow interrupted by [{}], continuing with plugin execution...", stepName);
+                return;
+            }
         }
     }
 
@@ -55,9 +58,24 @@ public class GithubWorkflow implements Workflow
         return "github";
     }
 
+    // visible for testing
+    Collection<GithubWorkflow.Step> createSteps()
+    {
+        Collection<GithubWorkflow.Step> steps = new ArrayList<>();
+
+        steps.add(new FindOrCreateRepository(client));
+        steps.add(new SetRepositoryOptions(client));
+        steps.add(new CreateRepositoryLabels(client));
+        steps.add(new AddTeamsAndCollaborators(client));
+        steps.add(new CreateRepositoryBranches(client));
+        steps.add(new EnableBranchProtections(client, factory));
+
+        return steps;
+    }
+
     public static abstract class Step implements Workflow.Step
     {
-        protected GithubClient client;
+        protected final GithubClient client;
 
         protected final Logger logger;
 

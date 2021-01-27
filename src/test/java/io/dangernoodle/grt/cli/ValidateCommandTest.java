@@ -36,7 +36,7 @@ public class ValidateCommandTest
     public void beforeEach()
     {
         MockitoAnnotations.initMocks(this);
-        executor = new ValidateCommand.Executor(mockArguments, mockTransformer)
+        executor = new ValidateCommand.Executor(null, mockTransformer)
         {
             @Override
             protected Collection<File> getRepositories() throws IOException

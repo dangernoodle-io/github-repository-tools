@@ -17,7 +17,7 @@
 
   <properties>
     <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
-    <github-api.version>1.115</github-api.version>
+    <github-api.version>1.122</github-api.version>
     <hamcrest.version>2.0.0.0</hamcrest.version>
     <jcommander.version>1.78</jcommander.version>
     <json-schema.version>1.8.0</json-schema.version>

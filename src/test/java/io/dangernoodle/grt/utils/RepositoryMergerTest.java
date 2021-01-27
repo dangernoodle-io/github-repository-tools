@@ -1,9 +1,11 @@
 package io.dangernoodle.grt.utils;
 
+import static io.dangernoodle.RepositoryAsserts.verifyArchived;
 import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionDisabled;
 import static io.dangernoodle.RepositoryAsserts.verifyBranchProtectionEnabled;
 import static io.dangernoodle.RepositoryAsserts.verifyCollaborators;
 import static io.dangernoodle.RepositoryAsserts.verifyCollaboratorsAreEmpty;
+import static io.dangernoodle.RepositoryAsserts.verifyDeleteBranchOnMerge;
 import static io.dangernoodle.RepositoryAsserts.verifyDescription;
 import static io.dangernoodle.RepositoryAsserts.verifyEnforeForAdministratorsDisabled;
 import static io.dangernoodle.RepositoryAsserts.verifyEnforeForAdministratorsEnabled;
@@ -246,6 +248,14 @@ public class RepositoryMergerTest
     {
         whenBuildRepositories();
         thenImplicitDefaultsAreCorrect();
+    }
+
+    @Test
+    public void testImplicitOverrides()
+    {
+        givenImplictsAreOverridden();
+        whenBuildRepositories();
+        thenImplicitsAreOverridden();
     }
 
     @Test
@@ -552,6 +562,17 @@ public class RepositoryMergerTest
         deBuilder.addWorkflow("default");
     }
 
+    private void givenImplictsAreOverridden()
+    {
+        ovBuilder.setArchived(true)
+                 .setDeleteBranchOnMerge(true)
+                 .setIssues(false)
+                 .setMergeCommits(false)
+                 .setRebaseMerge(false)
+                 .setSquashMerge(false)
+                 .setWiki(false);
+    }
+
     private void givenInitializeDefault()
     {
         deBuilder.setInitialize(true);
@@ -763,11 +784,24 @@ public class RepositoryMergerTest
 
     private void thenImplicitDefaultsAreCorrect()
     {
+        verifyArchived(repository, false);
+        verifyDeleteBranchOnMerge(repository, false);
         verifyIssues(repository, true);
         verifyMergeCommits(repository, true);
         verifyRebaseMerge(repository, true);
         verifySquashMerge(repository, true);
         verifyWiki(repository, true);
+    }
+
+    private void thenImplicitsAreOverridden()
+    {
+        verifyArchived(repository, true);
+        verifyDeleteBranchOnMerge(repository, true);
+        verifyIssues(repository, false);
+        verifyMergeCommits(repository, false);
+        verifyRebaseMerge(repository, false);
+        verifySquashMerge(repository, false);
+        verifyWiki(repository, false);
     }
 
     private void thenInitializationIsFalse()

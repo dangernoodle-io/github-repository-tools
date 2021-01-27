@@ -16,6 +16,7 @@ import io.dangernoodle.grt.Repository.Settings.Branches.Protection;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequireReviews;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequiredChecks;
 import io.dangernoodle.grt.Workflow.Context;
+import io.dangernoodle.grt.Workflow.Status;
 import io.dangernoodle.grt.ext.statuschecks.StatusCheckProvider;
 import io.dangernoodle.grt.internal.GithubWorkflow;
 
@@ -31,9 +32,9 @@ public class EnableBranchProtections extends GithubWorkflow.Step
     }
 
     @Override
-    public void execute(Repository repository, Context context) throws IOException
+    public Status execute(Repository repository, Context context) throws IOException
     {
-        GHRepository ghRepo = context.get(GHRepository.class);
+        GHRepository ghRepo = context.getGHRepository();
         Branches branches = repository.getSettings().getBranches();
 
         Collection<String> collection = new HashSet<>(branches.getOther());
@@ -57,6 +58,8 @@ public class EnableBranchProtections extends GithubWorkflow.Step
                 disableProtection(ghBranch);
             }
         }
+
+        return Status.CONTINUE;
     }
 
     private void disableProtection(GHBranch ghBranch) throws IOException
@@ -108,7 +111,7 @@ public class EnableBranchProtections extends GithubWorkflow.Step
             return;
         }
 
-        logger.info("requiring reviews for branch [{}}", branch);
+        logger.info("requiring reviews for branch [{}]", branch);
         builder.requireReviews();
 
         // builder.dismissStaleReviews(reviews.getDismissStaleApprovals());

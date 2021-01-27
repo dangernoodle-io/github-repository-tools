@@ -22,6 +22,7 @@ import io.dangernoodle.grt.cli.ValidateCommand;
 import io.dangernoodle.grt.ext.statuschecks.RepositoryStatusCheckProvider;
 import io.dangernoodle.grt.ext.statuschecks.StatusCheckProvider;
 import io.dangernoodle.grt.utils.JsonTransformer;
+import io.dangernoodle.grt.utils.RepositoryMerger;
 import okhttp3.OkHttpClient;
 
 
@@ -55,9 +56,9 @@ public class ProducerFactory
 
     @Produces
     @ApplicationScoped
-    public WorkflowExecutor getExecutor(Instance<Workflow> instance)
+    public WorkflowExecutor getExecutor(Instance<Workflow> workflows, Instance<Workflow.PrePost> prePost)
     {
-        return new WorkflowExecutor(toCollection(instance));
+        return new WorkflowExecutor(toCollection(workflows), toCollection(prePost));
     }
 
     @Produces
@@ -101,10 +102,17 @@ public class ProducerFactory
 
     @Produces
     @ApplicationScoped
-    public RepositoryCommand.Executor getRepositoryExecutor(Arguments arguments, WorkflowExecutor workflow,
-            JsonTransformer transformer, Instance<Workflow.PrePost> instance)
+    public FileLoader getFileLoader(Arguments arguments)
     {
-        return new RepositoryCommand.Executor(arguments, workflow, transformer, toCollection(instance));
+        return new FileLoader(arguments.getRepoDir());
+    }
+
+    @Produces
+    @ApplicationScoped
+    public RepositoryCommand.Executor getRepositoryExecutor(FileLoader fileLoader, WorkflowExecutor workflowExecutor,
+            RepositoryMerger repositoryMerger)
+    {
+        return new RepositoryCommand.Executor(workflowExecutor, repositoryMerger, fileLoader);
     }
 
     @Produces
@@ -116,6 +124,13 @@ public class ProducerFactory
 
     @Produces
     @ApplicationScoped
+    public RepositoryMerger getRepositoryMerger(JsonTransformer transformer)
+    {
+        return new RepositoryMerger(transformer);
+    }
+
+    @Produces
+    @ApplicationScoped
     public ValidateCommand getValidateCommand()
     {
         return new ValidateCommand();
@@ -123,11 +138,11 @@ public class ProducerFactory
 
     @Produces
     @ApplicationScoped
-    public ValidateCommand.Executor getValidateExecutor(Arguments arguments, JsonTransformer transformer)
+    public ValidateCommand.Executor getValidateExecutor(FileLoader fileLoader, JsonTransformer transformer)
     {
-        return new ValidateCommand.Executor(arguments, transformer);
+        return new ValidateCommand.Executor(fileLoader, transformer);
     }
-    
+
     private <T> Collection<T> toCollection(Instance<T> instance)
     {
         return instance.stream().collect(Collectors.toList());

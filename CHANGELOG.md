@@ -3,6 +3,12 @@
 * **0.6.0-SNAPSHOT**
   - Expose and use shared `OkHttpClient` instance
   - Added 'pre/post' workflow execution hooks
+  - Added support for archiving repositories
+  - Added support for 'delete branch on merge'
+  - Check for duplicate files when using '--all'
+
+* **0.5.1** 
+  - Filter non-json files from when using '--all'
 
 * **0.5.0** 
   - Added `--all` to `repository` command

@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHBranch;
 import org.kohsuke.github.GHBranchProtectionBuilder;
-import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHTeam;
 import org.kohsuke.github.GHUser;
 import org.mockito.Mock;
@@ -51,7 +50,6 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
         when(mockGHBranch.getName()).thenReturn("master");
         when(mockGHBranch.enableProtection()).thenReturn(mockGHBuilder);
         when(mockGHRepository.getBranch("master")).thenReturn(mockGHBranch);
-        when(mockContext.get(GHRepository.class)).thenReturn(mockGHRepository);
     }
 
     @Test
@@ -61,6 +59,7 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
         givenABranchThatDoesntExist();
         whenExecuteStep();
         thenBranchIsSkipped();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -69,6 +68,7 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
         givenAProtectedBranch();
         whenExecuteStep();
         thenProtectionIsDisabled();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -77,6 +77,7 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
         givenANonProtectedBranch();
         whenExecuteStep();
         thenDisableProtectionIsNoOp();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -90,6 +91,7 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
         thenRequiredReviewsAreEnabled();
         thenRequiredChecksAreEnabled();
         thenRestrictedPushAccessEnabled();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -99,6 +101,7 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
         whenExecuteStep();
         thenBranchProtectionIsEnabled();
         thenNoOtherProtectionsEnabled();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -109,6 +112,7 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
         thenBranchProtectionIsEnabled();
         thenRestrictedPushAccessEnabled();
         thenNoOtherProtectionsEnabled();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -119,6 +123,7 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
         thenBranchProtectionIsEnabled();
         thenRequiredChecksAreEnabled();
         thenNoOtherProtectionsEnabled();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -129,6 +134,7 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
         thenBranchProtectionIsEnabled();
         thenRequiredReviewsAreEnabled();
         thenNoOtherProtectionsEnabled();
+        thenStatusIsContinue();
     }
 
     @Override

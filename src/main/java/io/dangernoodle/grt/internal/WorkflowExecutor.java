@@ -17,10 +17,13 @@ public class WorkflowExecutor
 {
     private static final Logger logger = LoggerFactory.getLogger(WorkflowExecutor.class);
 
+    private final Collection<Workflow.PrePost> prePost;
+
     private final Map<String, Workflow> workflows;
 
-    public WorkflowExecutor(Collection<Workflow> workflows)
+    public WorkflowExecutor(Collection<Workflow> workflows, Collection<Workflow.PrePost> prePost)
     {
+        this.prePost = prePost;
         this.workflows = workflows.stream()
                                   .collect(Collectors.toMap(workflow -> workflow.getName(), Function.identity()));
     }
@@ -38,7 +41,24 @@ public class WorkflowExecutor
                 continue;
             }
 
-            workflows.get(step).execute(repository, context);
+            workflows.get(step)
+                     .execute(repository, context);
+        }
+    }
+
+    public void postExecution() throws Exception
+    {
+        for (Workflow.PrePost toExecute : prePost)
+        {
+            toExecute.postExecution();
+        }
+    }
+
+    public void preExecution() throws Exception
+    {
+        for (Workflow.PrePost toExecute : prePost)
+        {
+            toExecute.preExecution();
         }
     }
 

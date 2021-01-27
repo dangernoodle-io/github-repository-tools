@@ -1,5 +1,7 @@
 package io.dangernoodle.grt.utils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,6 +28,14 @@ public class RepositoryMerger
     public RepositoryMerger(JsonTransformer transformer)
     {
         this.transformer = transformer;
+    }
+
+    public Repository merge(File overrides, File defaults) throws IOException
+    {
+        Repository deRepo = new Repository(transformer.validate(defaults));
+        Repository ovRepo = new Repository(transformer.validate(overrides));
+
+        return merge(ovRepo, deRepo);
     }
 
     public Repository merge(Repository repository) throws IllegalStateException
@@ -301,7 +311,9 @@ public class RepositoryMerger
 
     private void mergeSettings(Settings overrides, Settings defaults, RepositoryBuilder builder)
     {
-        builder.setInitialize(merge(overrides.autoInitialize(), defaults.autoInitialize()))
+        builder.setArchived(merge(overrides.isArchived(), defaults.isArchived()))
+               .setDeleteBranchOnMerge(merge(overrides.deleteBranchOnMerge(), defaults.deleteBranchOnMerge()))
+               .setInitialize(merge(overrides.autoInitialize(), defaults.autoInitialize()))
                .setIssues(merge(overrides.enableIssues(), defaults.enableIssues(), true))
                .setMergeCommits(merge(overrides.enableMergeCommits(), defaults.enableMergeCommits(), true))
                .setRebaseMerge(merge(overrides.enableRebaseMerge(), defaults.enableRebaseMerge(), true))
