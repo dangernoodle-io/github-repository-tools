@@ -127,7 +127,7 @@ public class EnableBranchProtections extends GithubWorkflow.Step
             return;
         }
 
-        logger.info("restricting push access for branch [{}}", branch);
+        logger.info("restricting push access for branch [{}]", branch);
         builder.restrictPushAccess();
 
         AccessRestrictions pushAccess = protection.getPushAccess();
