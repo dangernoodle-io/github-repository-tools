@@ -14,17 +14,31 @@ public interface Workflow
 
     public class Context
     {
-        private Map<Class<?>, Object> map = new HashMap<>();
+        private final Map<String, Object> args;
+
+        private final Map<Class<?>, Object> context;
+
+        public Context(Map<String, Object> args)
+        {
+            this.args = new HashMap<>(args);
+            this.context = new HashMap<>();
+        }
 
         public void add(Object object)
         {
-            map.put(object.getClass(), object);
+            context.put(object.getClass(), object);
         }
 
         @SuppressWarnings("unchecked")
         public <T> T get(Class<T> clazz)
         {
-            return (T) map.get(clazz);
+            return (T) context.get(clazz);
+        }
+
+        @SuppressWarnings("unchecked")
+        public <T> T getArg(String name)
+        {
+            return (T) args.get(name);
         }
 
         /**

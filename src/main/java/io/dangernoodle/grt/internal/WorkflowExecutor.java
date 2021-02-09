@@ -28,9 +28,9 @@ public class WorkflowExecutor
                                   .collect(Collectors.toMap(workflow -> workflow.getName(), Function.identity()));
     }
 
-    public void execute(Repository repository) throws Exception
+    public void execute(Repository repository, Map<String, Object> args) throws Exception
     {
-        Workflow.Context context = new Workflow.Context();
+        Workflow.Context context = new Workflow.Context(args);
         Collection<String> steps = getSteps(repository.getWorkflow());
 
         for (String step : steps)
