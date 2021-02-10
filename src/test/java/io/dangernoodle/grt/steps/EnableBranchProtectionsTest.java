@@ -10,7 +10,9 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHBranch;
+import org.kohsuke.github.GHBranchProtection;
 import org.kohsuke.github.GHBranchProtectionBuilder;
+import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHTeam;
 import org.kohsuke.github.GHUser;
 import org.mockito.Mock;
@@ -22,6 +24,8 @@ import io.dangernoodle.grt.internal.GithubWorkflow;
 
 public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
 {
+    private String branchName;
+
     private StatusCheckProvider factory;
 
     @Mock
@@ -36,10 +40,14 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
     @Mock
     private GHUser mockGHUser;
 
+    @Mock
+    private GHBranchProtection mockProtection;
+
     @Override
     @BeforeEach
     public void beforeEach() throws Exception
     {
+        branchName = "master";
         factory = new RepositoryStatusCheckProvider();
 
         super.beforeEach();
@@ -47,9 +55,14 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
         when(mockClient.getUser("user")).thenReturn(mockGHUser);
         when(mockClient.getTeam("org", "team")).thenReturn(mockGHTeam);
 
-        when(mockGHBranch.getName()).thenReturn("master");
+        when(mockGHBranch.getName()).thenReturn(branchName);
         when(mockGHBranch.enableProtection()).thenReturn(mockGHBuilder);
-        when(mockGHRepository.getBranch("master")).thenReturn(mockGHBranch);
+
+        when(mockGHBuilder.enable()).thenReturn(mockProtection);
+        when(mockGHBuilder.includeAdmins(false)).thenReturn(mockGHBuilder);
+
+        when(mockGHRepository.getBranch(branchName)).thenReturn(mockGHBranch);
+        when(mockContext.get(GHRepository.class)).thenReturn(mockGHRepository);
     }
 
     @Test
@@ -86,11 +99,15 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
         givenRequiredReviews();
         givenReqiredChecks();
         givenRestrictedPushAccess();
+        givenRequireAdmins();
+        givenRequireSignedCommits();
         whenExecuteStep();
         thenBranchProtectionIsEnabled();
         thenRequiredReviewsAreEnabled();
         thenRequiredChecksAreEnabled();
         thenRestrictedPushAccessEnabled();
+        thenAdminsAreRequired();
+        thenSignedCommitsAreRequired();
         thenStatusIsContinue();
     }
 
@@ -145,12 +162,12 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
 
     private void givenABranchProtection()
     {
-        repoBuilder.enableBranchProtection("master");
+        repoBuilder.enableBranchProtection(branchName);
     }
 
     private void givenABranchThatDoesntExist() throws IOException
     {
-        when(mockGHRepository.getBranch("master")).thenReturn(null);
+        when(mockGHRepository.getBranch(branchName)).thenReturn(null);
     }
 
     private void givenANonProtectedBranch()
@@ -165,21 +182,38 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
 
     private void givenReqiredChecks()
     {
-        repoBuilder.requireBranchUpToDate("master", true);
-        repoBuilder.addRequiredContext("master", "status-check");
+        repoBuilder.requireBranchUpToDate(branchName, true);
+        repoBuilder.addRequiredContext(branchName, "status-check");
+    }
+
+    private void givenRequireAdmins()
+    {
+        repoBuilder.enforceForAdminstrators(branchName, true);
     }
 
     private void givenRequiredReviews()
     {
-        repoBuilder.requireReviews("master")
-                   .requireCodeOwnerReview("master", true);
+        repoBuilder.requireReviews(branchName)
+                   .requireCodeOwnerReview(branchName, true)
+                   .requiredReviewers(branchName, 2)
+                   .dismissStaleApprovals(branchName, true);
+    }
+
+    private void givenRequireSignedCommits()
+    {
+        repoBuilder.requireSignedCommits(branchName, true);
     }
 
     private void givenRestrictedPushAccess()
     {
-        repoBuilder.restrictPushAccess("master")
-                   .addTeamPushAccess("master", "team")
-                   .addUserPushAccess("master", "user");
+        repoBuilder.restrictPushAccess(branchName)
+                   .addTeamPushAccess(branchName, "team")
+                   .addUserPushAccess(branchName, "user");
+    }
+
+    private void thenAdminsAreRequired()
+    {
+        verify(mockGHBuilder).includeAdmins();
     }
 
     private void thenBranchIsSkipped()
@@ -217,13 +251,20 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
     private void thenRequiredReviewsAreEnabled()
     {
         verify(mockGHBuilder).requireReviews();
+        verify(mockGHBuilder).requiredReviewers(2);
         verify(mockGHBuilder).requireCodeOwnReviews(true);
+        verify(mockGHBuilder).dismissStaleReviews(true);
     }
 
-    private void thenRestrictedPushAccessEnabled() throws IOException
+    private void thenRestrictedPushAccessEnabled()
     {
         verify(mockGHBuilder).restrictPushAccess();
         verify(mockGHBuilder).teamPushAccess(mockGHTeam);
         verify(mockGHBuilder).userPushAccess(mockGHUser);
+    }
+
+    private void thenSignedCommitsAreRequired() throws IOException
+    {
+        verify(mockProtection).enabledSignedCommits();
     }
 }

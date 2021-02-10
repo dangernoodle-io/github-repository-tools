@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.kohsuke.github.GHBranch;
+import org.kohsuke.github.GHBranchProtection;
 import org.kohsuke.github.GHBranchProtectionBuilder;
 import org.kohsuke.github.GHRepository;
 
@@ -97,10 +98,27 @@ public class EnableBranchProtections extends GithubWorkflow.Step
         enableChecks(name, builder, protection.getRequiredChecks(), repository);
         restrictPushAccess(name, builder, protection, repository.getOrganization());
 
-        // protection.getIncludeAdministrators();
-        // protection.getRequireSignedCommits();
+        if (protection.getIncludeAdministrators())
+        {
+            builder.includeAdmins();
+        }
 
-        builder.enable();
+        GHBranchProtection ghProtection = builder.enable();
+        enableCommitSigning(ghProtection, protection.getRequireSignedCommits());
+    }
+
+    private void enableCommitSigning(GHBranchProtection ghProtection, boolean signCommits) throws IOException
+    {
+        boolean ghSign = ghProtection.getRequiredSignatures();
+
+        if (signCommits && !ghSign)
+        {
+            ghProtection.enabledSignedCommits();
+        }
+        else if (ghSign && !signCommits)
+        {
+            ghProtection.disableSignedCommits();
+        }
     }
 
     private void enableReviews(String branch, GHBranchProtectionBuilder builder, RequireReviews reviews)
@@ -111,11 +129,17 @@ public class EnableBranchProtections extends GithubWorkflow.Step
             return;
         }
 
-        logger.info("requiring reviews for branch [{}]", branch);
-        builder.requireReviews();
+        int reviewers = reviews.getRequiredReviewers();
+        boolean reqOwners = reviews.getRequireCodeOwner();
+        boolean dismissStale = reviews.getDismissStaleApprovals();
 
-        // builder.dismissStaleReviews(reviews.getDismissStaleApprovals());
-        builder.requireCodeOwnReviews(reviews.getRequireCodeOwner());
+        logger.info("requiring reviews for branch [{}] - codeOwners [{}] - reviewers [{}] - dismissStale [{}]",
+                branch, reqOwners, reviewers, dismissStale);
+
+        builder.requireReviews();
+        builder.requiredReviewers(reviewers);
+        builder.requireCodeOwnReviews(reqOwners);
+        builder.dismissStaleReviews(dismissStale);
     }
 
     private void restrictPushAccess(String branch, GHBranchProtectionBuilder builder, Protection protection, String organization)
@@ -127,7 +151,7 @@ public class EnableBranchProtections extends GithubWorkflow.Step
             return;
         }
 
-        logger.info("restricting push access for branch [{}}", branch);
+        logger.info("restricting push access for branch [{}]", branch);
         builder.restrictPushAccess();
 
         AccessRestrictions pushAccess = protection.getPushAccess();
