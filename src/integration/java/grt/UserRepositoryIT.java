@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.nullValue;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Collections;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -59,7 +60,7 @@ public class UserRepositoryIT
     @BeforeEach
     public void beforeEach() throws Exception
     {
-        context = new Workflow.Context();
+        context = new Workflow.Context(Collections.emptyMap());
         builder = new RepositoryBuilder(transformer);
 
         workflow = new GithubWorkflow(GithubClient.createClient(github), new RepositoryStatusCheckProvider());

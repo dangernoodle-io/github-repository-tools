@@ -3,6 +3,7 @@ package io.dangernoodle.grt.cli;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -21,6 +22,9 @@ public class RepositoryCommand implements CommandLineParser.Command
     @Parameter(descriptionKey = "ignoreErrors", names = "--ignoreErrors")
     private static boolean ignoreErrors;
 
+    @Parameter(descriptionKey = "clearWebhooks", names = "--clearWebhooks")
+    private static boolean clearWebhooks;
+    
     @Parameter(descriptionKey = "name", required = true)
     private static String name;
 
@@ -47,7 +51,8 @@ public class RepositoryCommand implements CommandLineParser.Command
         @Override
         protected void execute(File defaults, File overrides) throws Exception
         {
-            workflowExecutor.execute(repositoryMerger.merge(overrides, defaults));
+            workflowExecutor.execute(repositoryMerger.merge(overrides, defaults),
+                    Collections.singletonMap("clearWebhooks", clearWebhooks));
         }
 
         @Override

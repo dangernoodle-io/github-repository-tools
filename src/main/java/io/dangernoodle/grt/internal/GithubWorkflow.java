@@ -11,6 +11,7 @@ import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.ext.statuschecks.StatusCheckProvider;
 import io.dangernoodle.grt.steps.AddTeamsAndCollaborators;
+import io.dangernoodle.grt.steps.ClearWebhooks;
 import io.dangernoodle.grt.steps.CreateRepositoryBranches;
 import io.dangernoodle.grt.steps.CreateRepositoryLabels;
 import io.dangernoodle.grt.steps.EnableBranchProtections;
@@ -70,6 +71,9 @@ public class GithubWorkflow implements Workflow
         steps.add(new CreateRepositoryBranches(client));
         steps.add(new EnableBranchProtections(client, factory));
 
+        // optional step enabled by a command line argument
+        steps.add(new ClearWebhooks(client));
+        
         return steps;
     }
 

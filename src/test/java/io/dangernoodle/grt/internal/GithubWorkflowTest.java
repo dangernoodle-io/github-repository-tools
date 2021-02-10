@@ -21,7 +21,7 @@ import io.dangernoodle.grt.ext.statuschecks.StatusCheckProvider;
 
 public class GithubWorkflowTest
 {
-    private static final int STEP_COUNT = 6;
+    private static final int STEP_COUNT = 7;
 
     private Collection<GithubWorkflow.Step> githubSteps;
 
