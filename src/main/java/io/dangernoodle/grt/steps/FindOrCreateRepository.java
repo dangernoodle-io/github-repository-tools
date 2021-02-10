@@ -31,6 +31,7 @@ public class FindOrCreateRepository extends GithubWorkflow.Step
 
         if (ghRepo == null)
         {
+            created = true;
             ghRepo = delegate.create(repository);
         }
 
