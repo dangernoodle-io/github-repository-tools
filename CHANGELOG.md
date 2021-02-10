@@ -1,5 +1,9 @@
 ## ChangeLog
 
+* **0.7.0**
+  - Added support for signed commits / requiring admins on branch protections
+  - Added `--clearWebhooks` to clear any existing webhooks associated with a repository
+
 * **0.6.0**
   - Expose and use shared `OkHttpClient` instance
   - Added 'pre/post' workflow execution hooks
