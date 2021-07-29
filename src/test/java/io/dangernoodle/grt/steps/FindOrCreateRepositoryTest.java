@@ -1,7 +1,6 @@
 package io.dangernoodle.grt.steps;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,14 +13,18 @@ import io.dangernoodle.grt.internal.GithubWorkflow;
 
 public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
 {
+    private boolean create = true;
+
     @Test
     public void testCreateOrgRepository() throws Exception
     {
         givenAnOrganization();
         givenACreatedOrgRepo();
         whenExecuteStep();
+        thenOrgRepositoryIsLookedFor();
         thenOrgRepositoryIsCreated();
         thenGHRepositoryAddedToContext();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -30,8 +33,10 @@ public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
         givenAUser();
         givenACreatedUserRepo();
         whenExecuteStep();
+        thenUserRepositoryIsLookedFor();
         thenUserRepositoryIsCreated();
         thenGHRepositoryAddedToContext();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -40,8 +45,9 @@ public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
         givenAnOrganization();
         givenAnExistingOrgRepo();
         whenExecuteStep();
-        thenOrgRepositoryIsFound();
+        thenOrgRepositoryIsLookedFor();
         thenGHRepositoryAddedToContext();
+        thenStatusIsContinue();
     }
 
     @Test
@@ -50,14 +56,42 @@ public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
         givenAUser();
         givenAnExistingUserRepo();
         whenExecuteStep();
-        thenUserRepositoryIsFound();
+        thenUserRepositoryIsLookedFor();
         thenGHRepositoryAddedToContext();
+        thenStatusIsContinue();
+    }
+
+    @Test
+    public void testFindUserRepositoryNoCreate() throws Exception
+    {
+        givenAUser();
+        givenDontCreateRepository();
+        whenExecuteStep();
+        thenUserRepositoryIsLookedFor();
+        thenStatusIsSkip();
+    }
+
+    private void thenUserRepositoryIsLookedFor() throws IOException
+    {
+        verify(mockClient).getCurrentLogin();
+        verify(mockClient).getRepository(repository.getName());
+    }
+
+    private void thenOrgRepositoryIsLookedFor() throws IOException
+    {
+        verify(mockClient).getCurrentLogin();
+        verify(mockClient).getRepository(repository.getOrganization(), repository.getName());
+    }
+
+    private void givenDontCreateRepository()
+    {
+        create = false;
     }
 
     @Override
     protected GithubWorkflow.Step createStep()
     {
-        return new FindOrCreateRepository(mockClient);
+        return new FindOrCreateRepository(mockClient, create);
     }
 
     private void givenACreatedOrgRepo() throws IOException
@@ -98,25 +132,11 @@ public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
 
     private void thenOrgRepositoryIsCreated() throws IOException
     {
-        verify(mockClient).getRepository(repository.getOrganization(), repository.getName());
         verify(mockClient).createOrgRepository(repository);
-    }
-
-    private void thenOrgRepositoryIsFound() throws IOException
-    {
-        verify(mockClient).getRepository(repository.getOrganization(), repository.getName());
-        verify(mockClient, times(0)).createOrgRepository(repository);
     }
 
     private void thenUserRepositoryIsCreated() throws IOException
     {
-        verify(mockClient).getRepository(repository.getName());
         verify(mockClient).createUserRepository(repository);
-    }
-
-    private void thenUserRepositoryIsFound() throws IOException
-    {
-        verify(mockClient).getRepository(repository.getName());
-        verify(mockClient, times(0)).createUserRepository(repository);
     }
 }

@@ -13,9 +13,17 @@ import io.dangernoodle.grt.internal.GithubWorkflow;
 
 public class FindOrCreateRepository extends GithubWorkflow.Step
 {
-    public FindOrCreateRepository(GithubClient client)
+    private final boolean create;
+
+    public FindOrCreateRepository(GithubClient client, boolean create)
     {
         super(client);
+        this.create = create;
+    }
+
+    public FindOrCreateRepository(GithubClient client)
+    {
+        this(client, true);
     }
 
     @Override
@@ -31,12 +39,18 @@ public class FindOrCreateRepository extends GithubWorkflow.Step
 
         if (ghRepo == null)
         {
+            if (!create)
+            {
+                logger.error("failed to find repository [{}], aborting...", repository.getFullName());
+                return Status.SKIP;
+            }
+
             created = true;
             ghRepo = delegate.create(repository);
         }
 
         context.add(ghRepo);
-        logger.info("repository [{} / {}] {}", organization, name, created ? "created" : "already exists");
+        logger.info("repository [{}] {}!", repository.getFullName(), created ? "created" : "found");
 
         return Status.CONTINUE;
     }
