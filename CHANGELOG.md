@@ -1,5 +1,8 @@
 ## ChangeLog
 
+* **0.8.0-SNAPSHOT**
+  - support 'find only' in the `FindOrCreateRepository` step
+
 * **0.7.0**
   - Added support for signed commits / requiring admins on branch protections
   - Added `--clearWebhooks` to clear any existing webhooks associated with a repository

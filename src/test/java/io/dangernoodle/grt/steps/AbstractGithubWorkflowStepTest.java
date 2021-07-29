@@ -1,6 +1,7 @@
 package io.dangernoodle.grt.steps;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -37,8 +38,6 @@ public abstract class AbstractGithubWorkflowStepTest
 
     protected Status status;
 
-    private GithubWorkflow.Step step;
-
     @BeforeEach
     public void beforeEach() throws Exception
     {
@@ -47,8 +46,6 @@ public abstract class AbstractGithubWorkflowStepTest
         repoBuilder = createBuilder();
         repoBuilder.setName("repository")
                    .setOrganization("org");
-
-        step = createStep();
 
         when(mockContext.getGHRepository()).thenReturn(mockGHRepository);
     }
@@ -63,6 +60,7 @@ public abstract class AbstractGithubWorkflowStepTest
     protected final void thenStatusIsSkip()
     {
         assertEquals(status, Status.SKIP);
+        verifyNoMoreInteractions(mockClient);
     }
 
     protected final void whenExecuteStep() throws Exception
@@ -71,7 +69,7 @@ public abstract class AbstractGithubWorkflowStepTest
         RepositoryMerger merger = new RepositoryMerger(transformer);
         repository = merger.merge(repoBuilder.build());
 
-        status = step.execute(repository, mockContext);
+        status = createStep().execute(repository, mockContext);
     }
 
     private RepositoryBuilder createBuilder()
