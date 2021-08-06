@@ -16,6 +16,8 @@ public class GithubRepositoryTools
 
     public static void main(String... args) throws Exception
     {
+        int exit = 0;
+
         Weld weld = new Weld();
         WeldContainer container = weld.initialize();
 
@@ -32,11 +34,13 @@ public class GithubRepositoryTools
         catch (Exception e)
         {
             // catch and log any exceptions that make it this far so we shutdown gracefully
+            exit = 1;
             logger.error("an unexpected error has occurred", e);
         }
         finally
         {
             container.shutdown();
+            System.exit(exit);
         }
     }
 

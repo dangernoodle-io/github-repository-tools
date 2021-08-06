@@ -2,6 +2,7 @@
 
 * **0.8.0-SNAPSHOT**
   - support 'find only' in the `FindOrCreateRepository` step
+  - `exit 1` if an unexpected error occurs
 
 * **0.7.0**
   - Added support for signed commits / requiring admins on branch protections
