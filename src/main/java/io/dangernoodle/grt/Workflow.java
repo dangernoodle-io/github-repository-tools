@@ -1,9 +1,14 @@
 package io.dangernoodle.grt;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
+import org.jboss.weld.exceptions.IllegalStateException;
 import org.kohsuke.github.GHRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public interface Workflow
@@ -12,7 +17,50 @@ public interface Workflow
 
     String getName();
 
-    public class Context
+    /**
+     * @since 0.8.0
+     */
+    default boolean includeInRepositoryWorkflow()
+    {
+        return true;
+    }
+
+    /**
+     * @since 0.8.0
+     */
+    public abstract static class Basic implements Workflow
+    {
+        protected final Logger logger;
+
+        protected Basic()
+        {
+            this.logger = LoggerFactory.getLogger(getClass());
+        }
+
+        @Override
+        public final void execute(Repository repository, Context context) throws Exception
+        {
+            Collection<Workflow.Step> steps = createSteps();
+
+            for (Workflow.Step step : steps)
+            {
+                String stepName = step.getClass().getSimpleName();
+
+                logger.trace("executing step [{}]", stepName);
+                Status status = step.execute(repository, context);
+
+                if (status != Status.CONTINUE)
+                {
+                    logger.debug("[{}] workflow interrupted by [{}], aborting", getName(), stepName);
+                    return;
+                }
+            }
+        }
+
+        protected abstract Collection<Workflow.Step> createSteps();
+    }
+
+    public static class Context
     {
         private final Map<String, Object> args;
 
@@ -33,6 +81,16 @@ public interface Workflow
         public <T> T get(Class<T> clazz)
         {
             return (T) context.get(clazz);
+        }
+
+        /**
+         * @since 0.8.0
+         */
+        @SuppressWarnings("unchecked")
+        public <T> T getArg(String name)
+        {
+            return (T) Optional.ofNullable(args.get(name))
+                               .orElseThrow(() -> new IllegalStateException(("argument [" + name + "] not found in context")));
         }
 
         @SuppressWarnings("unchecked")

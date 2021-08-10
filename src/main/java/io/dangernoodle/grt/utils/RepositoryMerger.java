@@ -30,6 +30,11 @@ public class RepositoryMerger
         this.transformer = transformer;
     }
 
+    public RepositoryBuilder createBuilder()
+    {
+        return new RepositoryBuilder(transformer);
+    }
+
     public Repository merge(File overrides, File defaults) throws IOException
     {
         Repository deRepo = new Repository(transformer.validate(defaults));
@@ -47,12 +52,6 @@ public class RepositoryMerger
     public Repository merge(Repository overrides, Repository defaults) throws IllegalStateException
     {
         return merge(overrides, defaults, createBuilder());
-    }
-
-    // visible for testing
-    RepositoryBuilder createBuilder()
-    {
-        return new RepositoryBuilder(transformer);
     }
 
     private void addBranchProtection(String branch, Protection protection, RepositoryBuilder builder)

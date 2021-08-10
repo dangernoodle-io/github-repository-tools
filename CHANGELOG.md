@@ -3,6 +3,7 @@
 * **0.8.0-SNAPSHOT**
   - support 'find only' in the `FindOrCreateRepository` step
   - `exit 1` if an unexpected error occurs
+  - workflow / command enhancements for 3rd parties
 
 * **0.7.0**
   - Added support for signed commits / requiring admins on branch protections
@@ -16,10 +17,10 @@
   - Check for duplicate files when using '--all'
   - Update `github-api` to `1.122`
 
-* **0.5.1** 
+* **0.5.1**
   - Filter non-json files from when using '--all'
 
-* **0.5.0** 
+* **0.5.0**
   - Added `--all` to `repository` command
 
 * **0.4.0**
@@ -44,19 +45,19 @@
 
 * **0.2.1** (05/22/2018)
   - Added `-XX:+TieredCompilation` `-XX:TieredStopAtLevel=1` to container java args
-  - Fixed plugin merging 
+  - Fixed plugin merging
 
 * **0.2.0** (05/17/2018)
   - Added additional methods to `JsonObject`
   - Refactored `RepositoryMerger` to merge against empty defaults
-  - Re-enabled `UserRepositoryIT` 
+  - Re-enabled `UserRepositoryIT`
 
 * **0.1.2** (05/17/2018)
   - Bug fixes
 
 * **0.1.1** (05/16/20178)
   - Fix push to docker hub
-  
+
 * **0.1.0** (05/16/2018)
   - Initial Release
 

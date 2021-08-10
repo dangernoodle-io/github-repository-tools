@@ -8,7 +8,9 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.internal.FileLoader;
+import io.dangernoodle.grt.utils.RepositoryMerger;
 
 
 public abstract class CommandLineExecutor
@@ -21,6 +23,28 @@ public abstract class CommandLineExecutor
     }
 
     public abstract void execute() throws Exception;
+
+    /**
+     * @since 0.8.0
+     */
+    public static abstract class RepositoryExecutor extends RepositoryFileExecutor
+    {
+        protected final RepositoryMerger repositoryMerger;
+
+        public RepositoryExecutor(FileLoader fileLoader, RepositoryMerger repositoryMerger)
+        {
+            super(fileLoader);
+            this.repositoryMerger = repositoryMerger;
+        }
+
+        @Override
+        protected void execute(File defaults, File overrides) throws Exception
+        {
+            execute(repositoryMerger.merge(overrides, defaults));
+        }
+
+        protected abstract void execute(Repository repository) throws Exception;
+    }
 
     public static abstract class RepositoryFileExecutor extends CommandLineExecutor
     {
@@ -94,7 +118,7 @@ public abstract class CommandLineExecutor
         {
             try
             {
-                logger.info("** processing repository file [{}]", repo);
+                logger.info("** repository file [{}]", repo);
                 execute(defaults, repo);
 
             }

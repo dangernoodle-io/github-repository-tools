@@ -25,6 +25,7 @@ public class WorkflowExecutor
     {
         this.prePost = prePost;
         this.workflows = workflows.stream()
+                                  .filter(Workflow::includeInRepositoryWorkflow)
                                   .collect(Collectors.toMap(workflow -> workflow.getName(), Function.identity()));
     }
 

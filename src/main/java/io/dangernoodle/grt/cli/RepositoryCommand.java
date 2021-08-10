@@ -8,6 +8,7 @@ import java.util.Collections;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
+import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.internal.FileLoader;
 import io.dangernoodle.grt.internal.WorkflowExecutor;
 import io.dangernoodle.grt.utils.RepositoryMerger;
@@ -24,7 +25,7 @@ public class RepositoryCommand implements CommandLineParser.Command
 
     @Parameter(descriptionKey = "clearWebhooks", names = "--clearWebhooks")
     private static boolean clearWebhooks;
-    
+
     @Parameter(descriptionKey = "name", required = true)
     private static String name;
 
@@ -34,24 +35,20 @@ public class RepositoryCommand implements CommandLineParser.Command
         return Executor.class;
     }
 
-    public static class Executor extends CommandLineExecutor.RepositoryFileExecutor
+    public static class Executor extends CommandLineExecutor.RepositoryExecutor
     {
         private final WorkflowExecutor workflowExecutor;
 
-        private final RepositoryMerger repositoryMerger;
-
         public Executor(WorkflowExecutor workflowExecutor, RepositoryMerger repositoryMerger, FileLoader fileLoader)
         {
-            super(fileLoader);
-
-            this.repositoryMerger = repositoryMerger;
+            super(fileLoader, repositoryMerger);
             this.workflowExecutor = workflowExecutor;
         }
 
         @Override
-        protected void execute(File defaults, File overrides) throws Exception
+        protected void execute(Repository repository) throws Exception
         {
-            workflowExecutor.execute(repositoryMerger.merge(overrides, defaults),
+            workflowExecutor.execute(repository,
                     Collections.singletonMap("clearWebhooks", clearWebhooks));
         }
 
