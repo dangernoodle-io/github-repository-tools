@@ -2,38 +2,34 @@ package io.dangernoodle.grt;
 
 import static io.dangernoodle.grt.Repository.GITHUB;
 
-import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
+import java.util.Map;
+import java.util.Optional;
 
 
-public class Credentials
+public interface Credentials
 {
-    public static final String FILENAME = "credentials.json";
-
-    private final JsonObject json;
-
-    public Credentials(JsonObject json)
+    public static final Credentials NULL = new Credentials()
     {
-        this.json = json;
-    }
-
-    public String getAuthToken(String key)
-    {
-        return json.getString(key);
-    }
-
-    public JsonObject getCredentials(String key)
-    {
-        return json.getJsonObject(key);
-    }
-
-    public String getGithubToken() throws IllegalStateException
-    {
-        String token = json.getString(GITHUB);
-        if (token == null)
+        @Override
+        public String getAuthToken(String key)
         {
-            throw new IllegalStateException("github oauth token not found");
+            return null;
         }
 
-        return token;
+        @Override
+        public Map<String, String> getCredentials(String key)
+        {
+            return null;
+        }
+    };
+
+    String getAuthToken(String key);
+
+    Map<String, String> getCredentials(String key);
+
+    default String getGithubToken() throws IllegalStateException
+    {
+        return Optional.ofNullable(getAuthToken(GITHUB))
+                       .orElseThrow(() -> new IllegalStateException("github oauth token not found"));
     }
 }
