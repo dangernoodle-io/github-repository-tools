@@ -1,5 +1,6 @@
 package io.dangernoodle.grt.steps;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,11 +65,11 @@ public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
     @Test
     public void testFindUserRepositoryNoCreate() throws Exception
     {
-        givenAUser();
-        givenDontCreateRepository();
-        whenExecuteStep();
-        thenUserRepositoryIsLookedFor();
-        thenStatusIsSkip();
+        assertThrows(IllegalStateException.class, () -> {
+            givenAUser();
+            givenDontCreateRepository();
+            whenExecuteStep();
+        });
     }
 
     private void thenUserRepositoryIsLookedFor() throws IOException
