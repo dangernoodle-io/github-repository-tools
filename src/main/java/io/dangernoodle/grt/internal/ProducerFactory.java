@@ -21,6 +21,9 @@ import io.dangernoodle.grt.cli.RepositoryCommand;
 import io.dangernoodle.grt.cli.ValidateCommand;
 import io.dangernoodle.grt.ext.statuschecks.RepositoryStatusCheckProvider;
 import io.dangernoodle.grt.ext.statuschecks.StatusCheckProvider;
+import io.dangernoodle.grt.utils.CredentialsChain;
+import io.dangernoodle.grt.utils.EnvironmentCredentials;
+import io.dangernoodle.grt.utils.JsonFileCredentials;
 import io.dangernoodle.grt.utils.JsonTransformer;
 import io.dangernoodle.grt.utils.RepositoryMerger;
 import okhttp3.OkHttpClient;
@@ -49,9 +52,11 @@ public class ProducerFactory
     @Produces
     @ApplicationScoped
     @SuppressWarnings("unchecked")
-    public Credentials getCredentials(Arguments arguments, JsonTransformer transformer) throws IOException
+    public Credentials getCredentials(FileLoader fileLoader, JsonTransformer transformer)
     {
-        return new Credentials(transformer.deserialize(new FileLoader(arguments.getRepoDir()).loadCredentials()));
+        return new CredentialsChain(
+                JsonFileCredentials.loadCredentials(fileLoader, transformer),
+                new EnvironmentCredentials());
     }
 
     @Produces

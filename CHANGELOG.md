@@ -4,6 +4,7 @@
   - support 'find only' in the `FindOrCreateRepository` step
   - `exit 1` if an unexpected error occurs
   - workflow / command enhancements for 3rd parties
+  - support for different credentials providers, chaining
 
 * **0.7.0**
   - Added support for signed commits / requiring admins on branch protections
