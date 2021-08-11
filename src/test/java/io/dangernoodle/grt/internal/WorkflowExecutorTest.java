@@ -55,8 +55,13 @@ public class WorkflowExecutorTest
         MockitoAnnotations.initMocks(this);
 
         when(mockGithubWorkflow.getName()).thenReturn("github");
+        when(mockGithubWorkflow.includeInRepositoryWorkflow()).thenReturn(true);
+        
         when(mockPlugin1Workflow.getName()).thenReturn("plugin1");
+        when(mockPlugin1Workflow.includeInRepositoryWorkflow()).thenReturn(true);
+        
         when(mockPlugin2Workflow.getName()).thenReturn("plugin2");
+        when(mockPlugin2Workflow.includeInRepositoryWorkflow()).thenReturn(true);
 
         repoBuilder = new RepositoryBuilder(new JsonTransformer());
         executor = createExecutor(Arrays.asList(mockGithubWorkflow, mockPlugin1Workflow, mockPlugin2Workflow));
