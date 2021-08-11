@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.Spliterator;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +24,9 @@ public class FindCommitByTagTest extends AbstractGithubWorkflowStepTest
 
     @Mock
     private GHCommit mockCommit;
+
+    @Mock
+    private Spliterator<GHTag> mockSpliterator;
 
     @Mock
     private GHTag mockTag;

@@ -53,5 +53,4 @@ public class CreateOrUpdateReference extends GithubWorkflow.Step
     {
         return StreamSupport.stream(ghRepo.listRefs().spliterator(), false);
     }
-
 }
