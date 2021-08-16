@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.utils;
+package io.dangernoodle.grt.creds;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
@@ -61,8 +61,8 @@ public class CredentialsChainTest
 
     private void givenCredentials()
     {
-        when(mockCredentials.getCredentials(KEY)).thenReturn(null)
-                                                 .thenReturn(MAP);
+        when(mockCredentials.getNameValue(KEY)).thenReturn(null)
+                                               .thenReturn(MAP);
     }
 
     private void givenTokenCreds()
@@ -78,7 +78,7 @@ public class CredentialsChainTest
 
     private void thenCredentialsChecked()
     {
-        verify(mockCredentials, times(2)).getCredentials(KEY);
+        verify(mockCredentials, times(2)).getNameValue(KEY);
     }
 
     private void thenCredsAreCorrect()
@@ -98,6 +98,6 @@ public class CredentialsChainTest
 
     private void whenGetCredentials()
     {
-        map = chain.getCredentials(KEY);
+        map = chain.getNameValue(KEY);
     }
 }

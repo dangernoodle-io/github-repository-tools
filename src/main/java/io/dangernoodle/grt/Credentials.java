@@ -1,6 +1,6 @@
 package io.dangernoodle.grt;
 
-import static io.dangernoodle.grt.Repository.GITHUB;
+import static io.dangernoodle.grt.Constants.GITHUB;
 
 import java.util.Map;
 import java.util.Optional;
@@ -17,7 +17,7 @@ public interface Credentials
         }
 
         @Override
-        public Map<String, String> getCredentials(String key)
+        public Map<String, String> getNameValue(String key)
         {
             return null;
         }
@@ -25,7 +25,10 @@ public interface Credentials
 
     String getAuthToken(String key);
 
-    Map<String, String> getCredentials(String key);
+    /**
+     * @since 0.8.0
+     */
+    Map<String, String> getNameValue(String key);
 
     default String getGithubToken() throws IllegalStateException
     {

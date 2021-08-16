@@ -19,8 +19,6 @@ import io.dangernoodle.grt.utils.JsonTransformer.JsonObject.Deserializer;
  */
 public class Repository
 {
-    public static final String GITHUB = "github";
-
     private final JsonObject json;
 
     private final Map<String, JsonObject> plugins;

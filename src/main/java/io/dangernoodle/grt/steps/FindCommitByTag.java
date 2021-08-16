@@ -16,7 +16,9 @@ import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.Workflow.Status;
 import io.dangernoodle.grt.internal.GithubWorkflow;
 
-
+/**
+ * @since 0.8.0
+ */
 public class FindCommitByTag extends GithubWorkflow.Step
 {
     public FindCommitByTag(GithubClient client)
