@@ -2,6 +2,7 @@ package io.dangernoodle.grt.steps;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 
 import org.kohsuke.github.GHBranch;
@@ -26,6 +27,11 @@ public class EnableBranchProtections extends GithubWorkflow.Step
 {
     private final StatusCheckProvider factory;
 
+    public EnableBranchProtections(GithubClient client)
+    {
+        this(client, (name, repository) -> Collections.emptyList());
+    }
+
     public EnableBranchProtections(GithubClient client, StatusCheckProvider factory)
     {
         super(client);
@@ -38,8 +44,7 @@ public class EnableBranchProtections extends GithubWorkflow.Step
         GHRepository ghRepo = context.getGHRepository();
         Branches branches = repository.getSettings().getBranches();
 
-        Collection<String> collection = new HashSet<>(branches.getOther());
-        collection.add(branches.getDefault());
+        Collection<String> collection = getBranchNamesToProtect(branches);
 
         for (String name : collection)
         {
@@ -61,6 +66,14 @@ public class EnableBranchProtections extends GithubWorkflow.Step
         }
 
         return Status.CONTINUE;
+    }
+
+    protected Collection<String> getBranchNamesToProtect(Branches branches)
+    {
+        Collection<String> collection = new HashSet<>(branches.getOther());
+        collection.add(branches.getDefault());
+
+        return collection;
     }
 
     private void disableProtection(GHBranch ghBranch) throws IOException
@@ -89,6 +102,20 @@ public class EnableBranchProtections extends GithubWorkflow.Step
                });
     }
 
+    private void enableCommitSigning(GHBranchProtection ghProtection, boolean signCommits) throws IOException
+    {
+        boolean ghSign = ghProtection.getRequiredSignatures();
+
+        if (signCommits && !ghSign)
+        {
+            ghProtection.enabledSignedCommits();
+        }
+        else if (ghSign && !signCommits)
+        {
+            ghProtection.disableSignedCommits();
+        }
+    }
+
     private void enableProtection(GHBranch ghBranch, Protection protection, Repository repository) throws IOException
     {
         String name = ghBranch.getName();
@@ -105,20 +132,6 @@ public class EnableBranchProtections extends GithubWorkflow.Step
 
         GHBranchProtection ghProtection = builder.enable();
         enableCommitSigning(ghProtection, protection.getRequireSignedCommits());
-    }
-
-    private void enableCommitSigning(GHBranchProtection ghProtection, boolean signCommits) throws IOException
-    {
-        boolean ghSign = ghProtection.getRequiredSignatures();
-
-        if (signCommits && !ghSign)
-        {
-            ghProtection.enabledSignedCommits();
-        }
-        else if (ghSign && !signCommits)
-        {
-            ghProtection.disableSignedCommits();
-        }
     }
 
     private void enableReviews(String branch, GHBranchProtectionBuilder builder, RequireReviews reviews)

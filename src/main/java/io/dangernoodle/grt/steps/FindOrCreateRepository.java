@@ -27,7 +27,7 @@ public class FindOrCreateRepository extends GithubWorkflow.Step
     }
 
     @Override
-    public Status execute(Repository repository, Context context) throws IOException
+    public Status execute(Repository repository, Context context) throws IOException, IllegalStateException
     {
         String name = repository.getName();
         String organization = repository.getOrganization();
@@ -41,8 +41,8 @@ public class FindOrCreateRepository extends GithubWorkflow.Step
         {
             if (!create)
             {
-                logger.error("failed to find repository [{}], aborting...", repository.getFullName());
-                return Status.SKIP;
+                logger.error("repository [{}] does not exist, aborting...", repository.getFullName());
+                throw new IllegalStateException();
             }
 
             created = true;

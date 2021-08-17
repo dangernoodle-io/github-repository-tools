@@ -21,6 +21,8 @@ import io.dangernoodle.grt.utils.RepositoryMerger;
 
 public abstract class AbstractGithubWorkflowStepTest
 {
+    protected static final String COMMIT = "3ac68f50226751ae44654497a38e220437ee677";
+
     protected static final JsonTransformer transformer = new JsonTransformer();
 
     @Mock
