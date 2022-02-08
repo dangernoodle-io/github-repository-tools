@@ -1,6 +1,7 @@
 ## ChangeLog
 
 * **0.8.0-SNAPSHOT**
+  - require Java 11
   - support 'find only' in the `FindOrCreateRepository` step
   - `exit 1` if an unexpected error occurs
   - workflow / command enhancements for 3rd parties
