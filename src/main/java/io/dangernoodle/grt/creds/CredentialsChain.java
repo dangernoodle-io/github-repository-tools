@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.utils;
+package io.dangernoodle.grt.creds;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,6 +8,9 @@ import java.util.function.Function;
 import io.dangernoodle.grt.Credentials;
 
 
+/**
+ * @since 0.8.0
+ */
 public class CredentialsChain implements Credentials
 {
     private final Collection<Credentials> providers;
@@ -24,9 +27,9 @@ public class CredentialsChain implements Credentials
     }
 
     @Override
-    public Map<String, String> getCredentials(String key)
+    public Map<String, String> getNameValue(String key)
     {
-        return findCredentials(provider -> provider.getCredentials(key));
+        return findCredentials(provider -> provider.getNameValue(key));
     }
 
     private <T> T findCredentials(Function<Credentials, T> function)
