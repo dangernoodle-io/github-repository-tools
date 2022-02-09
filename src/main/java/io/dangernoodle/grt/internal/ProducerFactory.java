@@ -79,9 +79,9 @@ public class ProducerFactory
 
     @Produces
     @ApplicationScoped
-    public GithubWorkflow getGithubWorkflow(GithubClient client, StatusCheckProvider factory)
+    public RepositoryWorkflow getGithubWorkflow(GithubClient client, StatusCheckProvider factory)
     {
-        return new GithubWorkflow(client, factory);
+        return new RepositoryWorkflow(client, factory);
     }
 
     @Produces

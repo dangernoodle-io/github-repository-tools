@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHHook;
 import org.mockito.Mock;
 
-import io.dangernoodle.grt.internal.GithubWorkflow;
+import io.dangernoodle.grt.internal.RepositoryWorkflow;
 
 
 public class ClearWebhooksTest extends AbstractGithubWorkflowStepTest
@@ -62,7 +62,7 @@ public class ClearWebhooksTest extends AbstractGithubWorkflowStepTest
     }
 
     @Override
-    protected GithubWorkflow.Step createStep()
+    protected RepositoryWorkflow.Step createStep()
     {
         return new ClearWebhooks(mockClient);
     }

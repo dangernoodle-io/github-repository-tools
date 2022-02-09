@@ -12,13 +12,13 @@ import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.Workflow.Status;
-import io.dangernoodle.grt.internal.GithubWorkflow;
+import io.dangernoodle.grt.internal.RepositoryWorkflow;
 
 
 /**
  * @since 0.8.0
  */
-public class CreateOrUpdateReference extends GithubWorkflow.Step
+public class CreateOrUpdateReference extends RepositoryWorkflow.Step
 {
     public CreateOrUpdateReference(GithubClient client)
     {

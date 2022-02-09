@@ -14,12 +14,12 @@ import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.Workflow.Status;
-import io.dangernoodle.grt.internal.GithubWorkflow;
+import io.dangernoodle.grt.internal.RepositoryWorkflow;
 
 /**
  * @since 0.8.0
  */
-public class FindCommitByTag extends GithubWorkflow.Step
+public class FindCommitByTag extends RepositoryWorkflow.Step
 {
     public FindCommitByTag(GithubClient client)
     {

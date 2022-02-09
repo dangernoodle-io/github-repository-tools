@@ -16,7 +16,7 @@ import org.kohsuke.github.GHUser;
 import org.mockito.Mock;
 
 import io.dangernoodle.grt.Repository.Settings.Permission;
-import io.dangernoodle.grt.internal.GithubWorkflow;
+import io.dangernoodle.grt.internal.RepositoryWorkflow;
 
 
 public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
@@ -82,7 +82,7 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
     }
 
     @Override
-    protected GithubWorkflow.Step createStep()
+    protected RepositoryWorkflow.Step createStep()
     {
         return new AddTeamsAndCollaborators(mockClient);
     }

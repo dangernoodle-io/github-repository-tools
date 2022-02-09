@@ -8,10 +8,10 @@ import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.Workflow.Status;
-import io.dangernoodle.grt.internal.GithubWorkflow;
+import io.dangernoodle.grt.internal.RepositoryWorkflow;
 
 
-public class SetRepositoryOptions extends GithubWorkflow.Step
+public class SetRepositoryOptions extends RepositoryWorkflow.Step
 {
     public SetRepositoryOptions(GithubClient client)
     {

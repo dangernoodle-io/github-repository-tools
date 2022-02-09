@@ -13,10 +13,10 @@ import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Branches;
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.Workflow.Status;
-import io.dangernoodle.grt.internal.GithubWorkflow;
+import io.dangernoodle.grt.internal.RepositoryWorkflow;
 
 
-public class CreateRepositoryBranches extends GithubWorkflow.Step
+public class CreateRepositoryBranches extends RepositoryWorkflow.Step
 {
     public CreateRepositoryBranches(GithubClient client)
     {

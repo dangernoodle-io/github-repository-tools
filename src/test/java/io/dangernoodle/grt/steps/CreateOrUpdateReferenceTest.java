@@ -13,7 +13,7 @@ import org.kohsuke.github.GHRef;
 import org.kohsuke.github.GHRepository;
 import org.mockito.Mock;
 
-import io.dangernoodle.grt.internal.GithubWorkflow.Step;
+import io.dangernoodle.grt.internal.RepositoryWorkflow.Step;
 
 
 public class CreateOrUpdateReferenceTest extends AbstractGithubWorkflowStepTest

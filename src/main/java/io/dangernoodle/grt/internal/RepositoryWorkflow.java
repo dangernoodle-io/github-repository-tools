@@ -18,13 +18,13 @@ import io.dangernoodle.grt.steps.FindOrCreateRepository;
 import io.dangernoodle.grt.steps.SetRepositoryOptions;
 
 
-public class GithubWorkflow extends Workflow.Basic
+public class RepositoryWorkflow extends Workflow.Basic
 {
     private final GithubClient client;
 
     private final StatusCheckProvider factory;
 
-    public GithubWorkflow(GithubClient client, StatusCheckProvider factory)
+    public RepositoryWorkflow(GithubClient client, StatusCheckProvider factory)
     {
         this.client = client;
         this.factory = factory;
