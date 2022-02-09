@@ -129,17 +129,8 @@ public class RepositoryMerger
 
     private String getPrimaryBranch(Branches overrides, Branches defaults)
     {
-        String branch = overrides.getDefault();
-        if (branch == null)
-        {
-            branch = defaults.getDefault();
-            if (branch == null)
-            {
-                branch = "master";
-            }
-        }
-
-        return branch;
+        return Optional.ofNullable(overrides.getDefault())
+                .orElse(defaults.getDefault());
     }
 
     private boolean merge(Boolean override, Boolean defaults)

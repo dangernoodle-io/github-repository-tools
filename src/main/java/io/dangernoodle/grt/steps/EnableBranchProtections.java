@@ -45,12 +45,24 @@ public class EnableBranchProtections extends RepositoryWorkflow.Step
         Branches branches = repository.getSettings().getBranches();
 
         Collection<String> collection = getBranchNamesToProtect(branches);
-
+        String defaultBranch = branches.getDefault();
+        
+        if (defaultBranch == null)
+        {
+            collection.add(ghRepo.getDefaultBranch());
+        }
+        else
+        {
+            collection.add(defaultBranch);
+        }
+        
         for (String name : collection)
         {
             GHBranch ghBranch = ghRepo.getBranch(name);
             Protection protection = branches.getProtection(name);
 
+            protection.toString();
+            
             if (ghBranch == null)
             {
                 logger.warn("branch [{}] does not exist in repository, cannot enable protections", name);

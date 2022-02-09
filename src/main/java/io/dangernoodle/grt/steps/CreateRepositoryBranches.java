@@ -32,9 +32,10 @@ public class CreateRepositoryBranches extends RepositoryWorkflow.Step
         String ghDefault = ghRepo.getDefaultBranch();
         String defaultBranch = branches.getDefault();
 
-        boolean isDefault = defaultBranch.equals(ghDefault);
         String commit = ghRepo.getBranch(ghDefault).getSHA1();
-
+        // if no default branch is provided, use whatever github has set up
+        boolean isDefault = (defaultBranch == null || defaultBranch.equals(ghDefault));
+        
         if (commit == null)
         {
             logger.warn("no commit found for current default branch [{}], skipping branch creation", ghDefault);
@@ -74,7 +75,7 @@ public class CreateRepositoryBranches extends RepositoryWorkflow.Step
                                         .filter(name -> !ghBranches.containsKey(name))
                                         .collect(Collectors.toList());
 
-        if (!ghBranches.containsKey(defaultBranch))
+        if (defaultBranch != null && !ghBranches.containsKey(defaultBranch))
         {
             toCreate.add(defaultBranch);
         }
