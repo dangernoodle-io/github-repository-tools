@@ -1,14 +1,17 @@
-package io.dangernoodle.grt.utils;
+package io.dangernoodle.grt.creds;
 
 import java.io.IOException;
 import java.util.Map;
 
 import io.dangernoodle.grt.Credentials;
 import io.dangernoodle.grt.internal.FileLoader;
+import io.dangernoodle.grt.utils.JsonTransformer;
 import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
 import io.dangernoodle.grt.utils.JsonTransformer.JsonObject.Deserializer;
 
-
+/**
+ * @since 0.8.0
+ */
 public class JsonFileCredentials implements Credentials
 {
     public static final String FILENAME = "credentials.json";
@@ -27,7 +30,7 @@ public class JsonFileCredentials implements Credentials
     }
 
     @Override
-    public Map<String, String> getCredentials(String key)
+    public Map<String, String> getNameValue(String key)
     {
         return json.getMap(key, new Deserializer<String>()
         {

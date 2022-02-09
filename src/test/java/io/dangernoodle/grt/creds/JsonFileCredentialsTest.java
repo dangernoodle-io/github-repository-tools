@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.utils;
+package io.dangernoodle.grt.creds;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,6 +16,7 @@ import org.mockito.MockitoAnnotations;
 import io.dangernoodle.RepositoryFiles;
 import io.dangernoodle.grt.Credentials;
 import io.dangernoodle.grt.internal.FileLoader;
+import io.dangernoodle.grt.utils.JsonTransformer;
 
 
 public class JsonFileCredentialsTest
@@ -73,7 +74,7 @@ public class JsonFileCredentialsTest
 
     private void thenCredentialsMapIsFound()
     {
-        Map<String, String> map = credentials.getCredentials("map");
+        Map<String, String> map = credentials.getNameValue("map");
 
         assertNotNull(map);
         assertEquals("user", "user");
