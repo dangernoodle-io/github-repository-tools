@@ -13,7 +13,7 @@ import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.Workflow.Status;
-import io.dangernoodle.grt.internal.GithubWorkflow;
+import io.dangernoodle.grt.internal.RepositoryWorkflow;
 import io.dangernoodle.grt.utils.JsonTransformer;
 import io.dangernoodle.grt.utils.RepositoryBuilder;
 import io.dangernoodle.grt.utils.RepositoryMerger;
@@ -52,7 +52,7 @@ public abstract class AbstractGithubWorkflowStepTest
         when(mockContext.getGHRepository()).thenReturn(mockGHRepository);
     }
 
-    protected abstract GithubWorkflow.Step createStep();
+    protected abstract RepositoryWorkflow.Step createStep();
 
     protected final void thenStatusIsContinue()
     {

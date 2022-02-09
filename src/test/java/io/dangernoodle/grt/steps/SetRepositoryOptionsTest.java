@@ -13,7 +13,7 @@ import org.kohsuke.github.GHRepository;
 import org.mockito.Mock;
 
 import io.dangernoodle.grt.Repository.Settings;
-import io.dangernoodle.grt.internal.GithubWorkflow;
+import io.dangernoodle.grt.internal.RepositoryWorkflow;
 
 
 public class SetRepositoryOptionsTest extends AbstractGithubWorkflowStepTest
@@ -82,7 +82,7 @@ public class SetRepositoryOptionsTest extends AbstractGithubWorkflowStepTest
     }
 
     @Override
-    protected GithubWorkflow.Step createStep()
+    protected RepositoryWorkflow.Step createStep()
     {
         return new SetRepositoryOptions(mockClient);
     }

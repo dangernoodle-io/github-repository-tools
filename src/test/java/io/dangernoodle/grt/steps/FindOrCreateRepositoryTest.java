@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
-import io.dangernoodle.grt.internal.GithubWorkflow;
+import io.dangernoodle.grt.internal.RepositoryWorkflow;
 
 
 public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
@@ -90,7 +90,7 @@ public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
     }
 
     @Override
-    protected GithubWorkflow.Step createStep()
+    protected RepositoryWorkflow.Step createStep()
     {
         return new FindOrCreateRepository(mockClient, create);
     }

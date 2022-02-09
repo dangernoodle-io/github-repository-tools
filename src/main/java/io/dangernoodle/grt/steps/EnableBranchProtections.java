@@ -20,10 +20,10 @@ import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequiredCheck
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.Workflow.Status;
 import io.dangernoodle.grt.ext.statuschecks.StatusCheckProvider;
-import io.dangernoodle.grt.internal.GithubWorkflow;
+import io.dangernoodle.grt.internal.RepositoryWorkflow;
 
 
-public class EnableBranchProtections extends GithubWorkflow.Step
+public class EnableBranchProtections extends RepositoryWorkflow.Step
 {
     private final StatusCheckProvider factory;
 

@@ -10,10 +10,10 @@ import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.Workflow.Status;
-import io.dangernoodle.grt.internal.GithubWorkflow;
+import io.dangernoodle.grt.internal.RepositoryWorkflow;
 
 
-public class ClearWebhooks extends GithubWorkflow.Step
+public class ClearWebhooks extends RepositoryWorkflow.Step
 {
     static final String CLEAR_WEBHOOKS = "clearWebhooks";
 

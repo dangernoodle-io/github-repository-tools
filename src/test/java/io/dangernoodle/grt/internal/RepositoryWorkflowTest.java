@@ -6,16 +6,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
-public class GithubWorkflowTest
+public class RepositoryWorkflowTest
 {
     private static final int STEP_COUNT = 7;
 
-    private GithubWorkflow workflow;
+    private RepositoryWorkflow workflow;
 
     @BeforeEach
     public void beforeEach()
     {
-        workflow = new GithubWorkflow(null, null);
+        workflow = new RepositoryWorkflow(null, null);
     }
 
     @Test
