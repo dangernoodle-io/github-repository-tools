@@ -1,63 +1,51 @@
 package io.dangernoodle.grt.cli;
 
-import java.io.File;
-import java.io.IOException;
+import static java.nio.file.Files.walkFileTree;
 
-import com.beust.jcommander.Parameter;
+import java.nio.file.Path;
+
 import com.beust.jcommander.Parameters;
 
-import io.dangernoodle.grt.internal.FileLoader;
+import io.dangernoodle.grt.internal.ValidatingFileVisitor;
 import io.dangernoodle.grt.utils.JsonTransformer;
-import io.dangernoodle.grt.utils.JsonValidationException;
+import io.dangernoodle.grt.utils.RepositoryFactory;
 
 
 @Parameters(commandNames = "validate", resourceBundle = "GithubRepositoryTools", commandDescriptionKey = "validate")
 public class ValidateCommand implements CommandLineParser.Command
 {
-    @Parameter(descriptionKey = "name", required = true)
-    private static String name;
-
     @Override
-    public Class<? extends CommandLineExecutor.RepositoryFileExecutor> getCommandExectorClass()
+    public Class<? extends CommandLineExecutor> getCommandExectorClass()
     {
-        return Executor.class;
+        return ValidatorExecutor.class;
     }
 
-    public static class Executor extends CommandLineExecutor.RepositoryFileExecutor
+    public static class ValidatorExecutor extends CommandLineExecutor
     {
         private final JsonTransformer transformer;
 
-        public Executor(FileLoader fileLoader, JsonTransformer transformer)
+        private final Path root;
+
+        public ValidatorExecutor(JsonTransformer transformer, Path root)
         {
-            super(fileLoader);
+            this.root = root;
             this.transformer = transformer;
         }
 
         @Override
-        protected void execute(File defaults, File overrides) throws Exception
+        public void execute() throws Exception
         {
-            validate(defaults);
-            validate(overrides);
-        }
+            Path definitions = RepositoryFactory.resolveDefinitionsRoot(root);
+            ValidatingFileVisitor visitor = new ValidatingFileVisitor(transformer);
 
-        @Override
-        protected String getRepositoryName()
-        {
-            return name;
-        }
+            walkFileTree(definitions, visitor);
 
-        private void validate(File toValidate) throws IOException
-        {
-            String name = toValidate.getName();
+            boolean hasErrors = visitor.hasErrors();
 
-            try
+            if (hasErrors)
             {
-                logger.info("validating [{}]", name);
-                transformer.validate(toValidate);
-            }
-            catch (@SuppressWarnings("unused") JsonValidationException e)
-            {
-                logger.error("validation for [{}] failed", name);
+                visitor.report();
+                throw new IllegalStateException();
             }
         }
     }

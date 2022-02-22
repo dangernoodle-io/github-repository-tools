@@ -17,15 +17,17 @@ import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.cli.CommandLineParser;
 import io.dangernoodle.grt.cli.CommandLineParser.Command;
+import io.dangernoodle.grt.cli.RepositoryCommand;
+import io.dangernoodle.grt.cli.ValidateCommand;
 import io.dangernoodle.grt.creds.CredentialsChain;
 import io.dangernoodle.grt.creds.EnvironmentCredentials;
 import io.dangernoodle.grt.creds.JsonFileCredentials;
-import io.dangernoodle.grt.cli.RepositoryCommand;
-import io.dangernoodle.grt.cli.ValidateCommand;
 import io.dangernoodle.grt.ext.statuschecks.RepositoryStatusCheckProvider;
 import io.dangernoodle.grt.ext.statuschecks.StatusCheckProvider;
 import io.dangernoodle.grt.utils.JsonTransformer;
+import io.dangernoodle.grt.utils.RepositoryFactory;
 import io.dangernoodle.grt.utils.RepositoryMerger;
+import io.dangernoodle.grt.workflows.CommandWorkflow;
 import okhttp3.OkHttpClient;
 
 
@@ -35,6 +37,8 @@ public class ProducerFactory
     private static final Arguments arguments = new Arguments();
     private static final OkHttpClient okHttp = new OkHttpClient();
 
+    private static final GithubWorkflowsFactory workflowFactory = new GithubWorkflowsFactory();
+    
     @Produces
     public Arguments getArguments()
     {
@@ -61,9 +65,16 @@ public class ProducerFactory
 
     @Produces
     @ApplicationScoped
-    public WorkflowExecutor getExecutor(Instance<Workflow> workflows, Instance<Workflow.PrePost> prePost)
+    public FileLoader getFileLoader(Arguments arguments)
     {
-        return new WorkflowExecutor(toCollection(workflows), toCollection(prePost));
+        return new FileLoader(arguments.getRepoDir().toFile().toString());
+    }
+
+    @Produces
+    @ApplicationScoped
+    public RepositoryFactory getRepositoryFactory(Arguments arguments, JsonTransformer transformer) throws IOException
+    {
+        return new RepositoryFactory(transformer, arguments.getRepoDir());
     }
 
     @Produces
@@ -79,9 +90,9 @@ public class ProducerFactory
 
     @Produces
     @ApplicationScoped
-    public RepositoryWorkflow getGithubWorkflow(GithubClient client, StatusCheckProvider factory)
+    public Workflow getRepositoryWorkflow(GithubClient client, StatusCheckProvider factory)
     {
-        return new RepositoryWorkflow(client, factory);
+        return workflowFactory.repositoryWorkflow(client, factory);
     }
 
     @Produces
@@ -107,24 +118,10 @@ public class ProducerFactory
 
     @Produces
     @ApplicationScoped
-    public FileLoader getFileLoader(Arguments arguments)
+    public RepositoryCommand.Executor getRepositoryExecutor(RepositoryFactory factory, Arguments arguments, Instance<Workflow> workflows)
     {
-        return new FileLoader(arguments.getRepoDir());
-    }
-
-    @Produces
-    @ApplicationScoped
-    public RepositoryCommand.Executor getRepositoryExecutor(FileLoader fileLoader, WorkflowExecutor workflowExecutor,
-            RepositoryMerger repositoryMerger)
-    {
-        return new RepositoryCommand.Executor(workflowExecutor, repositoryMerger, fileLoader);
-    }
-
-    @Produces
-    @ApplicationScoped
-    public StatusCheckProvider getStatusCheckFactory()
-    {
-        return new RepositoryStatusCheckProvider();
+        return new RepositoryCommand.Executor(factory,
+                new CommandWorkflow(arguments.getCommand(), toCollection(workflows), arguments.isIgnoreErrors()));
     }
 
     @Produces
@@ -136,6 +133,20 @@ public class ProducerFactory
 
     @Produces
     @ApplicationScoped
+    public StatusCheckProvider getStatusCheckFactory()
+    {
+        return new RepositoryStatusCheckProvider();
+    }
+
+//    @Produces
+//    @ApplicationScoped
+//    public UpdateRefCommand getUpdatRefCommand()
+//    {
+//        return new UpdateRefCommand();
+//    }
+
+    @Produces
+    @ApplicationScoped
     public ValidateCommand getValidateCommand()
     {
         return new ValidateCommand();
@@ -143,9 +154,9 @@ public class ProducerFactory
 
     @Produces
     @ApplicationScoped
-    public ValidateCommand.Executor getValidateExecutor(FileLoader fileLoader, JsonTransformer transformer)
+    public ValidateCommand.ValidatorExecutor getValidateExecutor(Arguments arguments, JsonTransformer transformer)
     {
-        return new ValidateCommand.Executor(fileLoader, transformer);
+        return new ValidateCommand.ValidatorExecutor(transformer, arguments.getRepoDir());
     }
 
     private <T> Collection<T> toCollection(Instance<T> instance)

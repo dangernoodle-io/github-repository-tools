@@ -82,5 +82,4 @@ public class CommandWorkflow implements Workflow
         return Optional.ofNullable(workflows.get(name))
                        .orElseThrow(() -> new IllegalStateException("failed to find Workflow for [" + name + "]"));
     }
-
 }

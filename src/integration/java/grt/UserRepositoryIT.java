@@ -25,7 +25,7 @@ import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.ext.statuschecks.RepositoryStatusCheckProvider;
-import io.dangernoodle.grt.internal.RepositoryWorkflow;
+import io.dangernoodle.grt.internal.GithubWorkflowsFactory;
 import io.dangernoodle.grt.utils.JsonTransformer;
 import io.dangernoodle.grt.utils.RepositoryBuilder;
 import io.dangernoodle.grt.utils.RepositoryMerger;
@@ -46,7 +46,7 @@ public class UserRepositoryIT
 
     protected Repository repository;
 
-    protected RepositoryWorkflow workflow;
+    protected Workflow workflow;
 
     @AfterEach
     public void afterEach() throws Exception
@@ -63,7 +63,7 @@ public class UserRepositoryIT
         context = new Workflow.Context(Collections.emptyMap());
         builder = new RepositoryBuilder(transformer);
 
-        workflow = new RepositoryWorkflow(GithubClient.createClient(github), new RepositoryStatusCheckProvider());
+        workflow = new GithubWorkflowsFactory().repositoryWorkflow(GithubClient.createClient(github), new RepositoryStatusCheckProvider());
 
         // meh - the github api uses commons-lang, so...
         builder.setName("github-repository-tools-test-" + RandomStringUtils.randomAlphanumeric(5).toLowerCase())

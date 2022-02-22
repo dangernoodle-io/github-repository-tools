@@ -85,6 +85,22 @@ public interface Workflow
     /**
      * @since 0.6.0
      */
+    public interface PrePost
+    {
+        default void postExecution() throws Exception
+        {
+            // no-op
+        }
+
+        default void preExecution() throws Exception
+        {
+            // no-op
+        }
+    }
+    
+    /**
+     * @since 0.6.0
+     */
     public enum Status
     {
         CONTINUE,

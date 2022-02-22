@@ -1,17 +1,12 @@
 package io.dangernoodle.grt.cli;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Map;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-import io.dangernoodle.grt.Repository;
-import io.dangernoodle.grt.internal.FileLoader;
-import io.dangernoodle.grt.internal.WorkflowExecutor;
-import io.dangernoodle.grt.utils.RepositoryMerger;
+import io.dangernoodle.grt.Workflow;
+import io.dangernoodle.grt.utils.RepositoryFactory;
 
 
 @Parameters(commandNames = "repository", resourceBundle = "GithubRepositoryTools", commandDescriptionKey = "repository")
@@ -30,6 +25,12 @@ public class RepositoryCommand implements CommandLineParser.Command
     private static String name;
 
     @Override
+    public boolean isIgnoreErrors()
+    {
+        return ignoreErrors;
+    }
+    
+    @Override
     public Class<? extends Executor> getCommandExectorClass()
     {
         return Executor.class;
@@ -37,54 +38,27 @@ public class RepositoryCommand implements CommandLineParser.Command
 
     public static class Executor extends CommandLineExecutor.RepositoryExecutor
     {
-        private final WorkflowExecutor workflowExecutor;
-
-        public Executor(WorkflowExecutor workflowExecutor, RepositoryMerger repositoryMerger, FileLoader fileLoader)
+        public Executor(RepositoryFactory factory, Workflow workflow)
         {
-            super(fileLoader, repositoryMerger);
-            this.workflowExecutor = workflowExecutor;
+            super(factory, workflow);
         }
 
         @Override
-        protected void execute(Repository repository) throws Exception
+        protected Map<String, Object> getArguments()
         {
-            workflowExecutor.execute(repository,
-                    Collections.singletonMap("clearWebhooks", clearWebhooks));
-        }
-
-        @Override
-        protected Collection<File> getRepositories() throws IOException
-        {
-            if (all)
-            {
-                return fileLoader.loadRepositories(name);
-            }
-
-            return super.getRepositories();
+            return Map.of("clearWebhooks", clearWebhooks);
         }
 
         @Override
         protected String getRepositoryName()
         {
-            return name;
+            return all ? "*" : name;
         }
 
-        @Override
-        protected boolean isIgnoreErrors()
-        {
-            return ignoreErrors;
-        }
-
-        @Override
-        protected void postExecution() throws Exception
-        {
-            workflowExecutor.postExecution();
-        }
-
-        @Override
-        protected void preExecution() throws Exception
-        {
-            workflowExecutor.preExecution();
-        }
+//        @Override
+//        protected boolean isIgnoreErrors()
+//        {
+//            return ignoreErrors;
+//        }
     }
 }

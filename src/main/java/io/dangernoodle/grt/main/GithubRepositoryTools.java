@@ -23,9 +23,9 @@ public class GithubRepositoryTools
 
         try
         {
-            container.select(getCommandClass(container, args))
-                     .get()
-                     .execute();
+            CommandLineExecutor executor = container.select(getCommandClass(container, args))
+                                                    .get();
+            executor.execute();
         }
         catch (@SuppressWarnings("unused") IllegalArgumentException | JsonValidationException e)
         {
@@ -35,6 +35,8 @@ public class GithubRepositoryTools
         {
             // catch and log any exceptions that make it this far so we shutdown gracefully
             exit = 1;
+            System.out.println(e);
+
             logger.error("an unexpected error has occurred", e);
         }
         finally

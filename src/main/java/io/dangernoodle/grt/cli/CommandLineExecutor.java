@@ -1,16 +1,19 @@
 package io.dangernoodle.grt.cli;
 
-import java.io.File;
+import static java.nio.file.Files.walkFileTree;
+
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.dangernoodle.grt.Repository;
-import io.dangernoodle.grt.internal.FileLoader;
-import io.dangernoodle.grt.utils.RepositoryMerger;
+import io.dangernoodle.grt.Workflow;
+import io.dangernoodle.grt.internal.RepositoryFileVisitor;
+import io.dangernoodle.grt.utils.RepositoryFactory;
 
 
 public abstract class CommandLineExecutor
@@ -27,59 +30,64 @@ public abstract class CommandLineExecutor
     /**
      * @since 0.8.0
      */
-    public static abstract class RepositoryExecutor extends RepositoryFileExecutor
+    public static abstract class RepositoryExecutor extends CommandLineExecutor
     {
-        protected final RepositoryMerger repositoryMerger;
+        protected final RepositoryFactory factory;
 
-        public RepositoryExecutor(FileLoader fileLoader, RepositoryMerger repositoryMerger)
+        protected final Workflow workflow;
+
+        public RepositoryExecutor(RepositoryFactory factory, Workflow workflow)
         {
-            super(fileLoader);
-            this.repositoryMerger = repositoryMerger;
-        }
-
-        @Override
-        protected void execute(File defaults, File overrides) throws Exception
-        {
-            execute(repositoryMerger.merge(overrides, defaults));
-        }
-
-        protected abstract void execute(Repository repository) throws Exception;
-    }
-
-    public static abstract class RepositoryFileExecutor extends CommandLineExecutor
-    {
-        protected final FileLoader fileLoader;
-
-        public RepositoryFileExecutor(FileLoader fileLoader)
-        {
-            this.fileLoader = fileLoader;
+            this.factory = factory;
+            this.workflow = workflow;
         }
 
         @Override
         public void execute() throws Exception
         {
-            File defaults = loadRepositoryDefaults();
+            RepositoryFileVisitor visitor = new RepositoryFileVisitor(getRepositoryName(), path -> {
+                logger.info("** repository file [{}]", path);
+
+                Repository repository = factory.load(path);
+                
+                try
+                {
+                    workflow.execute(repository, createContext());
+                }
+                catch (Exception e)
+                {
+                    // ffs...
+                    throw new IOException(e);
+                }
+            });
 
             try
             {
-                preExecution();
+                workflow.preExecution();
 
-                for (File repo : getRepositories())
+                walkFileTree(factory.getDefinitionsRoot(), visitor);
+
+                if (!visitor.matched())
                 {
-                    doExecute(defaults, repo);
+                    throw new FileNotFoundException("failed to find repository file [" + getRepositoryName() + "]");
                 }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
             }
             finally
             {
-                postExecution();
+                workflow.postExecution();
             }
         }
 
-        protected abstract void execute(File defaults, File overrides) throws Exception;
-
-        protected Collection<File> getRepositories() throws IOException
+        /**
+         * @since 0.9.0
+         */
+        protected Map<String, Object> getArguments()
         {
-            return Arrays.asList(fileLoader.loadRepository(getRepositoryName()));
+            return Collections.emptyMap();
         }
 
         protected abstract String getRepositoryName();
@@ -92,45 +100,9 @@ public abstract class CommandLineExecutor
             return false;
         }
 
-        /**
-         * @since 0.6.0
-         */
-        protected void postExecution() throws Exception
+        private Workflow.Context createContext()
         {
-            // no-op
-        }
-
-        /**
-         * @since 0.6.0
-         */
-        protected void preExecution() throws Exception
-        {
-            // no-op
-        }
-
-        // visible for testing
-        File loadRepositoryDefaults() throws IOException
-        {
-            return fileLoader.loadRepositoryDefaults();
-        }
-
-        private void doExecute(File defaults, File repo) throws Exception
-        {
-            try
-            {
-                logger.info("** repository file [{}]", repo);
-                execute(defaults, repo);
-
-            }
-            catch (Exception e)
-            {
-                if (!isIgnoreErrors())
-                {
-                    throw e;
-                }
-
-                logger.error("", e);
-            }
+            return new Workflow.Context(getArguments());
         }
     }
 }

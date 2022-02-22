@@ -16,10 +16,13 @@ public class CommandLineParser
 {
     private static final Logger logger = LoggerFactory.getLogger(CommandLineParser.class);
 
+    private final Arguments arguments;
+
     private final JCommander jCommander;
 
     public CommandLineParser(Collection<Command> commands, Arguments arguments)
     {
+        this.arguments = arguments;
         this.jCommander = createJCommander(arguments);
 
         jCommander.setProgramName("github-repository-tools");
@@ -30,10 +33,14 @@ public class CommandLineParser
 
     public Command parse(String... args) throws IllegalArgumentException
     {
-        return (Command) jCommander.getCommands()
-                                   .get(parseArguments(args))
-                                   .getObjects()
-                                   .get(0);
+        Command command = (Command) jCommander.getCommands()
+                                              .get(parseArguments(args))
+                                              .getObjects()
+                                              .get(0);
+        
+        arguments.setIgnoreErrors(command.isIgnoreErrors());
+        
+        return command;
     }
 
     // visible for testing
@@ -61,6 +68,8 @@ public class CommandLineParser
                 throw new ParameterException("No command was specified");
             }
 
+            arguments.setCommand(parsed);
+            
             return parsed;
         }
         catch (ParameterException e)
@@ -75,5 +84,10 @@ public class CommandLineParser
     public interface Command
     {
         Class<? extends CommandLineExecutor> getCommandExectorClass();
+        
+        default boolean isIgnoreErrors()
+        {
+            return false;
+        }
     }
 }
