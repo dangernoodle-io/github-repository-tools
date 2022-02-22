@@ -19,7 +19,6 @@ import org.mockito.Mock;
 
 import io.dangernoodle.grt.ext.statuschecks.RepositoryStatusCheckProvider;
 import io.dangernoodle.grt.ext.statuschecks.StatusCheckProvider;
-import io.dangernoodle.grt.internal.RepositoryWorkflow;
 
 
 public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
@@ -155,7 +154,7 @@ public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
     }
 
     @Override
-    protected RepositoryWorkflow.Step createStep()
+    protected AbstractGithubStep createStep()
     {
         return new EnableBranchProtections(mockClient, factory);
     }

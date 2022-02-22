@@ -15,7 +15,6 @@ import org.kohsuke.github.PagedIterable;
 import org.mockito.Mock;
 
 import io.dangernoodle.grt.Repository.Settings.Color;
-import io.dangernoodle.grt.internal.RepositoryWorkflow;
 
 
 public class CreateRepositoryLabelsTest extends AbstractGithubWorkflowStepTest
@@ -67,7 +66,7 @@ public class CreateRepositoryLabelsTest extends AbstractGithubWorkflowStepTest
     }
 
     @Override
-    protected RepositoryWorkflow.Step createStep()
+    protected AbstractGithubStep createStep()
     {
         return new CreateRepositoryLabels(mockClient);
     }

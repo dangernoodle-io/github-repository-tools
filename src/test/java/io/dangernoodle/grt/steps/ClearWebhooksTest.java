@@ -14,8 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHHook;
 import org.mockito.Mock;
 
-import io.dangernoodle.grt.internal.RepositoryWorkflow;
-
 
 public class ClearWebhooksTest extends AbstractGithubWorkflowStepTest
 {
@@ -56,13 +54,8 @@ public class ClearWebhooksTest extends AbstractGithubWorkflowStepTest
         thenNoInteractions();
     }
 
-    private void thenNoInteractions()
-    {
-        verifyNoInteractions(mockGHRepository, mockHook);
-    }
-
     @Override
-    protected RepositoryWorkflow.Step createStep()
+    protected AbstractGithubStep createStep()
     {
         return new ClearWebhooks(mockClient);
     }
@@ -95,5 +88,10 @@ public class ClearWebhooksTest extends AbstractGithubWorkflowStepTest
     private void thenNoHooksCleared() throws IOException
     {
         verify(mockHook, times(0)).delete();
+    }
+
+    private void thenNoInteractions()
+    {
+        verifyNoInteractions(mockGHRepository, mockHook);
     }
 }

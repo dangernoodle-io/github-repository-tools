@@ -15,8 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHBranch;
 import org.mockito.Mock;
 
-import io.dangernoodle.grt.internal.RepositoryWorkflow;
-
 
 public class CreateRepositoryBranchesTest extends AbstractGithubWorkflowStepTest
 {
@@ -91,7 +89,7 @@ public class CreateRepositoryBranchesTest extends AbstractGithubWorkflowStepTest
     }
 
     @Override
-    protected RepositoryWorkflow.Step createStep()
+    protected AbstractGithubStep createStep()
     {
         return new CreateRepositoryBranches(mockClient);
     }
