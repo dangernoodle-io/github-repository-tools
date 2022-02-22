@@ -14,10 +14,9 @@ import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Permission;
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.Workflow.Status;
-import io.dangernoodle.grt.internal.RepositoryWorkflow;
 
 
-public class AddTeamsAndCollaborators extends RepositoryWorkflow.Step
+public class AddTeamsAndCollaborators extends AbstractGithubStep
 {
     public AddTeamsAndCollaborators(GithubClient client)
     {

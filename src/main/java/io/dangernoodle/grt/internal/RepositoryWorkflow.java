@@ -3,9 +3,6 @@ package io.dangernoodle.grt.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.ext.statuschecks.StatusCheckProvider;
@@ -52,18 +49,5 @@ public class RepositoryWorkflow extends Workflow.Basic
         steps.add(new ClearWebhooks(client));
         
         return steps;
-    }
-
-    public static abstract class Step implements Workflow.Step
-    {
-        protected final GithubClient client;
-
-        protected final Logger logger;
-
-        public Step(GithubClient client)
-        {
-            this.client = client;
-            this.logger = LoggerFactory.getLogger(getClass());
-        }
     }
 }

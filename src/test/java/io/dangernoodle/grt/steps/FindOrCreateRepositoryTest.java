@@ -9,8 +9,6 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
-import io.dangernoodle.grt.internal.RepositoryWorkflow;
-
 
 public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
 {
@@ -72,25 +70,8 @@ public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
         });
     }
 
-    private void thenUserRepositoryIsLookedFor() throws IOException
-    {
-        verify(mockClient).getCurrentLogin();
-        verify(mockClient).getRepository(repository.getName());
-    }
-
-    private void thenOrgRepositoryIsLookedFor() throws IOException
-    {
-        verify(mockClient).getCurrentLogin();
-        verify(mockClient).getRepository(repository.getOrganization(), repository.getName());
-    }
-
-    private void givenDontCreateRepository()
-    {
-        create = false;
-    }
-
     @Override
-    protected RepositoryWorkflow.Step createStep()
+    protected AbstractGithubStep createStep()
     {
         return new FindOrCreateRepository(mockClient, create);
     }
@@ -126,6 +107,11 @@ public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
         when(mockClient.getCurrentLogin()).thenReturn("user");
     }
 
+    private void givenDontCreateRepository()
+    {
+        create = false;
+    }
+
     private void thenGHRepositoryAddedToContext()
     {
         verify(mockContext).add(mockGHRepository);
@@ -136,8 +122,20 @@ public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
         verify(mockClient).createOrgRepository(repository);
     }
 
+    private void thenOrgRepositoryIsLookedFor() throws IOException
+    {
+        verify(mockClient).getCurrentLogin();
+        verify(mockClient).getRepository(repository.getOrganization(), repository.getName());
+    }
+
     private void thenUserRepositoryIsCreated() throws IOException
     {
         verify(mockClient).createUserRepository(repository);
+    }
+
+    private void thenUserRepositoryIsLookedFor() throws IOException
+    {
+        verify(mockClient).getCurrentLogin();
+        verify(mockClient).getRepository(repository.getName());
     }
 }

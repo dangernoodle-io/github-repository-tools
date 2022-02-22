@@ -8,10 +8,9 @@ import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.Workflow.Status;
-import io.dangernoodle.grt.internal.RepositoryWorkflow;
 
 
-public class FindOrCreateRepository extends RepositoryWorkflow.Step
+public class FindOrCreateRepository extends AbstractGithubStep
 {
     private final boolean create;
 

@@ -15,8 +15,6 @@ import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHTag;
 import org.mockito.Mock;
 
-import io.dangernoodle.grt.internal.RepositoryWorkflow.Step;
-
 
 public class FindCommitByTagTest extends AbstractGithubWorkflowStepTest
 {
@@ -60,7 +58,7 @@ public class FindCommitByTagTest extends AbstractGithubWorkflowStepTest
     }
 
     @Override
-    protected Step createStep()
+    protected AbstractGithubStep createStep()
     {
         return new FindCommitByTag(mockClient)
         {

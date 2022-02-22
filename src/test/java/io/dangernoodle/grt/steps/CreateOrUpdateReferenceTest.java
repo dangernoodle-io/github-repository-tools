@@ -13,8 +13,6 @@ import org.kohsuke.github.GHRef;
 import org.kohsuke.github.GHRepository;
 import org.mockito.Mock;
 
-import io.dangernoodle.grt.internal.RepositoryWorkflow.Step;
-
 
 public class CreateOrUpdateReferenceTest extends AbstractGithubWorkflowStepTest
 {
@@ -58,11 +56,10 @@ public class CreateOrUpdateReferenceTest extends AbstractGithubWorkflowStepTest
     @Test
 
     @Override
-    protected Step createStep()
+    protected AbstractGithubStep createStep()
     {
         return new CreateOrUpdateReference(mockClient)
         {
-
             @Override
             Stream<GHRef> getRefStream(GHRepository ghRepo) throws IOException
             {
