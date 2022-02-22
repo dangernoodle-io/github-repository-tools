@@ -10,6 +10,7 @@ import java.io.UncheckedIOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -140,6 +141,11 @@ public class JsonTransformer
         public Iterator<Object> iterator()
         {
             return new Itr(json.iterator());
+        }
+
+        public List<Object> toList()
+        {
+            return json.toList();
         }
 
         @Override

@@ -1,11 +1,13 @@
 package io.dangernoodle.grt;
 
+import static io.dangernoodle.grt.Constants.REPOSITORY;
 import static java.util.Optional.ofNullable;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import io.dangernoodle.grt.utils.JsonTransformer.JsonArray;
 import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
@@ -19,17 +21,23 @@ import io.dangernoodle.grt.utils.JsonTransformer.JsonObject.Deserializer;
  */
 public class Repository
 {
+    public static final Repository EMPTY = new Repository(JsonObject.NULL);
+
     private final JsonObject json;
 
     private final Map<String, JsonObject> plugins;
 
     private final Settings settings;
 
+    private final Map<String, JsonArray> workflows;
+
     public Repository(JsonObject json)
     {
         this.json = json;
 
         this.plugins = buildPluginMap();
+        this.workflows = buildWorkflowsMap();
+
         this.settings = new Settings(json.getJsonObject("settings"));
     }
 
@@ -85,7 +93,7 @@ public class Repository
 
     public JsonObject getPlugin(String name)
     {
-        return plugins.getOrDefault(name, JsonObject.NULL);
+        return getPlugins().getOrDefault(name, JsonObject.NULL);
     }
 
     /**
@@ -93,7 +101,9 @@ public class Repository
      */
     public Map<String, JsonObject> getPlugins()
     {
-        return plugins == null ? null : Collections.unmodifiableMap(plugins);
+        return Optional.ofNullable(plugins)
+                       .map(Collections::unmodifiableMap)
+                       .orElse(Collections.emptyMap());
     }
 
     public Settings getSettings()
@@ -101,9 +111,34 @@ public class Repository
         return settings;
     }
 
+    @Deprecated
     public Collection<String> getWorkflow()
     {
-        return json.getCollection("workflow");
+        return getWorkflows(REPOSITORY);
+    }
+
+    /**
+     * @since 0.9.0
+     */
+    public Collection<String> getWorkflows(String command)
+    {
+        if (REPOSITORY.equals(command) && json.has("workflow"))
+        {
+            return json.getCollection("workflow", getWorkflow());
+        }
+
+        return json.getJsonObject("workflows")
+                   .getCollection(command, Collections.emptyList());
+    }
+
+    /**
+     * @since 0.9.0
+     */
+    public Map<String, JsonArray> getWorkflows()
+    {
+        return Optional.ofNullable(workflows)
+                       .map(Collections::unmodifiableMap)
+                       .orElse(Collections.emptyMap());
     }
 
     /**
@@ -121,21 +156,22 @@ public class Repository
         return json.getMap("plugins", new Deserializer<JsonObject>()
         {
             @Override
-            public JsonObject apply(JsonArray json)
-            {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
             public JsonObject apply(JsonObject json)
             {
                 return json;
             }
+        });
+    }
 
+    private Map<String, JsonArray> buildWorkflowsMap()
+    {
+        // only 'JsonArray's can be returned here
+        return json.getMap("workflows", new Deserializer<JsonArray>()
+        {
             @Override
-            public JsonObject apply(String value)
+            public JsonArray apply(JsonArray json)
             {
-                throw new UnsupportedOperationException();
+                return json;
             }
         });
     }
@@ -530,6 +566,7 @@ public class Repository
         public static enum Permission
         {
             admin,
+            developer,
             read,
             write;
         }

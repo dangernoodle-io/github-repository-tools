@@ -41,6 +41,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -55,6 +56,8 @@ import io.dangernoodle.grt.Repository.Settings.Permission;
 
 public class RepositoryBuilderTest
 {
+    private static List<String> WORKFLOWS = List.of("workflow1", "workflow2");
+
     private Repository actual;
 
     private RepositoryBuilder builder;
@@ -126,7 +129,7 @@ public class RepositoryBuilderTest
                .addTeamPushAccess("master", "team")
                .addUserPushAccess("master", "user")
                .addPlugin("jenkins", ImmutableMap.of("container", "maven"))
-               .addWorkflow("jenkins");
+               .addWorkflow("command", WORKFLOWS);
     }
 
     private void thenBranchProtectionIsNull()
@@ -173,7 +176,7 @@ public class RepositoryBuilderTest
         verifyPushAccessUsers(actual, "master", expected);
 
         assertThat(actual.getPlugin("jenkins").getString("container"), equalTo("maven"));
-        assertThat(actual.getWorkflow().containsAll(expected.getWorkflow()), equalTo(true));
+        assertThat(actual.getWorkflows("command").containsAll(WORKFLOWS), equalTo(true));
     }
 
     private void whenBuildRepository()

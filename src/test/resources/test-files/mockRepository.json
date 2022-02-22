@@ -73,7 +73,9 @@
             "container": "maven"
         }
     },
-    "workflow": [
-        "jenkins"
-    ]
+    "workflows": {
+        "command": [
+            "jenkins"
+        ]
+    }
 }

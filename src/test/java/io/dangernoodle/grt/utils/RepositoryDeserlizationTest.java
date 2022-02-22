@@ -45,6 +45,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -219,7 +220,8 @@ public class RepositoryDeserlizationTest
 
     private void thenWorkflowIsCorrect()
     {
-        assertThat(repository.getWorkflow(), notNullValue());
+        Collection<String> workflows = repository.getWorkflows("command");
+        assertThat(workflows.isEmpty(), equalTo(false));
     }
 
     private void whenParseIntoObject() throws IOException

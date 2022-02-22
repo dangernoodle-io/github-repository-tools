@@ -122,7 +122,7 @@
             "type": "object"
         },
         "workflow": {
-            "description": "workflow steps, if not specified 'github' is added as first step",
+            "description": "workflow steps (deprecated)",
             "type": [
                 "array",
                 "null"
@@ -130,6 +130,14 @@
             "items": {
                 "type": "string"
             },
+            "uniqueItems": true
+        },
+        "workflows": {
+            "description": "commands and their overridden workflow configuration",
+            "type": [
+                "object",
+                "null"
+            ],
             "uniqueItems": true
         }
     },
