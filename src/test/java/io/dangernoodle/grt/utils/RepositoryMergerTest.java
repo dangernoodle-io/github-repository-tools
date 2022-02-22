@@ -47,6 +47,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.Collections;
+import java.util.List;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -559,7 +560,7 @@ public class RepositoryMergerTest
 
     private void givenDefaultWorkflow()
     {
-        deBuilder.addWorkflow("default");
+        deBuilder.addWorkflow("command", List.of("default"));
     }
 
     private void givenImplictsAreOverridden()
@@ -611,7 +612,7 @@ public class RepositoryMergerTest
 
     private void givenOverrideWorkflow()
     {
-        ovBuilder.addWorkflow("override");
+        ovBuilder.addWorkflow("command", List.of("override"));
     }
 
     private void givenPrimaryBranchNoSet()
@@ -748,7 +749,7 @@ public class RepositoryMergerTest
 
     private void thenDefaultWorkflowReturned()
     {
-        assertThat(repository.getWorkflow(), contains(defaults.getWorkflow().toArray()));
+        assertThat(repository.getWorkflows("command"), contains(defaults.getWorkflows("command").toArray()));
     }
 
     private void thenDescriptionIsCorrect()
@@ -870,7 +871,7 @@ public class RepositoryMergerTest
 
     private void thenOverrideWorkflowReturned()
     {
-        assertThat(repository.getWorkflow(), contains(overrides.getWorkflow().toArray()));
+        assertThat(repository.getWorkflows("command"), contains(overrides.getWorkflows("command").toArray()));
     }
 
     private void thenPrimaryBranchIsCorrect()

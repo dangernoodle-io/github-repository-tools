@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings;
@@ -18,6 +18,7 @@ import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequireReview
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequiredChecks;
 import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Repository.Settings.Permission;
+import io.dangernoodle.grt.utils.JsonTransformer.JsonArray;
 import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
 
 
@@ -127,6 +128,11 @@ public class RepositoryMerger
         }
     }
 
+    private void addWorkflows(String command, Collection<Object> workflows, RepositoryBuilder builder)
+    {
+        workflows.forEach(workflow -> builder.addWorkflow(command, workflow.toString()));
+    }
+
     private String getPrimaryBranch(Branches overrides, Branches defaults)
     {
         String branch = overrides.getDefault();
@@ -184,7 +190,7 @@ public class RepositoryMerger
         mergeSettings(overrides.getSettings(), defaults.getSettings(), builder);
 
         mergePlugins(overrides, defaults, builder);
-        mergeWorkflow(overrides, defaults, builder);
+        mergeWorkflows(overrides, defaults, builder);
 
         return builder.build();
     }
@@ -274,11 +280,8 @@ public class RepositoryMerger
     @SuppressWarnings("unchecked")
     private void mergePlugins(Repository overrides, Repository defaults, RepositoryBuilder builder)
     {
-        Map<String, JsonObject> dePlugins = Optional.ofNullable(defaults.getPlugins())
-                                                    .orElse(Collections.emptyMap());
-
-        Map<String, JsonObject> ovPlugins = Optional.ofNullable(overrides.getPlugins())
-                                                    .orElse(Collections.emptyMap());
+        Map<String, JsonObject> dePlugins = defaults.getPlugins();
+        Map<String, JsonObject> ovPlugins = overrides.getPlugins();
 
         Map<String, Object> merged = new HashMap<>();
         dePlugins.forEach((key, value) -> merged.put(key, value.toMap()));
@@ -368,9 +371,16 @@ public class RepositoryMerger
         mergeBranches(overrides.getBranches(), defaults.getBranches(), builder);
     }
 
-    private void mergeWorkflow(Repository overrides, Repository defaults, RepositoryBuilder builder)
+    private void mergeWorkflows(Repository overrides, Repository defaults, RepositoryBuilder builder)
     {
-        merge(overrides.getWorkflow(), defaults.getWorkflow()).forEach(builder::addWorkflow);
+        Map<String, JsonArray> deWorkflows = defaults.getWorkflows();
+        Map<String, JsonArray> ovWorkflows = overrides.getWorkflows();
+
+        Map<String, List<Object>> merged = new HashMap<>();
+        deWorkflows.forEach((key, value) -> merged.put(key, value.toList()));
+        ovWorkflows.forEach((key, value) -> merged.put(key, value.toList()));
+
+        merged.forEach((k, v) -> addWorkflows(k, v, builder));
     }
 
     private interface Callback<V>

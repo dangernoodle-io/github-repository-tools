@@ -1,5 +1,7 @@
 package io.dangernoodle.grt.utils;
 
+import static io.dangernoodle.grt.Constants.REPOSITORY;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -122,9 +124,27 @@ public class RepositoryBuilder
         return this;
     }
 
+    @Deprecated
     public RepositoryBuilder addWorkflow(String workflow)
     {
-        computeCollectionIfAbsent("workflow", repository).add(workflow);
+        return addWorkflow(REPOSITORY, workflow);
+    }
+
+    /**
+     * @since 0.9.0
+     */
+    public RepositoryBuilder addWorkflow(String command, Collection<String> workflows)
+    {
+        workflows.forEach(workflow -> addWorkflow(command, workflow));
+        return this;
+    }
+
+    /**
+     * @since 0.9.0
+     */
+    public RepositoryBuilder addWorkflow(String command, String workflow)
+    {
+        workflows(command).add(workflow);
         return this;
     }
 
@@ -364,5 +384,11 @@ public class RepositoryBuilder
     private Map<String, Object> teams()
     {
         return computeMapIfAbsent("teams", settings());
+    }
+
+    @SuppressWarnings("unchecked")
+    private Collection<String> workflows(String command)
+    {
+        return (Collection<String>) computeMapIfAbsent("workflows", repository).computeIfAbsent(command, c -> new ArrayList<>());
     }
 }
