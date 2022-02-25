@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.internal;
+package io.dangernoodle.grt.utils;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -9,7 +9,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
 
-public class RepositoryFileVisitor extends SimpleFileVisitor<Path>
+public class DefinitionFileVisitor extends SimpleFileVisitor<Path>
 {
     private final PathMatcher matcher;
 
@@ -17,7 +17,7 @@ public class RepositoryFileVisitor extends SimpleFileVisitor<Path>
 
     private int count;
 
-    public RepositoryFileVisitor(String match, Handler handler)
+    public DefinitionFileVisitor(String match, Handler handler)
     {
         this.handler = handler;
         this.matcher = FileSystems.getDefault().getPathMatcher("glob:**/" + match + ".json");

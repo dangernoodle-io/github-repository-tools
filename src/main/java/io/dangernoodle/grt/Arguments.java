@@ -2,42 +2,34 @@ package io.dangernoodle.grt;
 
 import java.nio.file.Path;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 
-
-@Parameters(resourceBundle = "GithubRepositoryTools")
-public class Arguments
+/**
+ * @since 0.9.0
+ */
+public interface Arguments
 {
-    @Parameter(names = "--repoDir", descriptionKey = "repoDir", required = true)
-    private String repoDir;
+    public static final String IGNORE_ERRORS = "--ignoreErrors";
 
-    private boolean ignoreErrors;
+    public static final String ROOT_DIR = "--rootDir";
 
-    private String command;
+    String getCommand();
 
-    public Path getRepoDir()
+    default Path getConfiguration()
     {
-        return Path.of(repoDir);
+        return getRoot().resolve("github-repository-tools.json");
     }
 
-    public void setCommand(String command)
+    default Path getCredentials()
     {
-        this.command = command;
+        return getRoot().resolve("credentials.json");
     }
 
-    public String getCommand()
+    default Path getDefinitionsRoot()
     {
-        return command;
+        return getRoot().resolve("repositories");
     }
 
-    public boolean isIgnoreErrors()
-    {
-        return ignoreErrors;
-    }
+    Path getRoot();
 
-    public void setIgnoreErrors(boolean ignoreErrors)
-    {
-        this.ignoreErrors = ignoreErrors;
-    }
+    boolean ignoreErrors();
 }

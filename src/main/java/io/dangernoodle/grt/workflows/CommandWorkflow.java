@@ -26,15 +26,15 @@ import io.dangernoodle.grt.Workflow;
  * 
  * @since 0.9.0
  */
-public class CommandWorkflow implements Workflow
+public class CommandWorkflow implements Workflow<Repository>
 {
     private final String command;
 
     private final boolean ignoreErrors;
 
-    private final Map<String, Workflow> workflows;
+    private final Map<String, Workflow<Repository>> workflows;
 
-    public CommandWorkflow(String command, Collection<Workflow> workflows, boolean ignoreErrors)
+    public CommandWorkflow(String command, boolean ignoreErrors, Collection<Workflow<Repository>> workflows)
     {
         this.command = command;
         this.ignoreErrors = ignoreErrors;
@@ -42,11 +42,16 @@ public class CommandWorkflow implements Workflow
                                   .collect(Collectors.toMap(workflow -> workflow.getName(), Function.identity()));
     }
 
+    public String getCommand()
+    {
+        return command;
+    }
+
     @Override
     public void execute(Repository repository, Context context) throws Exception
     {
-        Collection<Workflow> workflows = getWorkflows(repository);
-        ChainedWorkflow delegate = new ChainedWorkflow(workflows, ignoreErrors);
+        Collection<Workflow<Repository>> workflows = getWorkflows(repository);
+        ChainedWorkflow<Repository> delegate = new ChainedWorkflow<>(workflows, ignoreErrors);
 
         try
         {
@@ -59,7 +64,7 @@ public class CommandWorkflow implements Workflow
         }
     }
 
-    private Collection<Workflow> getWorkflows(Repository repository)
+    private Collection<Workflow<Repository>> getWorkflows(Repository repository)
     {
         ArrayList<String> names = new ArrayList<>(repository.getWorkflows(command));
 
@@ -77,7 +82,7 @@ public class CommandWorkflow implements Workflow
                     .collect(Collectors.toList());
     }
 
-    private Workflow getWorkflow(String name)
+    private Workflow<Repository> getWorkflow(String name)
     {
         return Optional.ofNullable(workflows.get(name))
                        .orElseThrow(() -> new IllegalStateException("failed to find Workflow for [" + name + "]"));

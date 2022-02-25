@@ -1,15 +1,22 @@
 package io.dangernoodle.grt;
 
+import static io.dangernoodle.grt.Constants.WILDCARD;
+
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.kohsuke.github.GHRepository;
 
 
-public interface Workflow
+/**
+ * @since 0.9.0
+ */
+public interface Workflow<T>
 {
-    void execute(Repository object, Context context) throws Exception;
+    void execute(T object, Context context) throws Exception;
 
     default String getName()
     {
@@ -83,21 +90,26 @@ public interface Workflow
     }
 
     /**
-     * @since 0.6.0
+     * @since 0.9.0
      */
-    public interface PrePost
+    public interface Lifecycle
     {
-        default void postExecution() throws Exception
+        default void postExecution()
         {
             // no-op
         }
 
-        default void preExecution() throws Exception
+        default void preExecution()
         {
             // no-op
         }
+
+        default Collection<String> getCommands()
+        {
+            return List.of(WILDCARD);
+        }
     }
-    
+
     /**
      * @since 0.6.0
      */
@@ -107,8 +119,8 @@ public interface Workflow
         SKIP;
     }
 
-    public interface Step
+    public interface Step<T>
     {
-        Workflow.Status execute(Repository repository, Context context) throws Exception;
+        Workflow.Status execute(T object, Context context) throws Exception;
     }
 }

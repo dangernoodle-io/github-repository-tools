@@ -78,7 +78,7 @@ public class CommandWorkflowTest
 
     private void whenExecuteWorkflow() throws Exception
     {
-        new CommandWorkflow(COMMAND, List.of(mockWorkflow), ignoreErrors).execute(mockRepository, mockContext);
+        new CommandWorkflow(COMMAND, ignoreErrors, List.of(mockWorkflow)).execute(mockRepository, mockContext);
     }
 
 }

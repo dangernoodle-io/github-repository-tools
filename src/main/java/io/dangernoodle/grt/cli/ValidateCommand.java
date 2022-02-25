@@ -1,52 +1,24 @@
 package io.dangernoodle.grt.cli;
 
-import static java.nio.file.Files.walkFileTree;
+import static io.dangernoodle.grt.Constants.VALIDATE;
 
-import java.nio.file.Path;
+import com.google.inject.Injector;
 
-import com.beust.jcommander.Parameters;
-
-import io.dangernoodle.grt.internal.ValidatingFileVisitor;
-import io.dangernoodle.grt.utils.JsonTransformer;
-import io.dangernoodle.grt.utils.RepositoryFactory;
+import io.dangernoodle.grt.cli.executor.ValidateExecutor;
+import picocli.CommandLine.Command;
 
 
-@Parameters(commandNames = "validate", resourceBundle = "GithubRepositoryTools", commandDescriptionKey = "validate")
-public class ValidateCommand implements CommandLineParser.Command
+@Command(name = VALIDATE)
+public class ValidateCommand extends io.dangernoodle.grt.Command
 {
-    @Override
-    public Class<? extends CommandLineExecutor> getCommandExectorClass()
+    public ValidateCommand(Injector injector)
     {
-        return ValidatorExecutor.class;
+        super(injector);
     }
 
-    public static class ValidatorExecutor extends CommandLineExecutor
+    @Override
+    protected Class<? extends io.dangernoodle.grt.Command.Executor> getExecutor()
     {
-        private final JsonTransformer transformer;
-
-        private final Path root;
-
-        public ValidatorExecutor(JsonTransformer transformer, Path root)
-        {
-            this.root = root;
-            this.transformer = transformer;
-        }
-
-        @Override
-        public void execute() throws Exception
-        {
-            Path definitions = RepositoryFactory.resolveDefinitionsRoot(root);
-            ValidatingFileVisitor visitor = new ValidatingFileVisitor(transformer);
-
-            walkFileTree(definitions, visitor);
-
-            boolean hasErrors = visitor.hasErrors();
-
-            if (hasErrors)
-            {
-                visitor.report();
-                throw new IllegalStateException();
-            }
-        }
+        return ValidateExecutor.class;
     }
 }

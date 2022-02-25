@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,7 +43,7 @@ public class JsonTransformer
     {
         this.schema = loadSchema();
     }
-
+    
     public JsonObject deserialize(File file) throws FileNotFoundException
     {
         return deserialize(new FileReader(file));
@@ -51,6 +52,11 @@ public class JsonTransformer
     public JsonObject deserialize(InputStream inputStream)
     {
         return deserialize(new InputStreamReader(inputStream));
+    }
+
+    public JsonObject deserialize(Path path) throws FileNotFoundException
+    {
+        return deserialize(path.toFile());
     }
 
     public JsonObject deserialize(String json)

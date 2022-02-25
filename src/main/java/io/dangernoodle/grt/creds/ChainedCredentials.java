@@ -10,11 +10,11 @@ import io.dangernoodle.grt.Credentials;
 /**
  * @since 0.8.0
  */
-public class CredentialsChain implements Credentials
+public class ChainedCredentials implements Credentials
 {
     private final Collection<Credentials> providers;
 
-    public CredentialsChain(Credentials... providers)
+    public ChainedCredentials(Credentials... providers)
     {
         this.providers = Arrays.asList(providers);
     }

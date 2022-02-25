@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.dangernoodle.grt.GithubClient;
+import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow;
 
 
@@ -12,7 +13,7 @@ import io.dangernoodle.grt.Workflow;
  * 
  * @since 0.9.0
  */
-public abstract class AbstractGithubStep implements Workflow.Step
+public abstract class AbstractGithubStep implements Workflow.Step<Repository>
 {
     protected final GithubClient client;
 

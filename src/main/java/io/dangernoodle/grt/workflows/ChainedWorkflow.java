@@ -5,19 +5,18 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow;
 
 
-public class ChainedWorkflow implements Workflow
+public class ChainedWorkflow<T> implements Workflow<T>
 {
     private static final Logger logger = LoggerFactory.getLogger(ChainedWorkflow.class);
 
-    private final Collection<Workflow> workflows;
+    private final Collection<Workflow<T>> workflows;
 
     private final boolean ignoreErrors;
 
-    public ChainedWorkflow(Collection<Workflow> workflows, boolean ignoreErrors)
+    public ChainedWorkflow(Collection<Workflow<T>> workflows, boolean ignoreErrors)
     {
         this.ignoreErrors = ignoreErrors;
         this.workflows = workflows;
@@ -42,15 +41,15 @@ public class ChainedWorkflow implements Workflow
     }
 
     @Override
-    public void execute(Repository repository, Context context) throws Exception
+    public void execute(T object, Context context) throws Exception
     {
-        for (Workflow workflow : workflows)
+        for (Workflow<T> workflow : workflows)
         {
-            logger.trace("executing workflow [{}] for repository [{}]", workflow.getName(), repository.getName());
+            logger.trace("executing workflow [{}] for [{}]", workflow.getName(), object);
 
             try
             {
-                workflow.execute(repository, context);
+                workflow.execute(object, context);
             }
             catch (Exception e)
             {

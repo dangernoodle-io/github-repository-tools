@@ -1,24 +1,20 @@
 package io.dangernoodle.grt.creds;
 
-import java.io.IOException;
 import java.util.Map;
 
 import io.dangernoodle.grt.Credentials;
-import io.dangernoodle.grt.internal.FileLoader;
-import io.dangernoodle.grt.utils.JsonTransformer;
 import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
 import io.dangernoodle.grt.utils.JsonTransformer.JsonObject.Deserializer;
 
-/**
- * @since 0.8.0
- */
-public class JsonFileCredentials implements Credentials
-{
-    public static final String FILENAME = "credentials.json";
 
+/**
+ * @since 0.9.0
+ */
+public class JsonCredentials implements Credentials
+{
     private final JsonObject json;
 
-    public JsonFileCredentials(JsonObject json)
+    public JsonCredentials(JsonObject json)
     {
         this.json = json;
     }
@@ -40,17 +36,5 @@ public class JsonFileCredentials implements Credentials
                 return value;
             }
         });
-    }
-
-    public static Credentials loadCredentials(FileLoader fileLoader, JsonTransformer transformer)
-    {
-        try
-        {
-            return new JsonFileCredentials(transformer.deserialize(fileLoader.loadCredentials()));
-        }
-        catch (@SuppressWarnings("unused") IOException e)
-        {
-            return Credentials.NULL;
-        }
     }
 }

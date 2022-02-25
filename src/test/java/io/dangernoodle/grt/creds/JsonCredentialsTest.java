@@ -15,18 +15,14 @@ import org.mockito.MockitoAnnotations;
 
 import io.dangernoodle.RepositoryFiles;
 import io.dangernoodle.grt.Credentials;
-import io.dangernoodle.grt.internal.FileLoader;
 import io.dangernoodle.grt.utils.JsonTransformer;
 
 
-public class JsonFileCredentialsTest
+public class JsonCredentialsTest
 {
     private Credentials credentials;
 
     private RepositoryFiles file;
-
-    @Mock
-    private FileLoader mockLoader;
 
     @Mock
     private JsonTransformer mockTransformer;
@@ -58,13 +54,12 @@ public class JsonFileCredentialsTest
 
     private void givenACredentialsFile() throws IOException
     {
-        when(mockLoader.loadCredentials()).thenReturn(file.getFile());
         when(mockTransformer.deserialize(file.getFile())).thenReturn(file.toJsonObject());
     }
 
     private void givenNoCredentialsFile() throws IOException
     {
-        when(mockLoader.loadCredentials()).thenThrow(new FileNotFoundException());
+        when(mockTransformer.deserialize(file.getFile())).thenThrow(new FileNotFoundException());
     }
 
     private void theCredentialsAreLoaded()
@@ -90,8 +85,8 @@ public class JsonFileCredentialsTest
         assertEquals(Credentials.NULL, credentials);
     }
 
-    private void whenLoadCredentials()
+    private void whenLoadCredentials() throws FileNotFoundException
     {
-        credentials = JsonFileCredentials.loadCredentials(mockLoader, mockTransformer);
+        credentials = new JsonCredentials(mockTransformer.deserialize(file.getFile()));
     }
 }

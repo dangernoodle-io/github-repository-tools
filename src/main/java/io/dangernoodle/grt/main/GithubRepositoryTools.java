@@ -1,56 +1,140 @@
 package io.dangernoodle.grt.main;
 
-import org.jboss.weld.environment.se.Weld;
-import org.jboss.weld.environment.se.WeldContainer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.nio.file.Path;
+import java.util.ResourceBundle;
 
-import io.dangernoodle.grt.cli.CommandLineExecutor;
-import io.dangernoodle.grt.cli.CommandLineParser;
-import io.dangernoodle.grt.utils.JsonValidationException;
+import com.google.inject.AbstractModule;
+import com.google.inject.Injector;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+
+import io.dangernoodle.grt.Arguments;
+import io.dangernoodle.grt.internal.CoreModule;
+import io.dangernoodle.grt.internal.PluginsManager;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.IFactory;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.ParseResult;
 
 
+@Command(name = "grt")
 public class GithubRepositoryTools
 {
-    private static final Logger logger = LoggerFactory.getLogger(GithubRepositoryTools.class);
+    @Option(names = "--rootDir", required = true)
+    private String rootDir;
 
     public static void main(String... args) throws Exception
     {
-        int exit = 0;
+        PluginsManager plugins = new PluginsManager(new CoreModule.Plugin());
 
-        Weld weld = new Weld();
-        WeldContainer container = weld.initialize();
+        Injector injector = plugins.getInjector(createArgumentsModule());
+        ArgumentsBuilder arguments = (ArgumentsBuilder) injector.getInstance(Arguments.class);
 
-        try
-        {
-            CommandLineExecutor executor = container.select(getCommandClass(container, args))
-                                                    .get();
-            executor.execute();
-        }
-        catch (@SuppressWarnings("unused") IllegalArgumentException | JsonValidationException e)
-        {
-            // no-op so the container can shutdown cleanly, these have already been logged accordingly
-        }
-        catch (Exception e)
-        {
-            // catch and log any exceptions that make it this far so we shutdown gracefully
-            exit = 1;
-            System.out.println(e);
+        CommandLine commandLine = new CommandLine(new GithubRepositoryTools(), createCommandFactory(injector));
 
-            logger.error("an unexpected error has occurred", e);
-        }
-        finally
-        {
-            container.shutdown();
-            System.exit(exit);
-        }
+        //commandLine.setResourceBundle(ResourceBundle.);
+        
+        plugins.getCommands()
+               .forEach(commandLine::addSubcommand);
+
+        commandLine.setExecutionStrategy(parseResult -> executionStrategy(parseResult, arguments))
+                   .execute(args);
     }
 
-    private static Class<? extends CommandLineExecutor> getCommandClass(WeldContainer container, String... args)
+    private static AbstractModule createArgumentsModule()
     {
-        return container.select(CommandLineParser.class)
-                        .get()
-                        .parse(args)
-                        .getCommandExectorClass();
+        return new AbstractModule()
+        {
+            @Provides
+            @Singleton
+            public Arguments arguments()
+            {
+                return new ArgumentsBuilder();
+            }
+        };
+    }
+
+    private static IFactory createCommandFactory(Injector injector)
+    {
+        /*
+         * this factory is only used by picocli to create commands and other object it needs, so it's safe to fall back
+         * to the default factory
+         */
+        return new IFactory()
+        {
+            @Override
+            public <K> K create(Class<K> cls) throws Exception
+            {
+                try
+                {
+                    return cls.getConstructor(Injector.class)
+                              .newInstance(injector);
+                }
+                catch (@SuppressWarnings("unused") NoSuchMethodException e)
+                {
+                    return CommandLine.defaultFactory().create(cls);
+                }
+            }
+        };
+    }
+
+    private static int executionStrategy(ParseResult parseResult, ArgumentsBuilder arguments)
+    {
+        if (parseResult.errors().isEmpty())
+        {
+            arguments.initialize(parseResult);
+        }
+
+        return new CommandLine.RunLast().execute(parseResult);
+    }
+
+    private static class ArgumentsBuilder implements Arguments
+    {
+        private String command;
+
+        private String rootDir;
+
+        private boolean ignoreErrors;
+
+        @Override
+        public String getCommand()
+        {
+            return command;
+        }
+
+        @Override
+        public Path getRoot()
+        {
+            return Path.of(rootDir);
+        }
+
+        @Override
+        public boolean ignoreErrors()
+        {
+            return ignoreErrors;
+        }
+
+        void initialize(ParseResult parseResult)
+        {
+            this.rootDir = parseResult.matchedOption(Arguments.ROOT_DIR)
+                                      .getValue();
+
+            if (parseResult.hasSubcommand())
+            {
+                initFromCommand(parseResult.subcommand());
+            }
+        }
+
+        private void initFromCommand(ParseResult parseResult)
+        {
+            if (!parseResult.errors().isEmpty())
+            {
+                return;
+            }
+
+            this.command = parseResult.commandSpec().name();
+            this.ignoreErrors = parseResult.matchedOptionValue(Arguments.IGNORE_ERRORS, false);
+        }
     }
 }

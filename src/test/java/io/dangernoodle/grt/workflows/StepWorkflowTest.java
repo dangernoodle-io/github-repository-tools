@@ -50,7 +50,7 @@ public class StepWorkflowTest
 
     private void whenExecuteWorkflow() throws Exception
     {
-        new StepWorkflow(List.of(mockStep, mockStep, mockStep)).execute(mockRepository, mockContext);
+        new StepWorkflow("workflow", List.of(mockStep, mockStep, mockStep)).execute(mockRepository, mockContext);
     }
 
     private void givenStepsContinue() throws Exception

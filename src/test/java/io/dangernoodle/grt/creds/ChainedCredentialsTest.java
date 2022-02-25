@@ -16,7 +16,7 @@ import org.mockito.MockitoAnnotations;
 import io.dangernoodle.grt.Credentials;
 
 
-public class CredentialsChainTest
+public class ChainedCredentialsTest
 {
     private static final String KEY = "key";
 
@@ -24,7 +24,7 @@ public class CredentialsChainTest
 
     private static final String TOKEN = "token";
 
-    private CredentialsChain chain;
+    private ChainedCredentials chain;
 
     private Map<String, String> map;
 
@@ -38,7 +38,7 @@ public class CredentialsChainTest
     {
         MockitoAnnotations.initMocks(this);
 
-        chain = new CredentialsChain(mockCredentials, mockCredentials);
+        chain = new ChainedCredentials(mockCredentials, mockCredentials);
     }
 
     @Test

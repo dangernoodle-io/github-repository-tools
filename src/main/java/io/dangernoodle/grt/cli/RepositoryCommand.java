@@ -2,63 +2,56 @@ package io.dangernoodle.grt.cli;
 
 import java.util.Map;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
+import com.google.inject.Injector;
 
-import io.dangernoodle.grt.Workflow;
-import io.dangernoodle.grt.utils.RepositoryFactory;
+import io.dangernoodle.grt.cli.CommandLineHelpers.DefininitionOrAll;
+//import io.dangernoodle.grt.cli.CommandLineHelpers.DefininitionOrAll;
+import io.dangernoodle.grt.cli.executor.RepositoryExecutor;
+import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 
-@Parameters(commandNames = "repository", resourceBundle = "GithubRepositoryTools", commandDescriptionKey = "repository")
-public class RepositoryCommand implements CommandLineParser.Command
+@Command(name = "repository")
+public class RepositoryCommand extends io.dangernoodle.grt.Command.Definition
 {
-    @Parameter(descriptionKey = "all", names = "--all")
-    private static boolean all;
+    private static final String CLEARWEBHOOKS = "clearWebhooks";
 
-    @Parameter(descriptionKey = "ignoreErrors", names = "--ignoreErrors")
-    private static boolean ignoreErrors;
+    @ArgGroup(exclusive = true, multiplicity = "1")
+    private DefininitionOrAll defOrAll;
 
-    @Parameter(descriptionKey = "clearWebhooks", names = "--clearWebhooks")
-    private static boolean clearWebhooks;
+    @Option(names = "--" + CLEARWEBHOOKS)
+    private boolean clearWebhooks;
 
-    @Parameter(descriptionKey = "name", required = true)
-    private static String name;
+    @Option(names = "--" + "ignoreErrors")
+    private boolean igoreErrors;
 
-    @Override
-    public boolean isIgnoreErrors()
+    public RepositoryCommand(Injector injector)
     {
-        return ignoreErrors;
-    }
-    
-    @Override
-    public Class<? extends Executor> getCommandExectorClass()
-    {
-        return Executor.class;
+        super(injector);
     }
 
-    public static class Executor extends CommandLineExecutor.RepositoryExecutor
+    @Override
+    public Map<String, Object> asMap()
     {
-        public Executor(RepositoryFactory factory, Workflow workflow)
-        {
-            super(factory, workflow);
-        }
+        return Map.of(CLEARWEBHOOKS, clearWebhooks);
+    }
 
-        @Override
-        protected Map<String, Object> getArguments()
-        {
-            return Map.of("clearWebhooks", clearWebhooks);
-        }
+    @Override
+    public boolean ignoreErrors()
+    {
+        return igoreErrors;
+    }
 
-        @Override
-        protected String getRepositoryName()
-        {
-            return all ? "*" : name;
-        }
+    @Override
+    protected Class<? extends io.dangernoodle.grt.Command.Executor> getExecutor()
+    {
+        return RepositoryExecutor.class;
+    }
 
-//        @Override
-//        protected boolean isIgnoreErrors()
-//        {
-//            return ignoreErrors;
-//        }
+    @Override
+    public String getDefinition()
+    {
+        return defOrAll.getDefintion();
     }
 }
