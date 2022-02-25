@@ -3,7 +3,7 @@ package io.dangernoodle.grt.cli.executor;
 import java.nio.file.Path;
 
 import io.dangernoodle.grt.Command;
-import io.dangernoodle.grt.workflows.ValidatorWorkflow;
+import io.dangernoodle.grt.workflow.ValidatorWorkflow;
 
 
 public class ValidateExecutor extends DefinitionExecutor

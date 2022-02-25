@@ -10,7 +10,7 @@ import java.util.Map;
 import io.dangernoodle.grt.Command;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.utils.DefinitionFileVisitor;
-import io.dangernoodle.grt.workflows.PathToRepositoryWorkflow;
+import io.dangernoodle.grt.workflow.PathToRepositoryWorkflow;
 
 
 public abstract class DefinitionExecutor extends Command.Executor
