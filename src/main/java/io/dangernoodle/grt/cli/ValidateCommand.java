@@ -4,7 +4,7 @@ import static io.dangernoodle.grt.Constants.VALIDATE;
 
 import com.google.inject.Injector;
 
-import io.dangernoodle.grt.cli.executor.ValidateExecutor;
+import io.dangernoodle.grt.cli.exector.ValidateExecutor;
 import picocli.CommandLine.Command;
 
 

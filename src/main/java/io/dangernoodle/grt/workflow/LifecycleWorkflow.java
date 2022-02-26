@@ -40,7 +40,7 @@ public class LifecycleWorkflow<T> implements Workflow<T>
     {
         executeLifecycle(Workflow.Lifecycle::preExecution);
     }
-    
+
     private void executeLifecycle(Consumer<Workflow.Lifecycle> lifecycle)
     {
         lifecycles.stream()

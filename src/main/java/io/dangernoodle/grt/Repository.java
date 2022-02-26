@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import io.dangernoodle.grt.utils.JsonTransformer.JsonArray;
-import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
-import io.dangernoodle.grt.utils.JsonTransformer.JsonObject.Deserializer;
+import io.dangernoodle.grt.util.JsonTransformer.JsonArray;
+import io.dangernoodle.grt.util.JsonTransformer.JsonObject;
+import io.dangernoodle.grt.util.JsonTransformer.JsonObject.Deserializer;
 
 
 /**

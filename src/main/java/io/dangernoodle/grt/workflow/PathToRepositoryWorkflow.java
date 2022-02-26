@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow;
-import io.dangernoodle.grt.utils.RepositoryFactory;
+import io.dangernoodle.grt.repository.RepositoryFactory;
 
 
 public class PathToRepositoryWorkflow implements Workflow<Path>

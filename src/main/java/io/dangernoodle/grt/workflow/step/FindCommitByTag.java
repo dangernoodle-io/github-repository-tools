@@ -1,6 +1,6 @@
 package io.dangernoodle.grt.workflow.step;
 
-import static io.dangernoodle.grt.utils.GithubRepositoryToolsUtils.toSha1;
+import static io.dangernoodle.grt.util.GithubRepositoryToolsUtils.toSha1;
 
 import java.io.IOException;
 import java.util.stream.Stream;
@@ -10,10 +10,11 @@ import org.kohsuke.github.GHCommit;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHTag;
 
-import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.Workflow.Status;
+import io.dangernoodle.grt.util.GithubClient;
+
 
 /**
  * @since 0.8.0

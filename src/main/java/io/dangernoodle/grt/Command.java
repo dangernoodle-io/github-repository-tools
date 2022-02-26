@@ -48,12 +48,12 @@ public abstract class Command implements Callable<Void>
      */
     public static abstract class Definition extends Command
     {
- 
+
         public Definition(Injector injector)
         {
             super(injector);
         }
-        
+
         public abstract String getDefinition();
     }
 

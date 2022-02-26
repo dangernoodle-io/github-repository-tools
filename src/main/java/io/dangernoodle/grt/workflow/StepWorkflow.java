@@ -16,7 +16,7 @@ public class StepWorkflow<T> implements Workflow<T>
     private final String name;
 
     private final Collection<Workflow.Step<T>> steps;
-    
+
     public StepWorkflow(String name, Collection<Workflow.Step<T>> steps)
     {
         this.name = name;

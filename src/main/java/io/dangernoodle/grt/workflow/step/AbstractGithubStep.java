@@ -3,9 +3,9 @@ package io.dangernoodle.grt.workflow.step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow;
+import io.dangernoodle.grt.util.GithubClient;
 
 
 /**

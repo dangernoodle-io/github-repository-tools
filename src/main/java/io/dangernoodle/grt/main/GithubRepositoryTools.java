@@ -1,16 +1,9 @@
 package io.dangernoodle.grt.main;
 
-import java.nio.file.Path;
-import java.util.ResourceBundle;
-
-import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
 
-import io.dangernoodle.grt.Arguments;
-import io.dangernoodle.grt.internal.CoreModule;
-import io.dangernoodle.grt.internal.PluginsManager;
+import io.dangernoodle.grt.Arguments.ArgumentsBuilder;
+import io.dangernoodle.grt.internal.Bootstrapper;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.IFactory;
@@ -26,33 +19,19 @@ public class GithubRepositoryTools
 
     public static void main(String... args) throws Exception
     {
-        PluginsManager plugins = new PluginsManager(new CoreModule.Plugin());
+        Bootstrapper plugins = new Bootstrapper();
 
-        Injector injector = plugins.getInjector(createArgumentsModule());
-        ArgumentsBuilder arguments = (ArgumentsBuilder) injector.getInstance(Arguments.class);
+        Injector injector = plugins.getInjector();
+        ArgumentsBuilder arguments = injector.getInstance(ArgumentsBuilder.class);
 
         CommandLine commandLine = new CommandLine(new GithubRepositoryTools(), createCommandFactory(injector));
+        commandLine.setResourceBundle(plugins.getResourceBundle());
 
-        //commandLine.setResourceBundle(ResourceBundle.);
-        
         plugins.getCommands()
                .forEach(commandLine::addSubcommand);
 
         commandLine.setExecutionStrategy(parseResult -> executionStrategy(parseResult, arguments))
                    .execute(args);
-    }
-
-    private static AbstractModule createArgumentsModule()
-    {
-        return new AbstractModule()
-        {
-            @Provides
-            @Singleton
-            public Arguments arguments()
-            {
-                return new ArgumentsBuilder();
-            }
-        };
     }
 
     private static IFactory createCommandFactory(Injector injector)
@@ -87,54 +66,5 @@ public class GithubRepositoryTools
         }
 
         return new CommandLine.RunLast().execute(parseResult);
-    }
-
-    private static class ArgumentsBuilder implements Arguments
-    {
-        private String command;
-
-        private String rootDir;
-
-        private boolean ignoreErrors;
-
-        @Override
-        public String getCommand()
-        {
-            return command;
-        }
-
-        @Override
-        public Path getRoot()
-        {
-            return Path.of(rootDir);
-        }
-
-        @Override
-        public boolean ignoreErrors()
-        {
-            return ignoreErrors;
-        }
-
-        void initialize(ParseResult parseResult)
-        {
-            this.rootDir = parseResult.matchedOption(Arguments.ROOT_DIR)
-                                      .getValue();
-
-            if (parseResult.hasSubcommand())
-            {
-                initFromCommand(parseResult.subcommand());
-            }
-        }
-
-        private void initFromCommand(ParseResult parseResult)
-        {
-            if (!parseResult.errors().isEmpty())
-            {
-                return;
-            }
-
-            this.command = parseResult.commandSpec().name();
-            this.ignoreErrors = parseResult.matchedOptionValue(Arguments.IGNORE_ERRORS, false);
-        }
     }
 }

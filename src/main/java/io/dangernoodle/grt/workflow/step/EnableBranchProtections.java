@@ -10,31 +10,31 @@ import org.kohsuke.github.GHBranchProtection;
 import org.kohsuke.github.GHBranchProtectionBuilder;
 import org.kohsuke.github.GHRepository;
 
-import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.AccessRestrictions;
 import io.dangernoodle.grt.Repository.Settings.Branches;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequireReviews;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequiredChecks;
+import io.dangernoodle.grt.StatusCheck;
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.Workflow.Status;
-import io.dangernoodle.grt.ext.statuschecks.StatusCheckProvider;
+import io.dangernoodle.grt.util.GithubClient;
 
 
 public class EnableBranchProtections extends AbstractGithubStep
 {
-    private final StatusCheckProvider factory;
+    private final StatusCheck statusCheck;
 
     public EnableBranchProtections(GithubClient client)
     {
         this(client, (name, repository) -> Collections.emptyList());
     }
 
-    public EnableBranchProtections(GithubClient client, StatusCheckProvider factory)
+    public EnableBranchProtections(GithubClient client, StatusCheck statusCheck)
     {
         super(client);
-        this.factory = factory;
+        this.statusCheck = statusCheck;
     }
 
     @Override
@@ -94,7 +94,7 @@ public class EnableBranchProtections extends AbstractGithubStep
 
         builder.requireBranchIsUpToDate(checks.getRequireUpToDate());
 
-        factory.getRequiredStatusChecks(branch, repository)
+        statusCheck.getRequiredChecks(branch, repository)
                .forEach(context -> {
                    logger.info("adding required status check [{}] for branch [{}]", context, branch);
                    builder.addRequiredChecks(context);

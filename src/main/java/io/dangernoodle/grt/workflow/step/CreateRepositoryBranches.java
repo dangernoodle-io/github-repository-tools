@@ -8,11 +8,11 @@ import java.util.stream.Collectors;
 import org.kohsuke.github.GHBranch;
 import org.kohsuke.github.GHRepository;
 
-import io.dangernoodle.grt.GithubClient;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Branches;
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.Workflow.Status;
+import io.dangernoodle.grt.util.GithubClient;
 
 
 public class CreateRepositoryBranches extends AbstractGithubStep

@@ -1,7 +1,7 @@
 package io.dangernoodle.grt.workflow;
 
 import static io.dangernoodle.grt.Constants.VALIDATE;
-import static io.dangernoodle.grt.utils.GithubRepositoryToolsUtils.toHex;
+import static io.dangernoodle.grt.util.GithubRepositoryToolsUtils.toHex;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 import io.dangernoodle.grt.Workflow;
-import io.dangernoodle.grt.utils.JsonTransformer;
-import io.dangernoodle.grt.utils.JsonValidationException;
+import io.dangernoodle.grt.util.JsonTransformer;
+import io.dangernoodle.grt.util.JsonValidationException;
 
 
 public class ValidatorWorkflow implements Workflow<Path>
@@ -81,9 +81,7 @@ public class ValidatorWorkflow implements Workflow<Path>
 //        {
 //           
 //        }
-        
-        
-        
+
     }
 
     @Override
