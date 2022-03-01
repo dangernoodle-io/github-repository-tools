@@ -1,6 +1,7 @@
 package io.dangernoodle.grt;
 
 import java.util.Collection;
+import java.util.Collections;
 
 
 /**
@@ -8,6 +9,16 @@ import java.util.Collection;
  */
 public interface StatusCheck
 {
+    /**
+     * Return the commands which will utilize this status check
+     *
+     * @return command names or an <code>empty</code> collection
+     */
+    default Collection<String> getCommands()
+    {
+        return Collections.emptyList();
+    }
+
     /**
      * Return the required status checks for the given branch name
      * 

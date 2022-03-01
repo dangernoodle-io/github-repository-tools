@@ -20,8 +20,8 @@ public class SetRepositoryOptions extends AbstractGithubStep
     @Override
     public Status execute(Repository repository, Context context) throws IOException
     {
+        boolean archived = repository.isArchived();
         GHRepository ghRepo = context.getGHRepository();
-        boolean archived = repository.getSettings().isArchived();
 
         if (archived)
         {

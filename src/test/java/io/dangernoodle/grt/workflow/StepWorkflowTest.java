@@ -13,7 +13,6 @@ import org.mockito.MockitoAnnotations;
 
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow;
-import io.dangernoodle.grt.workflow.StepWorkflow;
 
 
 public class StepWorkflowTest
@@ -49,11 +48,6 @@ public class StepWorkflowTest
         thenStepsSkipped();
     }
 
-    private void whenExecuteWorkflow() throws Exception
-    {
-        new StepWorkflow("workflow", List.of(mockStep, mockStep, mockStep)).execute(mockRepository, mockContext);
-    }
-
     private void givenStepsContinue() throws Exception
     {
         when(mockStep.execute(mockRepository, mockContext)).thenReturn(Workflow.Status.CONTINUE);
@@ -72,5 +66,10 @@ public class StepWorkflowTest
     private void thenStepsSkipped() throws Exception
     {
         verify(mockStep, times(2)).execute(mockRepository, mockContext);
+    }
+
+    private void whenExecuteWorkflow() throws Exception
+    {
+        new StepWorkflow("workflow", List.of(mockStep, mockStep, mockStep)).execute(mockRepository, mockContext);
     }
 }

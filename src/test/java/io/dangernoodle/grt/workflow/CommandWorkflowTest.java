@@ -13,7 +13,6 @@ import org.mockito.MockitoAnnotations;
 
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow;
-import io.dangernoodle.grt.workflow.CommandWorkflow;
 
 
 public class CommandWorkflowTest

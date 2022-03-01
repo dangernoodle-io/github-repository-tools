@@ -20,26 +20,26 @@ public class EnvironmentCredentials implements Credentials
 {
     static final String GRT_GITHUB_OAUTH = "GRT_GITHUB_OAUTH_TOKEN";
 
-    private final Map<String, String> tokens;
-
     private final Function<String, String> mapper;
 
     private final Map<String, Collection<String>> nameValue;
+
+    private final Map<String, String> tokens;
 
     public EnvironmentCredentials()
     {
         this(Collections.emptyMap());
     }
 
+    public EnvironmentCredentials(Map<String, Collection<String>> nameValue, Function<String, String> mapper)
+    {
+        this(Collections.emptyMap(), nameValue, mapper);
+    }
+
     public EnvironmentCredentials(Map<String, String> tokens)
     {
         // no mapper if no name/value pairs
         this(tokens, null, null);
-    }
-
-    public EnvironmentCredentials(Map<String, Collection<String>> nameValue, Function<String, String> mapper)
-    {
-        this(Collections.emptyMap(), nameValue, mapper);
     }
 
     public EnvironmentCredentials(Map<String, String> tokens, Map<String, Collection<String>> credentials, Function<String, String> mapper)
@@ -69,11 +69,6 @@ public class EnvironmentCredentials implements Credentials
                     .collect(Collectors.toMap(this::mapKey, this::getEnvironmentVariable));
     }
 
-    private String mapKey(String key)
-    {
-        return mapper.apply(key);
-    }
-
     String getEnvironmentVariable(String name)
     {
         return System.getenv(name);
@@ -83,5 +78,10 @@ public class EnvironmentCredentials implements Credentials
     {
         return Optional.ofNullable(map.get(key))
                        .orElseThrow(() -> new IllegalStateException("environment variable name not found for key [" + key + "]"));
+    }
+
+    private String mapKey(String key)
+    {
+        return mapper.apply(key);
     }
 }

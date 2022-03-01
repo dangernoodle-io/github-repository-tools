@@ -16,7 +16,6 @@ import io.dangernoodle.grt.repository.RepositoryBuilder;
 import io.dangernoodle.grt.repository.RepositoryMerger;
 import io.dangernoodle.grt.util.GithubClient;
 import io.dangernoodle.grt.util.JsonTransformer;
-import io.dangernoodle.grt.workflow.step.AbstractGithubStep;
 
 
 public abstract class AbstractGithubWorkflowStepTest

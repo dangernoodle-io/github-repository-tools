@@ -19,12 +19,11 @@ import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.util.Modules;
 
-import io.dangernoodle.grt.Arguments;
 import io.dangernoodle.grt.Command;
 import io.dangernoodle.grt.Plugin;
-import io.dangernoodle.grt.util.JsonTransformer;
-import io.dangernoodle.grt.util.PluginsManager;
+import io.dangernoodle.grt.repository.RepositoryFactory;
 import io.dangernoodle.grt.util.JsonTransformer.JsonObject;
+import io.dangernoodle.grt.util.PluginsManager;
 
 
 /**
@@ -48,12 +47,11 @@ public class Bootstrapper implements PluginsManager
     }
 
     @Override
-    public JsonObject getDefaultConfiguration(String name)
+    public JsonObject getDefaultPluginConfiguration(String name)
     {
-        Arguments arguments = injector.getInstance(Arguments.class);
-        JsonTransformer jsonTransformer = injector.getInstance(JsonTransformer.class);
-
-        return null;
+        return injector.getInstance(RepositoryFactory.class)
+                       .getDefaults()
+                       .getPlugin(name);
     }
 
     public Injector getInjector()

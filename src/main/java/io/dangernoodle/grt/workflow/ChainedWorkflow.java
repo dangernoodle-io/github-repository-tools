@@ -12,32 +12,14 @@ public class ChainedWorkflow<T> implements Workflow<T>
 {
     private static final Logger logger = LoggerFactory.getLogger(ChainedWorkflow.class);
 
-    private final Collection<Workflow<T>> workflows;
-
     private final boolean ignoreErrors;
+
+    private final Collection<Workflow<T>> workflows;
 
     public ChainedWorkflow(Collection<Workflow<T>> workflows, boolean ignoreErrors)
     {
         this.ignoreErrors = ignoreErrors;
         this.workflows = workflows;
-    }
-
-    @Override
-    public void postExecution()
-    {
-        workflows.forEach(workflow -> {
-            logger.trace("executing 'postExecution' for workflow [{}]", workflow.getName());
-            workflow.postExecution();
-        });
-    }
-
-    @Override
-    public void preExecution()
-    {
-        workflows.forEach(workflow -> {
-            logger.trace("executing 'preExecution' for workflow [{}]", workflow.getName());
-            workflow.preExecution();
-        });
     }
 
     @Override
@@ -60,6 +42,25 @@ public class ChainedWorkflow<T> implements Workflow<T>
 
                 LoggerFactory.getLogger(getClass()).warn("ignoring error:", e);
             }
+        }
+    }
+
+    @Override
+    public void postExecution()
+    {
+        workflows.forEach(workflow -> {
+            logger.trace("executing 'postExecution' for workflow [{}]", workflow.getName());
+            workflow.postExecution();
+        });
+    }
+
+    @Override
+    public void preExecution() throws Exception
+    {
+        for (Workflow<T> workflow : workflows)
+        {
+            logger.trace("executing 'preExecution' for workflow [{}]", workflow.getName());
+            workflow.preExecution();
         }
     }
 }

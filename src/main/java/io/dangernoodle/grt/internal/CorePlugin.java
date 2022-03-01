@@ -1,11 +1,13 @@
 package io.dangernoodle.grt.internal;
 
+import static io.dangernoodle.grt.Constants.REPOSITORY;
+import static io.dangernoodle.grt.Constants.UPDATE_REF;
 import static io.dangernoodle.grt.Constants.VALIDATE;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,27 +30,31 @@ import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.StatusCheck;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.cli.RepositoryCommand;
+import io.dangernoodle.grt.cli.UpdateRefCommand;
 import io.dangernoodle.grt.cli.ValidateCommand;
 import io.dangernoodle.grt.cli.exector.RepositoryExecutor;
+import io.dangernoodle.grt.cli.exector.UpdateRefExecutor;
 import io.dangernoodle.grt.cli.exector.ValidateExecutor;
 import io.dangernoodle.grt.credentials.ChainedCredentials;
 import io.dangernoodle.grt.credentials.EnvironmentCredentials;
 import io.dangernoodle.grt.credentials.JsonCredentials;
 import io.dangernoodle.grt.repository.RepositoryFactory;
+import io.dangernoodle.grt.statuscheck.CommandStatusCheck;
 import io.dangernoodle.grt.statuscheck.RepositoryStatusCheck;
 import io.dangernoodle.grt.util.GithubClient;
 import io.dangernoodle.grt.util.JsonTransformer;
-import io.dangernoodle.grt.util.JsonTransformer.JsonObject;
+import io.dangernoodle.grt.util.PathToXConverter;
 import io.dangernoodle.grt.workflow.CommandWorkflow;
 import io.dangernoodle.grt.workflow.LifecycleWorkflow;
-import io.dangernoodle.grt.workflow.PathToRepositoryWorkflow;
 import io.dangernoodle.grt.workflow.StepWorkflow;
 import io.dangernoodle.grt.workflow.ValidatorWorkflow;
 import io.dangernoodle.grt.workflow.step.AddTeamsAndCollaborators;
 import io.dangernoodle.grt.workflow.step.ClearWebhooks;
+import io.dangernoodle.grt.workflow.step.CreateOrUpdateReference;
 import io.dangernoodle.grt.workflow.step.CreateRepositoryBranches;
 import io.dangernoodle.grt.workflow.step.CreateRepositoryLabels;
 import io.dangernoodle.grt.workflow.step.EnableBranchProtections;
+import io.dangernoodle.grt.workflow.step.FindCommitBy;
 import io.dangernoodle.grt.workflow.step.FindOrCreateRepository;
 import io.dangernoodle.grt.workflow.step.SetRepositoryOptions;
 import okhttp3.OkHttpClient;
@@ -61,6 +67,7 @@ public class CorePlugin implements Plugin
     {
         return List.of(
                 RepositoryCommand.class,
+                UpdateRefCommand.class,
                 ValidateCommand.class);
     }
 
@@ -87,36 +94,21 @@ public class CorePlugin implements Plugin
 
         @Provides
         @Singleton
-        public Credentials credentials(Arguments arguments, JsonTransformer jsonTransformer) throws IOException
+        public Credentials credentials(Arguments arguments, Set<Credentials> credentials, JsonTransformer jsonTransformer)
+            throws IOException
         {
-            JsonObject json = jsonTransformer.deserialize(arguments.getCredentials());
-
-            return new ChainedCredentials(
-                    new JsonCredentials(json),
-                    new EnvironmentCredentials());
+            Credentials json = new JsonCredentials(jsonTransformer.deserialize(arguments.getCredentials()));
+            return new ChainedCredentials(toList(json, credentials));
         }
 
         @Provides
-        public GithubClient getGithubClient(Credentials credentials, OkHttpClient okHttp) throws IOException
+        public GithubClient githubClient(Credentials credentials, OkHttpClient okHttp) throws IOException
         {
             GitHubBuilder builder = new GitHubBuilder();
             builder.withOAuthToken(credentials.getGithubToken())
                    .withConnector(new OkHttpConnector(okHttp));
 
             return GithubClient.createClient(builder.build());
-        }
-
-        @Provides
-        @Singleton
-        public Arguments arguments()
-        {
-            return new Arguments.ArgumentsBuilder();
-        }
-        
-        @Provides
-        public StatusCheck getStatusCheckFactory()
-        {
-            return new RepositoryStatusCheck();
         }
 
         @Provides
@@ -134,7 +126,19 @@ public class CorePlugin implements Plugin
         }
 
         @Provides
-        public RepositoryExecutor repositoryExecutor(Arguments arguments, RepositoryFactory factory, Set<Workflow<Repository>> workflows,
+        public RepositoryExecutor repositoryExecutor(Arguments arguments, Workflow<Path> workflow)
+        {
+            return new RepositoryExecutor(arguments.getDefinitionsRoot(), workflow);
+        }
+
+        @Provides
+        public UpdateRefExecutor updateRefExecutor(Arguments arguments, Workflow<Path> workflow)
+        {
+            return new UpdateRefExecutor(arguments.getDefinitionsRoot(), workflow);
+        }
+
+        @Provides
+        public Workflow<Path> commandWorkflow(Arguments arguments, RepositoryFactory factory, Set<Workflow<Repository>> workflows,
                 Set<Workflow.Lifecycle> lifecycles)
         {
             String command = arguments.getCommand();
@@ -142,10 +146,10 @@ public class CorePlugin implements Plugin
             // only workflow 'provides' methods annotated with '@ProvidesIntoSet' will appear here
             CommandWorkflow delegate = new CommandWorkflow(command, arguments.ignoreErrors(), workflows);
 
-            PathToRepositoryWorkflow converter = new PathToRepositoryWorkflow(factory, delegate);
-            LifecycleWorkflow<Path> workflow = new LifecycleWorkflow<>(converter, Collections.emptySet(), command);
+            PathToXConverter<Repository> converter = new PathToXConverter<>(delegate, path -> factory.load(path));
+            LifecycleWorkflow<Path> workflow = new LifecycleWorkflow<>(converter, lifecycles, command);
 
-            return new RepositoryExecutor(arguments.getDefinitionsRoot(), workflow);
+            return workflow;
         }
 
         @Provides
@@ -155,17 +159,33 @@ public class CorePlugin implements Plugin
         }
 
         @ProvidesIntoSet
-        public Workflow<Repository> repositoryWorkflow(GithubClient client, StatusCheck factory)
+        public Workflow<Repository> repositoryWorkflow(GithubClient client, StatusCheck statusCheck)
         {
-            return createStepWorkflow("repository",
+            return createStepWorkflow(REPOSITORY,
                     new FindOrCreateRepository(client),
                     new SetRepositoryOptions(client),
                     new CreateRepositoryLabels(client),
                     new AddTeamsAndCollaborators(client),
                     new CreateRepositoryBranches(client),
-                    new EnableBranchProtections(client, factory),
+                    new EnableBranchProtections(client, statusCheck),
                     // optional step enabled by a command line argument
                     new ClearWebhooks(client));
+        }
+
+        @Provides
+        public StatusCheck statusCheck(Arguments arguments, Set<StatusCheck> statusChecks)
+        {
+            return new CommandStatusCheck(arguments.getCommand(), statusChecks);
+        }
+
+        @ProvidesIntoSet
+        public Workflow<Repository> updateRefWorkflow(GithubClient client)
+        {
+            return createStepWorkflow(UPDATE_REF,
+                    new FindOrCreateRepository(client, false),
+                    new FindCommitBy.Tag(client),
+                    new FindCommitBy.Sha1(client),
+                    new CreateOrUpdateReference(client));
         }
 
         @Provides
@@ -184,14 +204,33 @@ public class CorePlugin implements Plugin
         @Override
         protected void configure()
         {
+            Multibinder.newSetBinder(binder(), Credentials.class)
+                       // this will create the default that is added
+                       .addBinding().to(EnvironmentCredentials.class);
+
+            Multibinder.newSetBinder(binder(), StatusCheck.class)
+                       // this will create the default that is added
+                       .addBinding().to(RepositoryStatusCheck.class);
+
             Multibinder.newSetBinder(binder(), Workflow.class);
             Multibinder.newSetBinder(binder(), Workflow.Lifecycle.class);
+
+            bind(Arguments.ArgumentsBuilder.class).in(Singleton.class);
+            bind(Arguments.class).to(Arguments.ArgumentsBuilder.class);
         }
 
         @SafeVarargs
         private <T> StepWorkflow<T> createStepWorkflow(String name, Workflow.Step<T>... steps)
         {
             return new StepWorkflow<>(name, List.of(steps));
+        }
+
+        private <T> List<T> toList(T first, Set<T> others)
+        {
+            List<T> list = new ArrayList<>(others);
+            list.add(0, first);
+
+            return list;
         }
     }
 }

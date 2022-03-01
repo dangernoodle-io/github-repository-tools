@@ -38,6 +38,11 @@ public class RepositoryFactory
         };
     }
 
+    public Repository getDefaults()
+    {
+        return defaults;
+    }
+
     public Repository load(Path definition) throws IOException, IllegalStateException
     {
         return merger.merge(createRepository(definition), defaults);

@@ -1,59 +1,49 @@
-//package io.dangernoodle.grt.cli;
-//
-//import static io.dangernoodle.grt.Constants.GIT_REF_NAME;
-//import static io.dangernoodle.grt.Constants.SHA1;
-//import static io.dangernoodle.grt.Constants.UPDATE_REF;
-//
-//import java.util.Map;
-//
-//import com.beust.jcommander.Parameter;
-//import com.beust.jcommander.Parameters;
-//
-//import io.dangernoodle.grt.Repository;
-//import io.dangernoodle.grt.Workflow;
-//import io.dangernoodle.grt.internal.FileLoader;
-//import io.dangernoodle.grt.internal.UpdateRefWorkflow;
-//import io.dangernoodle.grt.utils.RepositoryFactory;
-//
-//
-//@Parameters(commandNames = UPDATE_REF, resourceBundle = "GithubRepositoryTools", commandDescriptionKey = "updateRef")
-//public class UpdateRefCommand implements CommandLineParser.Command
-//{
-//    @Parameter(descriptionKey = "repo", required = true, names = "--repo")
-//    private static String repo;
-//
-//    @Parameter(descriptionKey = "sha1", required = true)
-//    private static String sha1;
-//
-//    @Parameter(descriptionKey = "ref", required = true)
-//    private static String ref;
-//
-//    @Override
-//    public Class<? extends CommandLineExecutor> getCommandExectorClass()
-//    {
-//        return Executor.class;
-//    }
-//
-//    public static class Executor extends CommandLineExecutor.RepositoryExecutor
-//    {
-//        private UpdateRefWorkflow workflow;
-//
-//        public Executor(UpdateRefWorkflow workflow, FileLoader fileLoader, RepositoryFactory repositoryMerger)
-//        {
-//            super(fileLoader, repositoryMerger);
-//            this.workflow = workflow;
-//        }
-//
-//        @Override
-//        protected void execute(Repository repository) throws Exception
-//        {
-//            workflow.execute(repository, new Workflow.Context(Map.of(SHA1, sha1, GIT_REF_NAME, ref)));
-//        }
-//
-//        @Override
-//        protected String getRepositoryName()
-//        {
-//            return repo;
-//        }
-//    }
-//}
+package io.dangernoodle.grt.cli;
+
+import static io.dangernoodle.grt.Constants.REF_OPT;
+import static io.dangernoodle.grt.Constants.UPDATE_REF;
+
+import com.google.inject.Injector;
+
+import io.dangernoodle.grt.cli.exector.UpdateRefExecutor;
+import io.dangernoodle.grt.util.CommandArguments.Sha1orTag;
+import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+
+
+@Command(name = UPDATE_REF)
+public class UpdateRefCommand extends io.dangernoodle.grt.Command.DefinitionOnly
+{
+    @Option(names = REF_OPT, required = true)
+    private String ref;
+
+    @ArgGroup(exclusive = true, multiplicity = "1")
+    private Sha1orTag sha1orTag;
+
+    public UpdateRefCommand(Injector injector)
+    {
+        super(injector);
+    }
+
+    public String getRef()
+    {
+        return ref;
+    }
+
+    public String getSha1()
+    {
+        return sha1orTag.getSha1();
+    }
+
+    public String getTag()
+    {
+        return sha1orTag.getTag();
+    }
+
+    @Override
+    protected Class<? extends io.dangernoodle.grt.Command.Executor> getExecutor()
+    {
+        return UpdateRefExecutor.class;
+    }
+}

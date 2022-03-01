@@ -22,8 +22,6 @@ import org.mockito.MockitoAnnotations;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings;
 import io.dangernoodle.grt.repository.RepositoryBuilder;
-import io.dangernoodle.grt.util.GithubClient;
-import io.dangernoodle.grt.util.JsonTransformer;
 
 
 public class GithubClientTest

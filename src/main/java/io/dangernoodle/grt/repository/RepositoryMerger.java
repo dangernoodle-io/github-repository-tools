@@ -16,11 +16,11 @@ import io.dangernoodle.grt.Repository.Settings.Branches;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequireReviews;
 import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequiredChecks;
+import io.dangernoodle.grt.Repository.Settings.Color;
+import io.dangernoodle.grt.Repository.Settings.Permission;
 import io.dangernoodle.grt.util.JsonTransformer;
 import io.dangernoodle.grt.util.JsonTransformer.JsonArray;
 import io.dangernoodle.grt.util.JsonTransformer.JsonObject;
-import io.dangernoodle.grt.Repository.Settings.Color;
-import io.dangernoodle.grt.Repository.Settings.Permission;
 
 
 public class RepositoryMerger

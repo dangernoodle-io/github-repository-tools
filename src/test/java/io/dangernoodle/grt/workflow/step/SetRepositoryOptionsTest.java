@@ -13,8 +13,6 @@ import org.kohsuke.github.GHRepository;
 import org.mockito.Mock;
 
 import io.dangernoodle.grt.Repository.Settings;
-import io.dangernoodle.grt.workflow.step.AbstractGithubStep;
-import io.dangernoodle.grt.workflow.step.SetRepositoryOptions;
 
 
 public class SetRepositoryOptionsTest extends AbstractGithubWorkflowStepTest

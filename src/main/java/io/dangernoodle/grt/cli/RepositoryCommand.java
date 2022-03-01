@@ -5,20 +5,15 @@ import java.util.Map;
 import com.google.inject.Injector;
 
 import io.dangernoodle.grt.cli.exector.RepositoryExecutor;
-import io.dangernoodle.grt.util.CommandLineHelpers.DefininitionOrAll;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 
 @Command(name = "repository")
-public class RepositoryCommand extends io.dangernoodle.grt.Command.Definition
+public class RepositoryCommand extends io.dangernoodle.grt.Command.DefinitionOrAll
 {
     private static final String CLEARWEBHOOKS = "clearWebhooks";
-
-    @ArgGroup(exclusive = true, multiplicity = "1")
-    private DefininitionOrAll defOrAll;
-
+     
     @Option(names = "--" + CLEARWEBHOOKS)
     private boolean clearWebhooks;
 
@@ -46,11 +41,5 @@ public class RepositoryCommand extends io.dangernoodle.grt.Command.Definition
     protected Class<? extends io.dangernoodle.grt.Command.Executor> getExecutor()
     {
         return RepositoryExecutor.class;
-    }
-
-    @Override
-    public String getDefinition()
-    {
-        return defOrAll.getDefintion();
     }
 }

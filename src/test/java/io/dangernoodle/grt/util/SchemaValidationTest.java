@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.dangernoodle.RepositoryFiles;
-import io.dangernoodle.grt.util.JsonTransformer;
 
 
 public class SchemaValidationTest

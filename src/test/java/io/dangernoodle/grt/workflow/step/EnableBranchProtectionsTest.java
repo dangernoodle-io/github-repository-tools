@@ -19,8 +19,6 @@ import org.mockito.Mock;
 
 import io.dangernoodle.grt.StatusCheck;
 import io.dangernoodle.grt.statuscheck.RepositoryStatusCheck;
-import io.dangernoodle.grt.workflow.step.AbstractGithubStep;
-import io.dangernoodle.grt.workflow.step.EnableBranchProtections;
 
 
 public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest

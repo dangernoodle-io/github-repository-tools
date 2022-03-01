@@ -1,7 +1,10 @@
 package io.dangernoodle.grt.statuscheck;
 
+import static io.dangernoodle.grt.Constants.REPOSITORY;
+
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import io.dangernoodle.grt.Repository;
@@ -19,6 +22,12 @@ import io.dangernoodle.grt.StatusCheck;
  */
 public class RepositoryStatusCheck implements StatusCheck
 {
+    @Override
+    public Collection<String> getCommands()
+    {
+        return List.of(REPOSITORY);
+    }
+
     @Override
     public Collection<String> getRequiredChecks(String branch, Repository repository)
     {

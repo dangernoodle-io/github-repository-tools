@@ -11,16 +11,21 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 public class DefinitionFileVisitor extends SimpleFileVisitor<Path>
 {
-    private final PathMatcher matcher;
+    private int count;
 
     private final Handler handler;
 
-    private int count;
+    private final PathMatcher matcher;
 
     public DefinitionFileVisitor(String match, Handler handler)
     {
         this.handler = handler;
         this.matcher = FileSystems.getDefault().getPathMatcher("glob:**/" + match + ".json");
+    }
+
+    public boolean matched()
+    {
+        return count > 0;
     }
 
     @Override
@@ -33,11 +38,6 @@ public class DefinitionFileVisitor extends SimpleFileVisitor<Path>
         }
 
         return FileVisitResult.CONTINUE;
-    }
-
-    public boolean matched()
-    {
-        return count > 0;
     }
 
     public static interface Handler

@@ -1,12 +1,18 @@
 package io.dangernoodle.grt.main;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.google.inject.Injector;
 
 import io.dangernoodle.grt.Arguments.ArgumentsBuilder;
 import io.dangernoodle.grt.internal.Bootstrapper;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Help;
 import picocli.CommandLine.IFactory;
+import picocli.CommandLine.IHelpFactory;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
 
@@ -25,7 +31,8 @@ public class GithubRepositoryTools
         ArgumentsBuilder arguments = injector.getInstance(ArgumentsBuilder.class);
 
         CommandLine commandLine = new CommandLine(new GithubRepositoryTools(), createCommandFactory(injector));
-        commandLine.setResourceBundle(plugins.getResourceBundle());
+        commandLine.setHelpFactory(createHelpFactory())
+                   .setResourceBundle(plugins.getResourceBundle());
 
         plugins.getCommands()
                .forEach(commandLine::addSubcommand);
@@ -56,6 +63,25 @@ public class GithubRepositoryTools
                 }
             }
         };
+    }
+
+    private static IHelpFactory createHelpFactory()
+    {
+        // sort 'subcommands' by name, not the order they get added
+        return (commandSpec, colorScheme) -> new Help(commandSpec, colorScheme)
+        {
+            @Override
+            public Map<String, Help> subcommands()
+            {
+
+                return super.subcommands().entrySet()
+                                          .stream()
+                                          .sorted(Map.Entry.comparingByKey())
+                                          .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                                                  (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+            }
+        };
+
     }
 
     private static int executionStrategy(ParseResult parseResult, ArgumentsBuilder arguments)

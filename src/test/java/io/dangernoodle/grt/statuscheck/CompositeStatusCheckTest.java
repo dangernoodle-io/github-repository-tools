@@ -38,7 +38,7 @@ public class CompositeStatusCheckTest
 
     private Repository mockRepository;
 
-    private CompositeStatusCheckProvider provider;
+    private CompositeStatusCheck provider;
 
     @BeforeEach
     public void beforeEach()
@@ -46,7 +46,7 @@ public class CompositeStatusCheckTest
         MockitoAnnotations.initMocks(this);
 
         expected = new ArrayList<>();
-        provider = new CompositeStatusCheckProvider(mockProvider1, mockProvider2, mockProvider3);
+        provider = new CompositeStatusCheck(mockProvider1, mockProvider2, mockProvider3);
     }
 
     @Test

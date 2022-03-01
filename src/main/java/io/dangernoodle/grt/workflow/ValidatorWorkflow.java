@@ -20,6 +20,10 @@ import io.dangernoodle.grt.util.JsonValidationException;
 
 public class ValidatorWorkflow implements Workflow<Path>
 {
+    private Path configuration;
+
+    private boolean detailedReport;
+
     private final MessageDigest digest;
 
     private final Map<Path, Exception> errors;
@@ -29,10 +33,6 @@ public class ValidatorWorkflow implements Workflow<Path>
     private final Map<String, List<Path>> md5sums;
 
     private final Map<String, List<Path>> names;
-
-    private Path configuration;
-
-    private boolean detailedReport;
 
     public ValidatorWorkflow(Path configuration, JsonTransformer jsonTransformer, boolean detailedReport)
     {

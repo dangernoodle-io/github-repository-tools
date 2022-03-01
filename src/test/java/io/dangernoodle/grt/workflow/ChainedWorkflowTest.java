@@ -15,7 +15,6 @@ import org.mockito.MockitoAnnotations;
 
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow;
-import io.dangernoodle.grt.workflow.ChainedWorkflow;
 
 
 public class ChainedWorkflowTest
@@ -43,7 +42,7 @@ public class ChainedWorkflowTest
     }
 
     @Test
-    public void testPrePostExecution()
+    public void testPrePostExecution() throws Exception
     {
         givenAChainedWorkflow();
         whenExecutePrePost();
@@ -93,7 +92,7 @@ public class ChainedWorkflowTest
        ignoreErrors = true;
     }
 
-    private void thenPrePostExecuted()
+    private void thenPrePostExecuted() throws Exception
     {
         verify(mockWorkflow, times(3)).preExecution();
         verify(mockWorkflow, times(3)).postExecution();
@@ -109,7 +108,7 @@ public class ChainedWorkflowTest
         verify(mockWorkflow, times(2)).execute(mockRepository, mockContext);
     }
 
-    private void whenExecutePrePost()
+    private void whenExecutePrePost() throws Exception
     {
         workflow.preExecution();
         workflow.postExecution();

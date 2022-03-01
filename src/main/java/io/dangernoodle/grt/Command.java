@@ -9,6 +9,13 @@ import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.dangernoodle.grt.util.CommandArguments;
+import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Mixin;
+import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.Spec;
+
 
 /**
  * @since 0.9.0
@@ -16,6 +23,9 @@ import org.slf4j.LoggerFactory;
 public abstract class Command implements Callable<Void>
 {
     private final Injector injector;
+
+    @Spec
+    private CommandSpec spec;
 
     public Command(Injector injector)
     {
@@ -30,6 +40,8 @@ public abstract class Command implements Callable<Void>
     @Override
     public Void call() throws Exception
     {
+        customValidation();
+
         injector.getInstance(getExecutor())
                 .execute(this);
 
@@ -41,20 +53,58 @@ public abstract class Command implements Callable<Void>
         return false;
     }
 
+    protected ParameterException createParameterException(String message)
+    {
+        return CommandArguments.createParameterException(spec, message);
+    }
+
+    protected void customValidation() throws ParameterException
+    {
+        // no-op
+    }
+
     protected abstract Class<? extends Command.Executor> getExecutor();
+
+    public interface Definition
+    {
+        String getDefinition();
+    }
 
     /**
      * @since 0.9.0
      */
-    public static abstract class Definition extends Command
+    public static abstract class DefinitionOnly extends Command implements Definition
     {
+        @Mixin
+        private CommandArguments.Definition def;
 
-        public Definition(Injector injector)
+        public DefinitionOnly(Injector injector)
         {
             super(injector);
         }
 
-        public abstract String getDefinition();
+        @Override
+        public String getDefinition()
+        {
+            return def.getDefintion();
+        }
+    }
+
+    public static abstract class DefinitionOrAll extends Command implements Definition
+    {
+        @ArgGroup(exclusive = true, multiplicity = "1")
+        private CommandArguments.DefininitionOrAll defOrAll;
+
+        public DefinitionOrAll(Injector injector)
+        {
+            super(injector);
+        }
+
+        @Override
+        public String getDefinition()
+        {
+            return defOrAll.getDefintion();
+        }
     }
 
     /**

@@ -15,9 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHBranch;
 import org.mockito.Mock;
 
-import io.dangernoodle.grt.workflow.step.AbstractGithubStep;
-import io.dangernoodle.grt.workflow.step.CreateRepositoryBranches;
-
 
 public class CreateRepositoryBranchesTest extends AbstractGithubWorkflowStepTest
 {

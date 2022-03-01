@@ -25,14 +25,14 @@ public interface Credentials
 
     String getAuthToken(String key);
 
-    /**
-     * @since 0.8.0
-     */
-    Map<String, String> getNameValue(String key);
-
     default String getGithubToken() throws IllegalStateException
     {
         return Optional.ofNullable(getAuthToken(GITHUB))
                        .orElseThrow(() -> new IllegalStateException("github oauth token not found"));
     }
+
+    /**
+     * @since 0.8.0
+     */
+    Map<String, String> getNameValue(String key);
 }

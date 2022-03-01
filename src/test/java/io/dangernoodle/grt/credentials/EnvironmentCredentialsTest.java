@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.dangernoodle.grt.Constants;
-import io.dangernoodle.grt.credentials.EnvironmentCredentials;
 
 
 public class EnvironmentCredentialsTest

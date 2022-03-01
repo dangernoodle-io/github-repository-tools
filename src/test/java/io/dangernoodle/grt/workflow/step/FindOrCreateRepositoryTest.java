@@ -9,9 +9,6 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
-import io.dangernoodle.grt.workflow.step.AbstractGithubStep;
-import io.dangernoodle.grt.workflow.step.FindOrCreateRepository;
-
 
 public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
 {

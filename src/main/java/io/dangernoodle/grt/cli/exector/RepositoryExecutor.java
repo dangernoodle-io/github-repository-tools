@@ -5,7 +5,6 @@ import java.util.Map;
 
 import io.dangernoodle.grt.Command;
 import io.dangernoodle.grt.Workflow;
-import io.dangernoodle.grt.util.DefinitionExecutor;
 
 
 public class RepositoryExecutor extends DefinitionExecutor
@@ -16,7 +15,7 @@ public class RepositoryExecutor extends DefinitionExecutor
     }
 
     @Override
-    protected Map<String, Object> getArguments(Command command)
+    protected Map<Object, Object> getArguments(Command command)
     {
         // TODO Auto-generated method stub
         return super.getArguments(command);

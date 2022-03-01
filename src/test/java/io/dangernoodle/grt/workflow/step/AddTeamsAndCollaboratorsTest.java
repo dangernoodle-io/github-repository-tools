@@ -16,8 +16,6 @@ import org.kohsuke.github.GHUser;
 import org.mockito.Mock;
 
 import io.dangernoodle.grt.Repository.Settings.Permission;
-import io.dangernoodle.grt.workflow.step.AbstractGithubStep;
-import io.dangernoodle.grt.workflow.step.AddTeamsAndCollaborators;
 
 
 public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest

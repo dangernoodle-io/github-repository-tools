@@ -13,9 +13,6 @@ import org.kohsuke.github.GHRef;
 import org.kohsuke.github.GHRepository;
 import org.mockito.Mock;
 
-import io.dangernoodle.grt.workflow.step.AbstractGithubStep;
-import io.dangernoodle.grt.workflow.step.CreateOrUpdateReference;
-
 
 public class CreateOrUpdateReferenceTest extends AbstractGithubWorkflowStepTest
 {
@@ -34,7 +31,7 @@ public class CreateOrUpdateReferenceTest extends AbstractGithubWorkflowStepTest
         super.beforeEach();
 
         when(mockCommit.getSHA1()).thenReturn(COMMIT);
-        when(mockContext.getArg("refName")).thenReturn(REF);
+        when(mockContext.get("refName")).thenReturn(REF);
         when(mockContext.get(GHCommit.class)).thenReturn(mockCommit);
     }
 

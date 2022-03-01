@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <configuration debug="false">
 
-  <logger name="org.jboss" level="info" />
-  <logger name="org.jboss.weld.Bootstrap" level="warn" />
-  <logger name="org.jboss.weld.Version" level="warn" />
-
   <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>%yellow([%thread]) %highlight(%-5level) %msg %throwable{25}%n</pattern>
     </encoder>
   </appender>
 
-  <root level="${default.logback.level}:-debug}">
+  <root level="${default.logback.level}:-warn">
     <appender-ref ref="console" />
   </root>
 

@@ -1,5 +1,7 @@
 package io.dangernoodle.grt.workflow.step;
 
+import static io.dangernoodle.grt.Constants.CLEAR_WEBHOOKS;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -14,8 +16,6 @@ import io.dangernoodle.grt.util.GithubClient;
 
 public class ClearWebhooks extends AbstractGithubStep
 {
-    static final String CLEAR_WEBHOOKS = "clearWebhooks";
-
     public ClearWebhooks(GithubClient client)
     {
         super(client);
@@ -25,7 +25,7 @@ public class ClearWebhooks extends AbstractGithubStep
     public Status execute(Repository repository, Context context) throws Exception
     {
         GHRepository ghRepo = context.getGHRepository();
-        boolean clearWebhooks = context.getArg(CLEAR_WEBHOOKS, false);
+        boolean clearWebhooks = context.get(CLEAR_WEBHOOKS, false);
 
         if (clearWebhooks)
         {

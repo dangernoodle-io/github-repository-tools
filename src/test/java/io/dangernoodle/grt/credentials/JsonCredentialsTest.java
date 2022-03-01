@@ -15,7 +15,6 @@ import org.mockito.MockitoAnnotations;
 
 import io.dangernoodle.RepositoryFiles;
 import io.dangernoodle.grt.Credentials;
-import io.dangernoodle.grt.credentials.JsonCredentials;
 import io.dangernoodle.grt.util.JsonTransformer;
 
 

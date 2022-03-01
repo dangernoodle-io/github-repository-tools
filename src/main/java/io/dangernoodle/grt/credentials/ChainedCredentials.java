@@ -1,7 +1,7 @@
 package io.dangernoodle.grt.credentials;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -13,31 +13,36 @@ import io.dangernoodle.grt.Credentials;
  */
 public class ChainedCredentials implements Credentials
 {
-    private final Collection<Credentials> providers;
+    private final Collection<Credentials> credentials;
 
-    public ChainedCredentials(Credentials... providers)
+    public ChainedCredentials(Collection<Credentials> credentials)
     {
-        this.providers = Arrays.asList(providers);
+        this.credentials = credentials;
+    }
+
+    public ChainedCredentials(Credentials... credentials)
+    {
+        this(List.of(credentials));
     }
 
     @Override
     public String getAuthToken(String key)
     {
-        return findCredentials(provider -> provider.getAuthToken(key));
+        return findCredentials(credentials -> credentials.getAuthToken(key));
     }
 
     @Override
     public Map<String, String> getNameValue(String key)
     {
-        return findCredentials(provider -> provider.getNameValue(key));
+        return findCredentials(credentials -> credentials.getNameValue(key));
     }
 
     private <T> T findCredentials(Function<Credentials, T> function)
     {
-        return providers.stream()
-                        .map(provider -> function.apply(provider))
-                        .filter(value -> value != null)
-                        .findFirst()
-                        .orElse(null);
+        return credentials.stream()
+                          .map(provider -> function.apply(provider))
+                          .filter(value -> value != null)
+                          .findFirst()
+                          .orElse(null);
     }
 }

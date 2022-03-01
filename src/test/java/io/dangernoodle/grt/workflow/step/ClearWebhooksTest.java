@@ -1,5 +1,6 @@
 package io.dangernoodle.grt.workflow.step;
 
+import static io.dangernoodle.grt.Constants.CLEAR_WEBHOOKS;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -13,9 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHHook;
 import org.mockito.Mock;
-
-import io.dangernoodle.grt.workflow.step.AbstractGithubStep;
-import io.dangernoodle.grt.workflow.step.ClearWebhooks;
 
 
 public class ClearWebhooksTest extends AbstractGithubWorkflowStepTest
@@ -65,12 +63,12 @@ public class ClearWebhooksTest extends AbstractGithubWorkflowStepTest
 
     private void givenClearAllDisabled()
     {
-        when(mockContext.getArg(ClearWebhooks.CLEAR_WEBHOOKS, false)).thenReturn(false);
+        when(mockContext.get(CLEAR_WEBHOOKS, false)).thenReturn(false);
     }
 
     private void givenClearAllHooks()
     {
-        when(mockContext.getArg(ClearWebhooks.CLEAR_WEBHOOKS, false)).thenReturn(true);
+        when(mockContext.get(CLEAR_WEBHOOKS, false)).thenReturn(true);
     }
 
     private void givenRepoHasHooks() throws IOException

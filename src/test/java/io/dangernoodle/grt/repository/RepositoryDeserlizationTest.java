@@ -55,7 +55,6 @@ import io.dangernoodle.RepositoryFiles;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Color;
 import io.dangernoodle.grt.Repository.Settings.Permission;
-import io.dangernoodle.grt.util.JsonTransformer;
 import io.dangernoodle.grt.util.JsonTransformer.JsonObject;
 
 

@@ -13,9 +13,9 @@ public class LifecycleWorkflow<T> implements Workflow<T>
 {
     private final String command;
 
-    private final Collection<Workflow.Lifecycle> lifecycles;
-
     private final Workflow<T> delegate;
+
+    private final Collection<Workflow.Lifecycle> lifecycles;
 
     public LifecycleWorkflow(Workflow<T> delegate, Set<Workflow.Lifecycle> lifecycles)
     {
@@ -27,6 +27,20 @@ public class LifecycleWorkflow<T> implements Workflow<T>
         this.delegate = delegate;
         this.lifecycles = lifecycles;
         this.command = command;
+    }
+
+    @Override
+    public void execute(T object, Context context) throws Exception
+    {
+        try
+        {
+            delegate.preExecution();
+            delegate.execute(object, context);
+        }
+        finally
+        {
+            delegate.postExecution();
+        }
     }
 
     @Override
@@ -46,19 +60,5 @@ public class LifecycleWorkflow<T> implements Workflow<T>
         lifecycles.stream()
                   .filter(l -> l.getCommands().contains(command))
                   .forEach(lifecycle);
-    }
-
-    @Override
-    public void execute(T object, Context context) throws Exception
-    {
-        try
-        {
-            delegate.preExecution();
-            delegate.execute(object, context);
-        }
-        finally
-        {
-            delegate.postExecution();
-        }
     }
 }

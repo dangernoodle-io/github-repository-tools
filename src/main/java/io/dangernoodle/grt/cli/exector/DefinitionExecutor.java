@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.util;
+package io.dangernoodle.grt.cli.exector;
 
 import static java.nio.file.Files.walkFileTree;
 
@@ -9,8 +9,8 @@ import java.util.Map;
 
 import io.dangernoodle.grt.Command;
 import io.dangernoodle.grt.Workflow;
-import io.dangernoodle.grt.cli.exector.ValidateExecutor;
-import io.dangernoodle.grt.workflow.PathToRepositoryWorkflow;
+import io.dangernoodle.grt.util.DefinitionFileVisitor;
+import io.dangernoodle.grt.util.PathToXConverter;
 
 
 public abstract class DefinitionExecutor extends Command.Executor
@@ -23,11 +23,6 @@ public abstract class DefinitionExecutor extends Command.Executor
     {
         this.root = definitionRoot;
         this.workflow = workflow;
-    }
-
-    protected String getDefinition(Command command)
-    {
-        return ((Command.Definition) command).getDefinition();
     }
 
     @Override
@@ -57,9 +52,14 @@ public abstract class DefinitionExecutor extends Command.Executor
         }
     }
 
-    protected Map<String, Object> getArguments(Command command)
+    protected Map<Object, Object> getArguments(Command command)
     {
         return Collections.emptyMap();
+    }
+
+    protected String getDefinition(Command command)
+    {
+        return ((Command.Definition) command).getDefinition();
     }
 
     private Workflow.Context createContext(Command command)
@@ -69,7 +69,7 @@ public abstract class DefinitionExecutor extends Command.Executor
 
     private void pathHandler(Path path, Command command)
     {
-        logger.info("** definition file [{}]", path);
+        logger.debug("definition file [{}]", path);
 
         try
         {
@@ -86,7 +86,7 @@ public abstract class DefinitionExecutor extends Command.Executor
     {
         private final ValidateExecutor validator;
 
-        public Repository(Path definitionDir, ValidateExecutor validator, PathToRepositoryWorkflow workflow)
+        public Repository(Path definitionDir, ValidateExecutor validator, PathToXConverter workflow)
         {
             super(definitionDir, workflow);
             this.validator = validator;

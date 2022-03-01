@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import io.dangernoodle.grt.Credentials;
-import io.dangernoodle.grt.credentials.ChainedCredentials;
 
 
 public class ChainedCredentialsTest

@@ -3,7 +3,6 @@ package io.dangernoodle.grt.cli.exector;
 import java.nio.file.Path;
 
 import io.dangernoodle.grt.Command;
-import io.dangernoodle.grt.util.DefinitionExecutor;
 import io.dangernoodle.grt.workflow.ValidatorWorkflow;
 
 

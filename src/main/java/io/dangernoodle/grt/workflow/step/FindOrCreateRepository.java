@@ -14,15 +14,15 @@ public class FindOrCreateRepository extends AbstractGithubStep
 {
     private final boolean create;
 
+    public FindOrCreateRepository(GithubClient client)
+    {
+        this(client, true);
+    }
+
     public FindOrCreateRepository(GithubClient client, boolean create)
     {
         super(client);
         this.create = create;
-    }
-
-    public FindOrCreateRepository(GithubClient client)
-    {
-        this(client, true);
     }
 
     @Override

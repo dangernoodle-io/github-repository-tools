@@ -8,5 +8,5 @@ import io.dangernoodle.grt.util.JsonTransformer.JsonObject;
  */
 public interface PluginsManager
 {
-    JsonObject getDefaultConfiguration(String name);
+    JsonObject getDefaultPluginConfiguration(String name);
 }

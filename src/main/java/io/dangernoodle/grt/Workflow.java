@@ -28,48 +28,55 @@ public interface Workflow<T>
         // no-op
     }
 
-    default void preExecution()
+    default void preExecution() throws Exception
     {
         // no-op
     }
 
     public static class Context
     {
-        private final Map<String, Object> args;
+        private final Map<Object, Object> context;
 
-        private final Map<Class<?>, Object> context;
-
-        public Context(Map<String, Object> args)
+        public Context(Map<Object, Object> initial)
         {
-            this.args = new HashMap<>(args);
-            this.context = new HashMap<>();
+            this.context = new HashMap<>(initial);
         }
 
         public void add(Object object)
         {
-            context.put(object.getClass(), object);
+            add(object.getClass(), object);
+        }
+
+        public void add(Object name, Object object)
+        {
+            context.put(name, object);
+        }
+
+        public boolean contains(Object object)
+        {
+            return context.containsKey(object);
+        }
+
+        public <T> T get(Class<T> clazz) throws IllegalStateException
+        {
+            return get((Object) clazz);
+        }
+        
+        public <T> T get(Class<T> clazz, T dflt)
+        {
+            return get((Object) clazz, dflt);
         }
 
         @SuppressWarnings("unchecked")
-        public <T> T get(Class<T> clazz)
+        public <T> T get(Object name) throws IllegalStateException
         {
-            return (T) context.get(clazz);
+            return (T) getOptional(name).orElseThrow(() -> illegalState(name));
         }
-
-        /**
-         * @since 0.8.0
-         */
-        @SuppressWarnings("unchecked")
-        public <T> T getArg(String name)
+        
+       @SuppressWarnings("unchecked")
+        public <T> T get(Object name, T dflt)
         {
-            return (T) Optional.ofNullable(args.get(name))
-                               .orElseThrow(() -> new IllegalStateException(("argument [" + name + "] not found in context")));
-        }
-
-        @SuppressWarnings("unchecked")
-        public <T> T getArg(String name, T deflt)
-        {
-            return args.containsKey(name) ? (T) args.get(name) : deflt;
+            return (T) getOptional(name).orElse(dflt);
         }
 
         /**
@@ -80,12 +87,20 @@ public interface Workflow<T>
             return get(GHRepository.class);
         }
 
-        /**
-         * @since 0.6.0
-         */
-        public boolean isArchived()
+        public <T> Optional<T> getOptional(Class<T> clazz)
         {
-            return getGHRepository().isArchived();
+            return getOptional((Object) clazz);
+        }
+
+        @SuppressWarnings("unchecked")
+        public <T> Optional<T> getOptional(Object name)
+        {
+            return (Optional<T>) Optional.ofNullable(context.get(name));
+        }
+
+        private IllegalStateException illegalState(Object name)
+        {
+            return new IllegalStateException("argument [" + name.toString() + "] not found in context");
         }
     }
 
@@ -94,6 +109,11 @@ public interface Workflow<T>
      */
     public interface Lifecycle
     {
+        default Collection<String> getCommands()
+        {
+            return List.of(WILDCARD);
+        }
+
         default void postExecution()
         {
             // no-op
@@ -102,11 +122,6 @@ public interface Workflow<T>
         default void preExecution()
         {
             // no-op
-        }
-
-        default Collection<String> getCommands()
-        {
-            return List.of(WILDCARD);
         }
     }
 

@@ -2,6 +2,7 @@ package io.dangernoodle.grt;
 
 import java.nio.file.Path;
 
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParseResult;
 
 
@@ -10,9 +11,11 @@ import picocli.CommandLine.ParseResult;
  */
 public interface Arguments
 {
-    public static final String IGNORE_ERRORS = "--ignoreErrors";
+    static final String IGNORE_ERRORS = "--ignoreErrors";
 
-    public static final String ROOT_DIR = "--rootDir";
+    static final String ROOT_DIR = "--rootDir";
+
+    static final String SILENT = "--slient";
 
     String getCommand();
 
@@ -35,52 +38,49 @@ public interface Arguments
 
     boolean ignoreErrors();
 
+    boolean isSilent();
+
     public static class ArgumentsBuilder implements Arguments
     {
-        private String command;
+        private ParseResult command;
 
-        private String rootDir;
-
-        private boolean ignoreErrors;
+        private ParseResult subcommand;
 
         @Override
         public String getCommand()
         {
-            return command;
+            return subcommand.commandSpec()
+                             .name();
         }
 
         @Override
         public Path getRoot()
         {
-            return Path.of(rootDir);
+            return Path.of((String) command.matchedOption(ROOT_DIR)
+                                           .getValue());
         }
 
         @Override
         public boolean ignoreErrors()
         {
-            return ignoreErrors;
+            return subcommand.matchedOptionValue(IGNORE_ERRORS, false);
         }
 
         public void initialize(ParseResult parseResult)
         {
-            this.rootDir = parseResult.matchedOption(Arguments.ROOT_DIR)
-                                      .getValue();
-
-            if (parseResult.hasSubcommand())
-            {
-                initFromCommand(parseResult.subcommand());
-            }
+            this.command = parseResult;
+            this.subcommand = getSubcommand(parseResult);
         }
 
-        private void initFromCommand(ParseResult parseResult)
+        @Override
+        public boolean isSilent()
         {
-            if (!parseResult.errors().isEmpty())
-            {
-                return;
-            }
+            return subcommand.matchedOptionValue(SILENT, false);
+        }
 
-            this.command = parseResult.commandSpec().name();
-            this.ignoreErrors = parseResult.matchedOptionValue(Arguments.IGNORE_ERRORS, false);
+        private ParseResult getSubcommand(ParseResult parseResult)
+        {
+            return parseResult.hasSubcommand() ? parseResult.subcommand() : ParseResult.builder(CommandSpec.create()).build();
         }
     }
 }

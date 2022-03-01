@@ -120,6 +120,16 @@ public class Repository
     /**
      * @since 0.9.0
      */
+    public Map<String, JsonArray> getWorkflows()
+    {
+        return Optional.ofNullable(workflows)
+                       .map(Collections::unmodifiableMap)
+                       .orElse(Collections.emptyMap());
+    }
+
+    /**
+     * @since 0.9.0
+     */
     public Collection<String> getWorkflows(String command)
     {
         if (REPOSITORY.equals(command) && json.has("workflow"))
@@ -134,11 +144,10 @@ public class Repository
     /**
      * @since 0.9.0
      */
-    public Map<String, JsonArray> getWorkflows()
+    public boolean isArchived()
     {
-        return Optional.ofNullable(workflows)
-                       .map(Collections::unmodifiableMap)
-                       .orElse(Collections.emptyMap());
+        return Optional.ofNullable(settings.isArchived())
+                       .orElse(false);
     }
 
     /**

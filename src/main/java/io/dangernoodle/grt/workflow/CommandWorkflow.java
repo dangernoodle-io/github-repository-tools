@@ -42,11 +42,6 @@ public class CommandWorkflow implements Workflow<Repository>
                                   .collect(Collectors.toMap(workflow -> workflow.getName(), Function.identity()));
     }
 
-    public String getCommand()
-    {
-        return command;
-    }
-
     @Override
     public void execute(Repository repository, Context context) throws Exception
     {
@@ -62,6 +57,17 @@ public class CommandWorkflow implements Workflow<Repository>
         {
             delegate.postExecution();
         }
+    }
+
+    public String getCommand()
+    {
+        return command;
+    }
+
+    private Workflow<Repository> getWorkflow(String name)
+    {
+        return Optional.ofNullable(workflows.get(name))
+                       .orElseThrow(() -> new IllegalStateException("failed to find Workflow for [" + name + "]"));
     }
 
     private Collection<Workflow<Repository>> getWorkflows(Repository repository)
@@ -80,11 +86,5 @@ public class CommandWorkflow implements Workflow<Repository>
         return names.stream()
                     .map(this::getWorkflow)
                     .collect(Collectors.toList());
-    }
-
-    private Workflow<Repository> getWorkflow(String name)
-    {
-        return Optional.ofNullable(workflows.get(name))
-                       .orElseThrow(() -> new IllegalStateException("failed to find Workflow for [" + name + "]"));
     }
 }

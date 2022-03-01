@@ -29,7 +29,7 @@ public class CreateOrUpdateReference extends AbstractGithubStep
     {
         GHRepository ghRepo = context.getGHRepository();
 
-        String ref = context.getArg("refName");
+        String ref = context.get("refName");
         String sha1 = context.get(GHCommit.class).getSHA1();
 
         Stream<GHRef> stream = getRefStream(ghRepo);

@@ -9,8 +9,6 @@ import org.kohsuke.github.GHCommit;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import io.dangernoodle.grt.util.GithubRepositoryToolsUtils;
-
 
 public class GithubRepositoryToolsUtilsTest
 {
