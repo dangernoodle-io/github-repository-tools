@@ -28,11 +28,11 @@ public class ChainedWorkflowTest
     private Repository mockRepository;
 
     @Mock
-    private Workflow mockWorkflow;
+    private Workflow<Repository> mockWorkflow;
 
-    private ChainedWorkflow workflow;
+    private ChainedWorkflow<Repository> workflow;
 
-    private List<Workflow> workflows;
+    private List<Workflow<Repository>> workflows;
 
     @BeforeEach
     public void beforeEach()
@@ -78,13 +78,12 @@ public class ChainedWorkflowTest
 
     private void givenAChainedWorkflow()
     {
-        workflow = new ChainedWorkflow(workflows, ignoreErrors);
+        workflow = new ChainedWorkflow<>(workflows, ignoreErrors);
     }
 
     private void givenAWorkflowException() throws Exception
     {
         doNothing().doThrow(Exception.class).when(mockWorkflow).execute(mockRepository, mockContext);
-       // doThrow(Exception.class).when(mockWorkflow).execute(mockRepository, mockContext);        
     }
 
     private void givenIgnoreErrors()

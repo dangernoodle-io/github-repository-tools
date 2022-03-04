@@ -24,7 +24,7 @@ public class StepWorkflowTest
     protected Repository mockRepository;
 
     @Mock
-    private Workflow.Step mockStep;
+    private Workflow.Step<Repository> mockStep;
 
     @BeforeEach
     public void beforeEach()
@@ -70,6 +70,6 @@ public class StepWorkflowTest
 
     private void whenExecuteWorkflow() throws Exception
     {
-        new StepWorkflow("workflow", List.of(mockStep, mockStep, mockStep)).execute(mockRepository, mockContext);
+        new StepWorkflow<>("workflow", List.of(mockStep, mockStep, mockStep)).execute(mockRepository, mockContext);
     }
 }

@@ -1,5 +1,6 @@
 package io.dangernoodle.grt;
 
+import static io.dangernoodle.grt.Constants.ENABLE_AUTO_ADD_WORKFLOW;
 import static io.dangernoodle.grt.Constants.WILDCARD;
 
 import java.util.Collection;
@@ -52,16 +53,16 @@ public interface Workflow<T>
             context.put(name, object);
         }
 
-        public boolean contains(Object object)
+        public boolean contains(Object name)
         {
-            return context.containsKey(object);
+            return context.containsKey(name) && context.get(name) != null;
         }
 
         public <T> T get(Class<T> clazz) throws IllegalStateException
         {
             return get((Object) clazz);
         }
-        
+
         public <T> T get(Class<T> clazz, T dflt)
         {
             return get((Object) clazz, dflt);
@@ -72,8 +73,8 @@ public interface Workflow<T>
         {
             return (T) getOptional(name).orElseThrow(() -> illegalState(name));
         }
-        
-       @SuppressWarnings("unchecked")
+
+        @SuppressWarnings("unchecked")
         public <T> T get(Object name, T dflt)
         {
             return (T) getOptional(name).orElse(dflt);
@@ -96,6 +97,14 @@ public interface Workflow<T>
         public <T> Optional<T> getOptional(Object name)
         {
             return (Optional<T>) Optional.ofNullable(context.get(name));
+        }
+
+        /**
+         * @since 0.9.0
+         */
+        public boolean isAutoAddWorkflowEnabled()
+        {
+            return get(ENABLE_AUTO_ADD_WORKFLOW, true);
         }
 
         private IllegalStateException illegalState(Object name)

@@ -1,8 +1,8 @@
 package io.dangernoodle.grt.statuscheck;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
 
@@ -20,16 +20,16 @@ public class RepositoryStatusCheckTest
 
     private RepositoryBuilder builder;
 
-    private RepositoryStatusCheck factory;
-
     private Repository repository;
 
     private Collection<String> result;
 
+    private RepositoryStatusCheck statusCheck;
+
     @BeforeEach
     public void beforeEach() throws Exception
     {
-        factory = new RepositoryStatusCheck();
+        statusCheck = new RepositoryStatusCheck();
         builder = new RepositoryBuilder(new JsonTransformer());
 
         builder.setName("grt-test-repository")
@@ -52,6 +52,13 @@ public class RepositoryStatusCheckTest
         thenStatusCheckIsReturned();
     }
 
+    @Test
+    public void testGetCommands()
+    {
+        assertEquals(1, statusCheck.getCommands().size());
+        assertTrue(statusCheck.getCommands().contains("repository"));
+    }
+
     private void givenABranchWithNoProtection()
     {
         branchName = "other";
@@ -65,19 +72,19 @@ public class RepositoryStatusCheckTest
 
     private void thenStatusCheckIsEmptyList()
     {
-        assertThat(result, notNullValue());
-        assertThat(result.isEmpty(), equalTo(true));
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 
     private void thenStatusCheckIsReturned()
     {
-        assertThat(result.size(), equalTo(1));
-        assertThat(result.contains("grt-test-repository"), equalTo(true));
+        assertEquals(1, result.size());
+        assertTrue(result.contains("grt-test-repository"));
     }
 
     private void whenGetStatusCheck()
     {
         repository = builder.build();
-        result = factory.getRequiredChecks(branchName, repository);
+        result = statusCheck.getRequiredChecks(branchName, repository);
     }
 }

@@ -35,7 +35,7 @@ public class FindOrCreateRepository extends AbstractGithubStep
         Delegate delegate = createDelegate(organization);
 
         GHRepository ghRepo = delegate.get(name, organization);
-
+        
         if (ghRepo == null)
         {
             if (!create)

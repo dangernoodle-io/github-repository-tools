@@ -1,20 +1,19 @@
 package io.dangernoodle.grt.util;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import org.kohsuke.github.GHCreateRepositoryBuilder;
-import org.kohsuke.github.GHEventPayload;
 import org.kohsuke.github.GHMyself;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHTeam;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
 
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings;
@@ -99,11 +98,6 @@ public class GithubClient
         });
     }
 
-    public GHEventPayload.Push parsePushEvent(Reader reader) throws IOException
-    {
-        return github.parseEventPayload(reader, GHEventPayload.Push.class);
-    }
-
     private <K, V> V computeIfAbsent(Map<K, V> map, K name, IOExceptionFunction<K, V> function) throws IOException
     {
         try
@@ -149,11 +143,12 @@ public class GithubClient
         });
     }
 
-    public static GithubClient createClient(GitHub github) throws IOException
+    public static GithubClient createClient(GitHubBuilder builder) throws IOException
     {
+        GitHub github = builder.build();
         github.checkApiUrlValidity();
 
-        return new GithubClient(github);
+        return new GithubClient(builder.build());
     }
 
     @FunctionalInterface

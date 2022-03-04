@@ -2,7 +2,6 @@ package io.dangernoodle.grt.workflow.step;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 
 import org.kohsuke.github.GHBranch;
@@ -28,7 +27,7 @@ public class EnableBranchProtections extends AbstractGithubStep
 
     public EnableBranchProtections(GithubClient client)
     {
-        this(client, (name, repository) -> Collections.emptyList());
+        this(client, StatusCheck.NULL);
     }
 
     public EnableBranchProtections(GithubClient client, StatusCheck statusCheck)
@@ -95,10 +94,10 @@ public class EnableBranchProtections extends AbstractGithubStep
         builder.requireBranchIsUpToDate(checks.getRequireUpToDate());
 
         statusCheck.getRequiredChecks(branch, repository)
-               .forEach(context -> {
-                   logger.info("adding required status check [{}] for branch [{}]", context, branch);
-                   builder.addRequiredChecks(context);
-               });
+                   .forEach(context -> {
+                       logger.info("adding required status check [{}] for branch [{}]", context, branch);
+                       builder.addRequiredChecks(context);
+                   });
     }
 
     private void enableCommitSigning(GHBranchProtection ghProtection, boolean signCommits) throws IOException

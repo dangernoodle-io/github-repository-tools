@@ -20,7 +20,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.multibindings.ProvidesIntoSet;
 
 import org.kohsuke.github.GitHubBuilder;
-import org.kohsuke.github.extras.okhttp3.OkHttpConnector;
+import org.kohsuke.github.extras.okhttp3.OkHttpGitHubConnector;
 
 import io.dangernoodle.grt.Arguments;
 import io.dangernoodle.grt.Command;
@@ -32,9 +32,7 @@ import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.cli.RepositoryCommand;
 import io.dangernoodle.grt.cli.UpdateRefCommand;
 import io.dangernoodle.grt.cli.ValidateCommand;
-import io.dangernoodle.grt.cli.exector.RepositoryExecutor;
-import io.dangernoodle.grt.cli.exector.UpdateRefExecutor;
-import io.dangernoodle.grt.cli.exector.ValidateExecutor;
+import io.dangernoodle.grt.cli.exector.DefinitionExecutor;
 import io.dangernoodle.grt.credentials.ChainedCredentials;
 import io.dangernoodle.grt.credentials.EnvironmentCredentials;
 import io.dangernoodle.grt.credentials.JsonCredentials;
@@ -86,6 +84,21 @@ public class CorePlugin implements Plugin
     private class CoreModule extends AbstractModule
     {
         @Provides
+        public Workflow<Path> commandWorkflow(Arguments arguments, RepositoryFactory factory, Set<Workflow<Repository>> workflows,
+                Set<Workflow.Lifecycle> lifecycles)
+        {
+            String command = arguments.getCommand();
+
+            // only workflow 'provides' methods annotated with '@ProvidesIntoSet' will appear here
+            CommandWorkflow delegate = new CommandWorkflow(command, arguments.ignoreErrors(), workflows);
+
+            PathToXConverter<Repository> converter = new PathToXConverter<>(delegate, path -> factory.load(path));
+            LifecycleWorkflow<Path> workflow = new LifecycleWorkflow<>(converter, lifecycles, command);
+
+            return workflow;
+        }
+
+        @Provides
         public CommandWorkflow commandWorkflow(Arguments arguments, Set<Workflow<Repository>> workflows)
         {
             // only workflow 'provides' methods annotated with '@ProvidesIntoSet' will appear here
@@ -102,13 +115,19 @@ public class CorePlugin implements Plugin
         }
 
         @Provides
+        public DefinitionExecutor definitionExecutor(Arguments arguments, Workflow<Path> workflow)
+        {
+            return new DefinitionExecutor(arguments.getDefinitionsRoot(), workflow);
+        }
+
+        @Provides
         public GithubClient githubClient(Credentials credentials, OkHttpClient okHttp) throws IOException
         {
             GitHubBuilder builder = new GitHubBuilder();
             builder.withOAuthToken(credentials.getGithubToken())
-                   .withConnector(new OkHttpConnector(okHttp));
+                   .withConnector(new OkHttpGitHubConnector(okHttp));                   
 
-            return GithubClient.createClient(builder.build());
+            return GithubClient.createClient(builder);
         }
 
         @Provides
@@ -123,33 +142,6 @@ public class CorePlugin implements Plugin
         public OkHttpClient okHttpClient()
         {
             return new OkHttpClient();
-        }
-
-        @Provides
-        public RepositoryExecutor repositoryExecutor(Arguments arguments, Workflow<Path> workflow)
-        {
-            return new RepositoryExecutor(arguments.getDefinitionsRoot(), workflow);
-        }
-
-        @Provides
-        public UpdateRefExecutor updateRefExecutor(Arguments arguments, Workflow<Path> workflow)
-        {
-            return new UpdateRefExecutor(arguments.getDefinitionsRoot(), workflow);
-        }
-
-        @Provides
-        public Workflow<Path> commandWorkflow(Arguments arguments, RepositoryFactory factory, Set<Workflow<Repository>> workflows,
-                Set<Workflow.Lifecycle> lifecycles)
-        {
-            String command = arguments.getCommand();
-
-            // only workflow 'provides' methods annotated with '@ProvidesIntoSet' will appear here
-            CommandWorkflow delegate = new CommandWorkflow(command, arguments.ignoreErrors(), workflows);
-
-            PathToXConverter<Repository> converter = new PathToXConverter<>(delegate, path -> factory.load(path));
-            LifecycleWorkflow<Path> workflow = new LifecycleWorkflow<>(converter, lifecycles, command);
-
-            return workflow;
         }
 
         @Provides
@@ -189,12 +181,6 @@ public class CorePlugin implements Plugin
         }
 
         @Provides
-        public ValidateExecutor validateExecutor(Arguments arguments, ValidatorWorkflow workflow)
-        {
-            return new ValidateExecutor(arguments.getDefinitionsRoot(), workflow);
-        }
-
-        @Provides
         public ValidatorWorkflow validatorWorkflow(Arguments arguments, JsonTransformer transformer)
         {
             boolean detailed = VALIDATE.equals(arguments.getCommand());
@@ -224,7 +210,7 @@ public class CorePlugin implements Plugin
         {
             return new StepWorkflow<>(name, List.of(steps));
         }
-
+       
         private <T> List<T> toList(T first, Set<T> others)
         {
             List<T> list = new ArrayList<>(others);

@@ -1,5 +1,7 @@
 package io.dangernoodle.grt.workflow.step;
 
+import static io.dangernoodle.grt.Constants.REF;
+
 import java.io.IOException;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -29,7 +31,7 @@ public class CreateOrUpdateReference extends AbstractGithubStep
     {
         GHRepository ghRepo = context.getGHRepository();
 
-        String ref = context.get("refName");
+        String ref = context.get(REF);
         String sha1 = context.get(GHCommit.class).getSHA1();
 
         Stream<GHRef> stream = getRefStream(ghRepo);

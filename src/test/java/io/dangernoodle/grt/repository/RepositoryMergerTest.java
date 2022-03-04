@@ -65,6 +65,10 @@ public class RepositoryMergerTest
 {
     private static final JsonTransformer transformer = new JsonTransformer();
 
+    private static final Permission admin = new Permission("admin");
+
+    private static final Permission write = new Permission("write");
+
     private RepositoryBuilder deBuilder;
 
     private Repository defaults;
@@ -541,12 +545,12 @@ public class RepositoryMergerTest
 
     private void givenCollaboratorDefaults()
     {
-        deBuilder.addCollaborator("default", Permission.write);
+        deBuilder.addCollaborator("default", write);
     }
 
     private void givenCollaboratorOverrides()
     {
-        ovBuilder.addCollaborator("override", Permission.admin);
+        ovBuilder.addCollaborator("override", admin);
     }
 
     private void givenCollaboratorOverridesAreEmpty()
@@ -587,12 +591,12 @@ public class RepositoryMergerTest
 
     private void givenLabelDefaults()
     {
-        deBuilder.addLabel("default", Color.from("#00000"));
+        deBuilder.addLabel("default", new Color("#00000"));
     }
 
     private void givenLabelOverrides()
     {
-        ovBuilder.addLabel("override", Color.from("#00001"));
+        ovBuilder.addLabel("override", new Color("#00001"));
     }
 
     private void givenLabelOverridesEmpty()
@@ -624,12 +628,12 @@ public class RepositoryMergerTest
 
     private void givenTeamDefaults()
     {
-        deBuilder.addTeam("default", Permission.write);
+        deBuilder.addTeam("default", write);
     }
 
     private void givenTeamOverrides()
     {
-        ovBuilder.addTeam("override", Permission.admin);
+        ovBuilder.addTeam("override", admin);
     }
 
     private void givenTeamOverridesAreEmpty()

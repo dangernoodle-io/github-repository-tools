@@ -79,7 +79,7 @@ public class CreateRepositoryLabelsTest extends AbstractGithubWorkflowStepTest
 
     private void givenALabelToCreate()
     {
-        repoBuilder.addLabel("name", Color.from("000000"));
+        repoBuilder.addLabel("name", new Color("000000"));
     }
 
     private void givenAnExistingNonMatchingColors() throws IOException

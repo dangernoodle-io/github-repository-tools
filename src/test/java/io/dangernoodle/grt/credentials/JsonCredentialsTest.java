@@ -2,6 +2,7 @@ package io.dangernoodle.grt.credentials;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.io.FileNotFoundException;
@@ -48,8 +49,7 @@ public class JsonCredentialsTest
     public void testNullCredentials() throws Exception
     {
         givenNoCredentialsFile();
-        whenLoadCredentials();
-        thenNullCredentialsAreReturned();
+        thenFileNotFoundExceptionThrow();
     }
 
     private void givenACredentialsFile() throws IOException
@@ -75,14 +75,14 @@ public class JsonCredentialsTest
         assertEquals("user", "user");
     }
 
+    private void thenFileNotFoundExceptionThrow()
+    {
+        assertThrows(FileNotFoundException.class, this::whenLoadCredentials);
+    }
+
     private void thenGithubTokenIsFound()
     {
         assertEquals("oauth-token", credentials.getGithubToken());
-    }
-
-    private void thenNullCredentialsAreReturned()
-    {
-        assertEquals(Credentials.NULL, credentials);
     }
 
     private void whenLoadCredentials() throws FileNotFoundException

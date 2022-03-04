@@ -2,6 +2,7 @@ package io.dangernoodle.grt.statuscheck;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -28,17 +29,17 @@ public class CompositeStatusCheckTest
     private Collection<String> expected;
 
     @Mock
-    private StatusCheck mockProvider1;
+    private StatusCheck mockCheck1;
 
     @Mock
-    private StatusCheck mockProvider2;
+    private StatusCheck mockCheck2;
 
     @Mock
-    private StatusCheck mockProvider3;
+    private StatusCheck mockCheck3;
 
     private Repository mockRepository;
 
-    private CompositeStatusCheck provider;
+    private CompositeStatusCheck composite;
 
     @BeforeEach
     public void beforeEach()
@@ -46,7 +47,13 @@ public class CompositeStatusCheckTest
         MockitoAnnotations.initMocks(this);
 
         expected = new ArrayList<>();
-        provider = new CompositeStatusCheck(mockProvider1, mockProvider2, mockProvider3);
+        composite = new CompositeStatusCheck(mockCheck1, mockCheck2, mockCheck3);
+    }
+
+    @Test
+    public void testGetCommands()
+    {
+        assertThrows(UnsupportedOperationException.class, composite::getCommands);
     }
 
     @Test
@@ -61,17 +68,17 @@ public class CompositeStatusCheckTest
 
     private void givenProvider1Checks()
     {
-        expected.addAll(mockRequiredChecks(mockProvider1, Arrays.asList("mockProvider1")));
+        expected.addAll(mockRequiredChecks(mockCheck1, Arrays.asList("mockProvider1")));
     }
 
     private void givenProvider2Checks()
     {
-        expected.addAll(mockRequiredChecks(mockProvider2, Collections.emptyList()));
+        expected.addAll(mockRequiredChecks(mockCheck2, Collections.emptyList()));
     }
 
     private void givenProvider3Checks()
     {
-        expected.addAll(mockRequiredChecks(mockProvider3, Arrays.asList("mockProvider1", "mockProvider3")));
+        expected.addAll(mockRequiredChecks(mockCheck3, Arrays.asList("mockProvider1", "mockProvider3")));
     }
 
     private Collection<String> mockRequiredChecks(StatusCheck mockProvider, Collection<String> toReturn)
@@ -85,13 +92,13 @@ public class CompositeStatusCheckTest
     {
         assertThat(actual.size(), equalTo(2));
 
-        verify(mockProvider1).getRequiredChecks(MASTER, mockRepository);
-        verify(mockProvider2).getRequiredChecks(MASTER, mockRepository);
-        verify(mockProvider3).getRequiredChecks(MASTER, mockRepository);
+        verify(mockCheck1).getRequiredChecks(MASTER, mockRepository);
+        verify(mockCheck2).getRequiredChecks(MASTER, mockRepository);
+        verify(mockCheck3).getRequiredChecks(MASTER, mockRepository);
     }
 
     private void whenGetStatusChecks()
     {
-        actual = provider.getRequiredChecks(MASTER, mockRepository);
+        actual = composite.getRequiredChecks(MASTER, mockRepository);
     }
 }

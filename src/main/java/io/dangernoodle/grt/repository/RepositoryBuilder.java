@@ -27,7 +27,7 @@ public class RepositoryBuilder
 
     public RepositoryBuilder addCollaborator(String user, Permission permission)
     {
-        collaborators().put(user, permission);
+        collaborators().put(user, permission.toString());
         return this;
     }
 
@@ -39,7 +39,8 @@ public class RepositoryBuilder
 
     public RepositoryBuilder addCollaborators(Map<String, Permission> collaborators)
     {
-        collaborators().putAll(collaborators);
+        addCollaborators();
+        collaborators.forEach(this::addCollaborator);
         return this;
     }
 
@@ -49,14 +50,17 @@ public class RepositoryBuilder
         return this;
     }
 
-    public void addLabels()
+    public RepositoryBuilder addLabels()
     {
         labels();
+        return this;
     }
 
-    public void addLabels(Map<String, Color> labels)
+    public RepositoryBuilder addLabels(Map<String, Color> labels)
     {
-        labels().putAll(labels);
+        addLabels();
+        labels.forEach(this::addLabel);
+        return this;
     }
 
     public RepositoryBuilder addOtherBranch(String branch)
@@ -85,7 +89,7 @@ public class RepositoryBuilder
 
     public RepositoryBuilder addTeam(String team, Permission permission)
     {
-        teams().put(team, permission);
+        teams().put(team, permission.toString());
         return this;
     }
 
@@ -109,7 +113,8 @@ public class RepositoryBuilder
 
     public RepositoryBuilder addTeams(Map<String, Permission> teams)
     {
-        teams().putAll(teams);
+        addTeams();
+        teams.forEach(this::addTeam);
         return this;
     }
 

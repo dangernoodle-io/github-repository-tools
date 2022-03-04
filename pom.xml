@@ -19,7 +19,7 @@
   <properties>
     <emoji-java.version>5.1.1</emoji-java.version>
     <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
-    <github-api.version>1.301</github-api.version>
+    <github-api.version>1.303-SNAPSHOT</github-api.version>
     <guice.version>5.1.0</guice.version>
     <hamcrest.version>2.0.0.0</hamcrest.version>
     <jcolor.version>5.2.0</jcolor.version>
@@ -157,14 +157,6 @@
     <url>https://github.com/dangernoodle-io/github-repository-tools/issues</url>
   </issueManagement>
 
-  <repositories>
-    <repository>
-      <id>bintray-cbeust-maven</id>
-      <name>bintray</name>
-      <url>https://dl.bintray.com/cbeust/maven</url>
-    </repository>
-  </repositories>
-
   <profiles>
     <profile>
       <id>attach-src-docs</id>
@@ -200,7 +192,7 @@
             <artifactId>jacoco-maven-plugin</artifactId>
             <configuration>
               <excludes>
-                <exlude>**/internal/ProducerFactory.class</exlude>
+                <exlude>**/internal/CorePlugin.class</exlude>
               </excludes>
             </configuration>
           </plugin>

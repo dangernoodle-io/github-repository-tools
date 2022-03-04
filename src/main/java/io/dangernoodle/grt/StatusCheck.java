@@ -9,15 +9,27 @@ import java.util.Collections;
  */
 public interface StatusCheck
 {
+    public static final StatusCheck NULL = new StatusCheck()
+    {
+        @Override
+        public Collection<String> getCommands()
+        {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public Collection<String> getRequiredChecks(String branch, Repository repository)
+        {
+            return Collections.emptyList();
+        }
+    };
+
     /**
      * Return the commands which will utilize this status check
      *
      * @return command names or an <code>empty</code> collection
      */
-    default Collection<String> getCommands()
-    {
-        return Collections.emptyList();
-    }
+    Collection<String> getCommands();
 
     /**
      * Return the required status checks for the given branch name

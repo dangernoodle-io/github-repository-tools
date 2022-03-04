@@ -1,18 +1,21 @@
 package io.dangernoodle.grt;
 
-import java.util.Collections;
+import static io.dangernoodle.grt.Constants.ENABLE_AUTO_ADD_WORKFLOW;
+import static io.dangernoodle.grt.Constants.FILTER_OPT;
+import static io.dangernoodle.grt.Constants.WILDCARD;
+
 import java.util.Map;
 import java.util.concurrent.Callable;
 
 import com.google.inject.Injector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.dangernoodle.grt.cli.exector.CommandExecutor;
+import io.dangernoodle.grt.cli.exector.DefinitionExecutor;
 import io.dangernoodle.grt.util.CommandArguments;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Spec;
 
@@ -32,11 +35,6 @@ public abstract class Command implements Callable<Void>
         this.injector = injector;
     }
 
-    public Map<String, Object> asMap()
-    {
-        return Collections.emptyMap();
-    }
-
     @Override
     public Void call() throws Exception
     {
@@ -53,6 +51,11 @@ public abstract class Command implements Callable<Void>
         return false;
     }
 
+    public Map<Object, Object> toArgMap()
+    {
+        return Map.of(ENABLE_AUTO_ADD_WORKFLOW, enableAutoAddWorkflow());
+    }
+
     protected ParameterException createParameterException(String message)
     {
         return CommandArguments.createParameterException(spec, message);
@@ -63,62 +66,74 @@ public abstract class Command implements Callable<Void>
         // no-op
     }
 
-    protected abstract Class<? extends Command.Executor> getExecutor();
+    protected boolean enableAutoAddWorkflow()
+    {
+        return true;
+    }
+
+    protected abstract Class<? extends CommandExecutor> getExecutor();
 
     public interface Definition
     {
         String getDefinition();
-    }
 
-    /**
-     * @since 0.9.0
-     */
-    public static abstract class DefinitionOnly extends Command implements Definition
-    {
-        @Mixin
-        private CommandArguments.Definition def;
-
-        public DefinitionOnly(Injector injector)
+        public static abstract class All extends Command implements Definition
         {
-            super(injector);
+            @ArgGroup(exclusive = true, multiplicity = "1")
+            private CommandArguments.DefininitionOrAll defOrAll;
+
+            @Option(names = FILTER_OPT, required = false)
+            private String filter;
+
+            public All(Injector injector)
+            {
+                super(injector);
+            }
+
+            @Override
+            public String getDefinition()
+            {
+                String definition = defOrAll.getDefintion();
+
+//                if (WILDCARD.equals(definition) && filter != null)
+//                {
+//                    return filter + WILDCARD;
+//                }
+
+                return definition;
+            }
+
+            @Override
+            protected Class<? extends CommandExecutor> getExecutor()
+            {
+                return DefinitionExecutor.class;
+            }
         }
 
-        @Override
-        public String getDefinition()
+        /**
+         * @since 0.9.0
+         */
+        public static abstract class Only extends Command implements Definition
         {
-            return def.getDefintion();
+            @Mixin
+            private CommandArguments.Definition def;
+
+            public Only(Injector injector)
+            {
+                super(injector);
+            }
+
+            @Override
+            public String getDefinition()
+            {
+                return def.getDefintion();
+            }
+
+            @Override
+            protected Class<? extends CommandExecutor> getExecutor()
+            {
+                return DefinitionExecutor.class;
+            }
         }
-    }
-
-    public static abstract class DefinitionOrAll extends Command implements Definition
-    {
-        @ArgGroup(exclusive = true, multiplicity = "1")
-        private CommandArguments.DefininitionOrAll defOrAll;
-
-        public DefinitionOrAll(Injector injector)
-        {
-            super(injector);
-        }
-
-        @Override
-        public String getDefinition()
-        {
-            return defOrAll.getDefintion();
-        }
-    }
-
-    /**
-     * @since 0.9.0
-     */
-    public static abstract class Executor
-    {
-        protected final Logger logger;
-
-        public Executor()
-        {
-            this.logger = LoggerFactory.getLogger(getClass());
-        }
-
-        public abstract void execute(Command command) throws Exception;
     }
 }

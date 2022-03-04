@@ -26,6 +26,13 @@ public class CommandStatusCheck implements StatusCheck
     }
 
     @Override
+    public Collection<String> getCommands()
+    {
+        // this class is a delegate only
+        throw new UnsupportedOperationException("unsupported");
+    }
+
+    @Override
     public Collection<String> getRequiredChecks(String branch, Repository repository)
     {
         return statusChecks.stream()

@@ -4,16 +4,13 @@ import static java.nio.file.Files.walkFileTree;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Map;
 
 import io.dangernoodle.grt.Command;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.util.DefinitionFileVisitor;
-import io.dangernoodle.grt.util.PathToXConverter;
 
 
-public abstract class DefinitionExecutor extends Command.Executor
+public class DefinitionExecutor extends CommandExecutor
 {
     private final Path root;
 
@@ -52,19 +49,9 @@ public abstract class DefinitionExecutor extends Command.Executor
         }
     }
 
-    protected Map<Object, Object> getArguments(Command command)
-    {
-        return Collections.emptyMap();
-    }
-
     protected String getDefinition(Command command)
     {
         return ((Command.Definition) command).getDefinition();
-    }
-
-    private Workflow.Context createContext(Command command)
-    {
-        return new Workflow.Context(getArguments(command));
     }
 
     private void pathHandler(Path path, Command command)
@@ -73,32 +60,12 @@ public abstract class DefinitionExecutor extends Command.Executor
 
         try
         {
-            workflow.execute(path, createContext(command));
+            workflow.execute(path, new Workflow.Context(command.toArgMap()));
         }
         catch (Exception e)
         {
             // ffs...
             throw new IllegalCallerException(e);
-        }
-    }
-
-    public static abstract class Repository extends DefinitionExecutor
-    {
-        private final ValidateExecutor validator;
-
-        public Repository(Path definitionDir, ValidateExecutor validator, PathToXConverter workflow)
-        {
-            super(definitionDir, workflow);
-            this.validator = validator;
-        }
-
-        @Override
-        public void execute(Command command) throws Exception
-        {
-            // this is fine for now as the validator doesn't have options
-            // validator.execute(null);
-
-            super.execute(command);
         }
     }
 }

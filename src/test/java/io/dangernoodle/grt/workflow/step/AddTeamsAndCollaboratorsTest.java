@@ -20,9 +20,12 @@ import io.dangernoodle.grt.Repository.Settings.Permission;
 
 public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
 {
+    private static final Permission read = new Permission("read");
+
+    private static final Permission write = new Permission("write");
+    
     @Mock
     private GHTeam mockGHTeam;
-
     @Mock
     private GHUser mockGHUser;
 
@@ -88,13 +91,13 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
 
     private void givenACollaborator() throws IOException
     {
-        repoBuilder.addCollaborator("user", Permission.write);
+        repoBuilder.addCollaborator("user", write);
         when(mockClient.getUser("user")).thenReturn(mockGHUser);
     }
 
     private void givenACollaboratorThatDoesNotExist() throws IOException
     {
-        repoBuilder.addCollaborator("doesnotexist", Permission.write);
+        repoBuilder.addCollaborator("doesnotexist", write);
         when(mockClient.getUser("doesnotexist")).thenReturn(null);
     }
 
@@ -106,13 +109,13 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
 
     private void givenATeam() throws IOException
     {
-        repoBuilder.addTeam("team", Permission.read);
+        repoBuilder.addTeam("team", read);
         when(mockClient.getTeam("org", "team")).thenReturn(mockGHTeam);
     }
 
     private void givenATeamThatDoesntExist() throws IOException
     {
-        repoBuilder.addTeam("doesnotexist", Permission.write);
+        repoBuilder.addTeam("doesnotexist", write);
         when(mockClient.getTeam("org", "doesnotexist")).thenReturn(null);
     }
 

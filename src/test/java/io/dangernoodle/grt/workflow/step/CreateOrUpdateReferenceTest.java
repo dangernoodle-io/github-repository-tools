@@ -13,10 +13,12 @@ import org.kohsuke.github.GHRef;
 import org.kohsuke.github.GHRepository;
 import org.mockito.Mock;
 
+import io.dangernoodle.grt.Constants;
+
 
 public class CreateOrUpdateReferenceTest extends AbstractGithubWorkflowStepTest
 {
-    private static final String REF = "ref/name";
+    private static final String REF_NAME = "ref/name";
 
     @Mock
     private GHCommit mockCommit;
@@ -31,7 +33,7 @@ public class CreateOrUpdateReferenceTest extends AbstractGithubWorkflowStepTest
         super.beforeEach();
 
         when(mockCommit.getSHA1()).thenReturn(COMMIT);
-        when(mockContext.get("refName")).thenReturn(REF);
+        when(mockContext.get(Constants.REF)).thenReturn(REF_NAME);
         when(mockContext.get(GHCommit.class)).thenReturn(mockCommit);
     }
 
@@ -75,12 +77,12 @@ public class CreateOrUpdateReferenceTest extends AbstractGithubWorkflowStepTest
 
     private void givenARefExists()
     {
-        when(mockRef.getRef()).thenReturn(REF);
+        when(mockRef.getRef()).thenReturn(REF_NAME);
     }
 
     private void thenReferenceIsCreated() throws IOException
     {
-        verify(mockGHRepository).createRef(REF, COMMIT);
+        verify(mockGHRepository).createRef(REF_NAME, COMMIT);
     }
 
     private void thenReferenceIsUpdated() throws IOException

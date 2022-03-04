@@ -45,7 +45,7 @@ public class CommandWorkflow implements Workflow<Repository>
     @Override
     public void execute(Repository repository, Context context) throws Exception
     {
-        Collection<Workflow<Repository>> workflows = getWorkflows(repository);
+        Collection<Workflow<Repository>> workflows = getWorkflows(repository, context.isAutoAddWorkflowEnabled());
         ChainedWorkflow<Repository> delegate = new ChainedWorkflow<>(workflows, ignoreErrors);
 
         try
@@ -67,10 +67,10 @@ public class CommandWorkflow implements Workflow<Repository>
     private Workflow<Repository> getWorkflow(String name)
     {
         return Optional.ofNullable(workflows.get(name))
-                       .orElseThrow(() -> new IllegalStateException("failed to find Workflow for [" + name + "]"));
+                       .orElseThrow(() -> new IllegalStateException("failed to find workflow named [" + name + "]"));
     }
 
-    private Collection<Workflow<Repository>> getWorkflows(Repository repository)
+    private Collection<Workflow<Repository>> getWorkflows(Repository repository, boolean autoAdd)
     {
         ArrayList<String> names = new ArrayList<>(repository.getWorkflows(command));
 
@@ -78,9 +78,14 @@ public class CommandWorkflow implements Workflow<Repository>
          * the command should have a corresponding workflow of the same name, otherwise add it. this allows new commands
          * to be added w/o needing to update configuration files.
          */
-        if (!names.contains(command))
+        if (autoAdd && !names.contains(command))
         {
             names.add(0, command);
+        }
+
+        if (names.isEmpty())
+        {
+            throw new IllegalStateException("no workflows defined for command [" + command + "]");
         }
 
         return names.stream()

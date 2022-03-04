@@ -1,15 +1,18 @@
 package io.dangernoodle.grt.cli;
 
 import static io.dangernoodle.grt.Constants.VALIDATE;
+import static io.dangernoodle.grt.Constants.WILDCARD;
+
+import java.util.Collections;
+import java.util.Map;
 
 import com.google.inject.Injector;
 
-import io.dangernoodle.grt.cli.exector.ValidateExecutor;
 import picocli.CommandLine.Command;
 
 
 @Command(name = VALIDATE)
-public class ValidateCommand extends io.dangernoodle.grt.Command
+public class ValidateCommand extends io.dangernoodle.grt.Command.Definition.Only
 {
     public ValidateCommand(Injector injector)
     {
@@ -17,8 +20,14 @@ public class ValidateCommand extends io.dangernoodle.grt.Command
     }
 
     @Override
-    protected Class<? extends io.dangernoodle.grt.Command.Executor> getExecutor()
+    public String getDefinition()
     {
-        return ValidateExecutor.class;
+        return WILDCARD;
+    }
+
+    @Override
+    public Map<Object, Object> toArgMap()
+    {
+        return Collections.emptyMap();
     }
 }

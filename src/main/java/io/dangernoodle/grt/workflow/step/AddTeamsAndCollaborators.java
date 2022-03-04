@@ -84,7 +84,7 @@ public class AddTeamsAndCollaborators extends AbstractGithubStep
             else
             {
                 // this is the permission set by github no matter what the user specifies
-                perm = Permission.write;
+                perm = new Permission("write");
                 ghRepo.addCollaborators(ghUser);
             }
 
@@ -94,14 +94,22 @@ public class AddTeamsAndCollaborators extends AbstractGithubStep
 
     private GHOrganization.Permission mapToOrgPermission(Permission permission)
     {
-        switch (permission)
+        String value = permission.toString();
+
+        switch (value)
         {
-            case admin:
+            case "admin":
                 return GHOrganization.Permission.ADMIN;
-            case write:
-                return GHOrganization.Permission.PUSH;
-            default:
+            case "read":
+            case "pull":
                 return GHOrganization.Permission.PULL;
+            case "push":
+            case "write":
+                return GHOrganization.Permission.PUSH;
+            case "triage":
+                return GHOrganization.Permission.TRIAGE;
+            default:
+                return new GHOrganization.Permission(value);
         }
     }
 }

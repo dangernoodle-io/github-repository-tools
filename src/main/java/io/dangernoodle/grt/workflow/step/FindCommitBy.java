@@ -2,7 +2,6 @@ package io.dangernoodle.grt.workflow.step;
 
 import static io.dangernoodle.grt.Constants.SHA1;
 import static io.dangernoodle.grt.Constants.TAG;
-import static io.dangernoodle.grt.util.GithubRepositoryToolsUtils.toSha1;
 
 import java.io.IOException;
 import java.util.stream.Stream;
@@ -39,12 +38,12 @@ public abstract class FindCommitBy extends AbstractGithubStep
             String value = context.get(key).toString();
             GHCommit ghCommit = findCommit(context.getGHRepository(), value);
 
-            logger.info("found commit [{}] using [{} ({})]", toSha1(ghCommit), value, key);
+            logger.info("found commit object using [{} ({})]", value, key);
             context.add(ghCommit);
         }
         else
         {
-            logger.warn("failed to find value for [{} - {}] in context", key);
+            logger.warn("context did not contain value for [{}]", key);
         }
 
         return Status.CONTINUE;

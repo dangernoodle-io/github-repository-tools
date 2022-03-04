@@ -21,7 +21,6 @@ public class GithubRepositoryToolsUtilsTest
     public void beforeEach()
     {
         MockitoAnnotations.initMocks(this);
-
         when(mockCommit.getSHA1()).thenReturn(COMMIT);
     }
 
@@ -29,5 +28,11 @@ public class GithubRepositoryToolsUtilsTest
     public void testToSha1()
     {
         assertEquals("3ac68f502267", GithubRepositoryToolsUtils.toSha1(mockCommit));
+    }
+
+    @Test
+    public void testToHex()
+    {
+        assertEquals("746f486578", GithubRepositoryToolsUtils.toHex("toHex".getBytes()));
     }
 }

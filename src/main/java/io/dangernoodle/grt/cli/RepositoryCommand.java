@@ -1,34 +1,30 @@
 package io.dangernoodle.grt.cli;
 
+import static io.dangernoodle.grt.Constants.CLEAR_WEBHOOKS;
+import static io.dangernoodle.grt.Constants.CLEAR_WEBHOOKS_OPT;
+import static io.dangernoodle.grt.Constants.IGNORE_ERRORS_OPT;
+import static io.dangernoodle.grt.Constants.REPOSITORY;
+
 import java.util.Map;
 
 import com.google.inject.Injector;
 
-import io.dangernoodle.grt.cli.exector.RepositoryExecutor;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 
-@Command(name = "repository")
-public class RepositoryCommand extends io.dangernoodle.grt.Command.DefinitionOrAll
+@Command(name = REPOSITORY)
+public class RepositoryCommand extends io.dangernoodle.grt.Command.Definition.All
 {
-    private static final String CLEARWEBHOOKS = "clearWebhooks";
-     
-    @Option(names = "--" + CLEARWEBHOOKS)
+    @Option(names = CLEAR_WEBHOOKS_OPT)
     private boolean clearWebhooks;
 
-    @Option(names = "--" + "ignoreErrors")
+    @Option(names = IGNORE_ERRORS_OPT)
     private boolean igoreErrors;
 
     public RepositoryCommand(Injector injector)
     {
         super(injector);
-    }
-
-    @Override
-    public Map<String, Object> asMap()
-    {
-        return Map.of(CLEARWEBHOOKS, clearWebhooks);
     }
 
     @Override
@@ -38,8 +34,8 @@ public class RepositoryCommand extends io.dangernoodle.grt.Command.DefinitionOrA
     }
 
     @Override
-    protected Class<? extends io.dangernoodle.grt.Command.Executor> getExecutor()
+    public Map<Object, Object> toArgMap()
     {
-        return RepositoryExecutor.class;
+        return Map.of(CLEAR_WEBHOOKS, clearWebhooks);
     }
 }
