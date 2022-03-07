@@ -93,7 +93,7 @@ public class CorePlugin implements Plugin
             CommandWorkflow delegate = new CommandWorkflow(command, arguments.ignoreErrors(), workflows);
 
             PathToXConverter<Repository> converter = new PathToXConverter<>(delegate, path -> factory.load(path));
-            LifecycleWorkflow<Path> workflow = new LifecycleWorkflow<>(converter, lifecycles, command);
+            LifecycleWorkflow<Path> workflow = new LifecycleWorkflow<>(command, converter, lifecycles);
 
             return workflow;
         }

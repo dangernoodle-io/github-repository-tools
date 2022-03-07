@@ -92,24 +92,24 @@ public class AddTeamsAndCollaborators extends AbstractGithubStep
         }
     }
 
-    private GHOrganization.Permission mapToOrgPermission(Permission permission)
+    private GHOrganization.RolePermission mapToOrgPermission(Permission permission)
     {
         String value = permission.toString();
 
         switch (value)
         {
             case "admin":
-                return GHOrganization.Permission.ADMIN;
+                return GHOrganization.RolePermission.ADMIN;
             case "read":
             case "pull":
-                return GHOrganization.Permission.PULL;
+                return GHOrganization.RolePermission.PULL;
             case "push":
             case "write":
-                return GHOrganization.Permission.PUSH;
+                return GHOrganization.RolePermission.PUSH;
             case "triage":
-                return GHOrganization.Permission.TRIAGE;
+                return GHOrganization.RolePermission.TRIAGE;
             default:
-                return new GHOrganization.Permission(value);
+                return new GHOrganization.RolePermission(value);
         }
     }
 }

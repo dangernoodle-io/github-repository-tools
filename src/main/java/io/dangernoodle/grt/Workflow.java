@@ -128,7 +128,7 @@ public interface Workflow<T>
             // no-op
         }
 
-        default void preExecution()
+        default void preExecution() throws Exception
         {
             // no-op
         }

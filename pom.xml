@@ -193,6 +193,7 @@
             <configuration>
               <excludes>
                 <exlude>**/internal/CorePlugin.class</exlude>
+                <exlude>**/internal/CorePlugin$CoreModule.class</exlude>
               </excludes>
             </configuration>
           </plugin>

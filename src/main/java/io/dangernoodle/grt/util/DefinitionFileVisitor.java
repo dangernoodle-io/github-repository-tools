@@ -2,46 +2,66 @@ package io.dangernoodle.grt.util;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Iterator;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
-public class DefinitionFileVisitor extends SimpleFileVisitor<Path>
+/**
+ * @since 0.9.0
+ */
+public class DefinitionFileVisitor
 {
-    private int count;
-
-    private final Handler handler;
+    private static final Logger logger = LoggerFactory.getLogger(DefinitionFileVisitor.class);
 
     private final PathMatcher matcher;
 
-    public DefinitionFileVisitor(String match, Handler handler)
+    public DefinitionFileVisitor(String match)
     {
-        this.handler = handler;
-        this.matcher = FileSystems.getDefault().getPathMatcher("glob:**/" + match + ".json");
+        this.matcher = pathMatcher(match);
     }
 
-    public boolean matched()
+    public int visit(Path root, Handler handler) throws Exception
     {
-        return count > 0;
-    }
+        int count = 0;
+        Iterator<Path> iterator = iterator(root);
 
-    @Override
-    public FileVisitResult visitFile(Path path, BasicFileAttributes attr) throws IOException
-    {
-        if (matcher.matches(path))
+        while (iterator.hasNext())
         {
             count++;
-            handler.accept(path);
+            handler.accept(iterator.next());
         }
 
-        return FileVisitResult.CONTINUE;
+        return count;
     }
 
+    // visible for testing
+    Iterator<Path> iterator(Path root) throws IOException
+    {
+        return Files.walk(root)
+                    .filter(matcher::matches)
+                    .sorted()
+                    .iterator();
+    }
+
+    // visible for testing
+    static PathMatcher pathMatcher(String match)
+    {
+        String pattern = String.format("glob:**/%s.json", match);
+        logger.debug("path matcher pattern: [{}]", pattern);
+
+        return FileSystems.getDefault().getPathMatcher(pattern);
+    }
+
+    /**
+     * @since 0.9.0
+     */
     public static interface Handler
     {
-        void accept(Path definition) throws IOException;
+        void accept(Path definition) throws Exception;
     }
 }

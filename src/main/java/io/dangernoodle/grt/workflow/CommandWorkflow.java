@@ -23,6 +23,7 @@ import io.dangernoodle.grt.Workflow;
  *   }
  * }
  * </pre>
+ * </p>
  * 
  * @since 0.9.0
  */
@@ -46,7 +47,7 @@ public class CommandWorkflow implements Workflow<Repository>
     public void execute(Repository repository, Context context) throws Exception
     {
         Collection<Workflow<Repository>> workflows = getWorkflows(repository, context.isAutoAddWorkflowEnabled());
-        ChainedWorkflow<Repository> delegate = new ChainedWorkflow<>(workflows, ignoreErrors);
+        CompositeWorkflow<Repository> delegate = new CompositeWorkflow<>(ignoreErrors, workflows);
 
         try
         {
@@ -78,7 +79,7 @@ public class CommandWorkflow implements Workflow<Repository>
          * the command should have a corresponding workflow of the same name, otherwise add it. this allows new commands
          * to be added w/o needing to update configuration files.
          */
-        if (autoAdd && !names.contains(command))
+        if (!names.contains(command) && autoAdd)
         {
             names.add(0, command);
         }

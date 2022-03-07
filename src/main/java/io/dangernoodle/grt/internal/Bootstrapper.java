@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.ServiceLoader;
@@ -61,7 +60,7 @@ public class Bootstrapper implements PluginsManager
 
     public ResourceBundle getResourceBundle()
     {
-        return ResourceBundle.getBundle("grt", Locale.getDefault(), new PluginsControl(getResourceBundles()));
+        return PluginsBundle.merge(getResourceBundles());
     }
 
     // visible for testing

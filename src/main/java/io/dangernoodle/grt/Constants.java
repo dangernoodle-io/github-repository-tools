@@ -43,4 +43,9 @@ public final class Constants
     public static final String VALIDATE = "validate";
 
     public static final String WILDCARD = "*";
+    
+    private Constants()
+    {
+        // constants only
+    }
 }

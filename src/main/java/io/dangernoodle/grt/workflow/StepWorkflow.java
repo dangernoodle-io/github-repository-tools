@@ -46,14 +46,4 @@ public class StepWorkflow<T> implements Workflow<T>
     {
         return name;
     }
-
-    public int getStepCount()
-    {
-        return steps.size();
-    }
-
-    public List<Workflow.Step<T>> getSteps()
-    {
-        return List.copyOf(steps);
-    }
 }

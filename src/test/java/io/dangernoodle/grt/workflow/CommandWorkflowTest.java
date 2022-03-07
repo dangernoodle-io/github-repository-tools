@@ -1,5 +1,6 @@
 package io.dangernoodle.grt.workflow;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,8 +19,10 @@ import io.dangernoodle.grt.Workflow;
 public class CommandWorkflowTest
 {
     private static final String COMMAND = "command";
-    
+
     private static final String OTHER = "other";
+
+    private CommandWorkflow command;
 
     private boolean ignoreErrors;
 
@@ -39,15 +42,6 @@ public class CommandWorkflowTest
     }
 
     @Test
-    public void testCommandWorkflowFound() throws Exception
-    {
-        givenAWorkflowCommand();
-        givenACommandDefinedInWorkflow();
-        whenExecuteWorkflow();
-        thenWorkflowWasInvoked();
-    }
-
-    @Test
     public void testAutoAddCommand() throws Exception
     {
         givenAWorkflowCommand();
@@ -57,21 +51,33 @@ public class CommandWorkflowTest
     }
 
     @Test
-    public void testNoWorkflowsDefined() throws Exception
+    public void testCommandWorkflowFound() throws Exception
     {
-        assertThrows(IllegalStateException.class, this::whenExecuteWorkflow);
+        givenAWorkflowCommand();
+        givenACommandDefinedInWorkflow();
+        whenExecuteWorkflow();
+        thenWorkflowWasInvoked();
     }
-    
+
     @Test
     public void testCommandWorkflowNotFound()
     {
         givenOtherCommandDefinedInWorkflow();
-        assertThrows(IllegalStateException.class, this::whenExecuteWorkflow);
+        whenExecuteWorkflowException();
     }
-    
-    private void givenOtherCommandDefinedInWorkflow()
+
+    @Test
+    public void testNoAutoAddCommand() throws Exception
     {
-        when(mockRepository.getWorkflows(COMMAND)).thenReturn(List.of(OTHER));
+        givenAWorkflowCommand();
+        givenOtherCommandDefinedInWorkflow();
+        whenExecuteWorkflowException();
+    }
+
+    @Test
+    public void testNoWorkflowsDefined() throws Exception
+    {
+        whenExecuteWorkflowException();
     }
 
     private void givenACommandDefinedInWorkflow()
@@ -84,13 +90,25 @@ public class CommandWorkflowTest
         when(mockContext.isAutoAddWorkflowEnabled()).thenReturn(true);
     }
 
+    private void givenAWorkflow()
+    {
+        command = new CommandWorkflow(COMMAND, ignoreErrors, List.of(mockWorkflow));
+    }
+
     private void givenAWorkflowCommand()
     {
         when(mockWorkflow.getName()).thenReturn(COMMAND);
     }
 
+    private void givenOtherCommandDefinedInWorkflow()
+    {
+        when(mockRepository.getWorkflows(COMMAND)).thenReturn(List.of(OTHER));
+    }
+
     private void thenWorkflowWasInvoked() throws Exception
     {
+        assertEquals(COMMAND, command.getCommand());
+
         verify(mockWorkflow).preExecution();
         verify(mockWorkflow).execute(mockRepository, mockContext);
         verify(mockWorkflow).postExecution();
@@ -98,6 +116,12 @@ public class CommandWorkflowTest
 
     private void whenExecuteWorkflow() throws Exception
     {
-        new CommandWorkflow(COMMAND, ignoreErrors, List.of(mockWorkflow)).execute(mockRepository, mockContext);
+        givenAWorkflow();
+        command.execute(mockRepository, mockContext);
+    }
+
+    private void whenExecuteWorkflowException()
+    {
+        assertThrows(IllegalStateException.class, this::whenExecuteWorkflow);
     }
 }

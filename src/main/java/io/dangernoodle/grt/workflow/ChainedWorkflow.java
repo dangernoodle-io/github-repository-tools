@@ -1,6 +1,7 @@
 package io.dangernoodle.grt.workflow;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,17 @@ import org.slf4j.LoggerFactory;
 import io.dangernoodle.grt.Workflow;
 
 
+/**
+ * Executes a collection of <code>Workflow</code> objects, optionally ignoring errors.
+ * <p>
+ * The workflows comprising the collection will have their <code>preExecution</code> and <code>postExecution</code>
+ * methods invoked as part of this object's <code>execute</code> method. If you are not interested in this behavior, use
+ * the {@link ChainedWorkflow} instead.
+ * </p>
+ *
+ * @param <T> workflow object
+ * @since 0.9.0
+ */
 public class ChainedWorkflow<T> implements Workflow<T>
 {
     private static final Logger logger = LoggerFactory.getLogger(ChainedWorkflow.class);
@@ -16,10 +28,16 @@ public class ChainedWorkflow<T> implements Workflow<T>
 
     private final Collection<Workflow<T>> workflows;
 
-    public ChainedWorkflow(Collection<Workflow<T>> workflows, boolean ignoreErrors)
+    @SafeVarargs
+    public ChainedWorkflow(boolean ignoreErrors, Workflow<T>... workflows)
     {
-        this.ignoreErrors = ignoreErrors;
+        this(ignoreErrors, List.of(workflows));
+    }
+
+    public ChainedWorkflow(boolean ignoreErrors, Collection<Workflow<T>> workflows)
+    {
         this.workflows = workflows;
+        this.ignoreErrors = ignoreErrors;
     }
 
     @Override
@@ -28,39 +46,30 @@ public class ChainedWorkflow<T> implements Workflow<T>
         for (Workflow<T> workflow : workflows)
         {
             logger.trace("executing workflow [{}] for [{}]", workflow.getName(), object);
-
-            try
-            {
-                workflow.execute(object, context);
-            }
-            catch (Exception e)
-            {
-                if (!ignoreErrors)
-                {
-                    throw e;
-                }
-
-                LoggerFactory.getLogger(getClass()).warn("ignoring error:", e);
-            }
+            execute(workflow, object, context);
         }
     }
 
-    @Override
-    public void postExecution()
+    private void execute(Workflow<T> workflow, T object, Context context) throws Exception
     {
-        workflows.forEach(workflow -> {
-            logger.trace("executing 'postExecution' for workflow [{}]", workflow.getName());
-            workflow.postExecution();
-        });
-    }
-
-    @Override
-    public void preExecution() throws Exception
-    {
-        for (Workflow<T> workflow : workflows)
+        try
         {
-            logger.trace("executing 'preExecution' for workflow [{}]", workflow.getName());
+            // abort execution as well if we don't make it past here
             workflow.preExecution();
+            workflow.execute(object, context);
+        }
+        catch (Exception e)
+        {
+            if (!ignoreErrors)
+            {
+                throw e;
+            }
+
+            logger.warn("ignoring error:", e);
+        }
+        finally
+        {
+            workflow.postExecution();
         }
     }
 }

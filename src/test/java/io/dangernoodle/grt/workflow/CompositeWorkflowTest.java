@@ -1,24 +1,22 @@
 package io.dangernoodle.grt.workflow;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import io.dangernoodle.grt.Workflow;
 
 
-public class ChainedWorkflowTest
+public class CompositeWorkflowTest
 {
-    private ChainedWorkflow<Object> chained;
-
     private boolean ignoreErrors;
 
     @Mock
@@ -29,11 +27,21 @@ public class ChainedWorkflowTest
 
     private Object object;
 
+    private CompositeWorkflow<Object> composite;
+
     @BeforeEach
     public void beforeEach()
     {
         MockitoAnnotations.initMocks(this);
         object = new Object();
+    }
+
+    @Test
+    public void testPrePostExecution() throws Exception
+    {
+        givenAWorkflow();
+        whenExecutePrePost();
+        thenPrePostExecuted();
     }
 
     @Test
@@ -43,7 +51,7 @@ public class ChainedWorkflowTest
         whenExecuteWorkflow();
         thenWorkflowIsExecuted();
     }
-    
+
     @Test
     public void testWorflowException() throws Exception
     {
@@ -62,39 +70,47 @@ public class ChainedWorkflowTest
         whenExecuteWorkflow();
         thenWorkflowIsExecuted();
     }
-    
+
     private void givenAWorkflow()
     {
-        chained = new ChainedWorkflow<>(ignoreErrors, mockWorkflow);
+        composite = new CompositeWorkflow<>(ignoreErrors, List.of(mockWorkflow, mockWorkflow, mockWorkflow));
     }
-    
+
     private void givenAWorkflowException() throws Exception
     {
-        doThrow(Exception.class).when(mockWorkflow).execute(object, mockContext);
+        doNothing().doThrow(Exception.class).when(mockWorkflow).execute(object, mockContext);
     }
-    
+
     private void givenIgnoreErrors()
     {
         ignoreErrors = true;
     }
-    
+
+    private void thenPrePostExecuted() throws Exception
+    {
+        verify(mockWorkflow, times(3)).preExecution();
+        verify(mockWorkflow, times(3)).postExecution();
+    }
+
     private void thenWorkflowIsExecuted() throws Exception
     {
-        InOrder ordered = inOrder(mockWorkflow);
-
-        ordered.verify(mockWorkflow).preExecution();
-        ordered.verify(mockWorkflow).execute(object, mockContext);
-        ordered.verify(mockWorkflow).postExecution();
+        verify(mockWorkflow, times(3)).execute(object, mockContext);
     }
 
     private void thenWorkflowWasAborted() throws Exception
     {
-        verify(mockWorkflow, times(1)).execute(object, mockContext);
+        verify(mockWorkflow, times(2)).execute(object, mockContext);
+    }
+
+    private void whenExecutePrePost() throws Exception
+    {
+        composite.preExecution();
+        composite.postExecution();
     }
 
     private void whenExecuteWorkflow() throws Exception
     {
-        chained.execute(object, mockContext);
+        composite.execute(object, mockContext);
     }
 
     private void whenExecuteWorkflowException()
