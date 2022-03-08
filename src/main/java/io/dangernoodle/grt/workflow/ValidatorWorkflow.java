@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.util.JsonTransformer;
 import io.dangernoodle.grt.util.JsonValidationException;
@@ -20,6 +23,8 @@ import io.dangernoodle.grt.util.JsonValidationException;
 
 public class ValidatorWorkflow implements Workflow<Path>
 {
+    private static final Logger logger = LoggerFactory.getLogger(ValidatorWorkflow.class);
+
     private Path configuration;
 
     private boolean detailedReport;
@@ -77,16 +82,19 @@ public class ValidatorWorkflow implements Workflow<Path>
     @Override
     public void postExecution()
     {
-//        if (!hasErrors())
-//        {
-//           
-//        }
+        logger.info("** validation complete - {} errors found!", errors.size());
 
+        if (!errors.isEmpty())
+        {
+            throw new IllegalStateException("definition files contain validation errors");
+        }
     }
 
     @Override
     public void preExecution()
     {
+        logger.info("** starting definition file validation...");
+
         try
         {
             execute(configuration, null);

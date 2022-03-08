@@ -42,6 +42,7 @@ import io.dangernoodle.grt.statuscheck.RepositoryStatusCheck;
 import io.dangernoodle.grt.util.GithubClient;
 import io.dangernoodle.grt.util.JsonTransformer;
 import io.dangernoodle.grt.util.PathToXConverter;
+import io.dangernoodle.grt.workflow.ChainedWorkflow;
 import io.dangernoodle.grt.workflow.CommandWorkflow;
 import io.dangernoodle.grt.workflow.LifecycleWorkflow;
 import io.dangernoodle.grt.workflow.StepWorkflow;
@@ -85,7 +86,7 @@ public class CorePlugin implements Plugin
     {
         @Provides
         public Workflow<Path> commandWorkflow(Arguments arguments, RepositoryFactory factory, Set<Workflow<Repository>> workflows,
-                Set<Workflow.Lifecycle> lifecycles)
+                Set<Workflow.Lifecycle> lifecycles, ValidatorWorkflow validator)
         {
             String command = arguments.getCommand();
 
@@ -93,9 +94,10 @@ public class CorePlugin implements Plugin
             CommandWorkflow delegate = new CommandWorkflow(command, arguments.ignoreErrors(), workflows);
 
             PathToXConverter<Repository> converter = new PathToXConverter<>(delegate, path -> factory.load(path));
-            LifecycleWorkflow<Path> workflow = new LifecycleWorkflow<>(command, converter, lifecycles);
-
-            return workflow;
+            LifecycleWorkflow<Path> lifecycle = new LifecycleWorkflow<>(command, converter, lifecycles);
+            
+            // TODO: refactor - the validator needs to be wrapped by the lifecycle when chained
+            return VALIDATE.equals(command) ? lifecycle : new ChainedWorkflow<>(false, List.of(validator, lifecycle));
         }
 
         @Provides
