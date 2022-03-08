@@ -86,7 +86,7 @@ public abstract class FindCommitBy extends AbstractGithubStep
             return getTagStream(ghRepo).filter(t -> tag.equals(t.getName()))
                                        .findFirst()
                                        .map(GHTag::getCommit)
-                                       .orElse(null);
+                                       .orElseThrow(() -> new IOException("unable to find commit for tag [" + tag + "]"));
         }
 
         @Override

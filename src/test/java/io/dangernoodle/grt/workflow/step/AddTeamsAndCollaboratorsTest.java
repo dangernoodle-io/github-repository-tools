@@ -18,7 +18,7 @@ import org.mockito.Mock;
 import io.dangernoodle.grt.Repository.Settings.Permission;
 
 
-public class AddTeamsAndCollaboratorsTest extends AbstractGithubWorkflowStepTest
+public class AddTeamsAndCollaboratorsTest extends AbstractGithubStepTest
 {
     private static final Permission read = new Permission("read");
 

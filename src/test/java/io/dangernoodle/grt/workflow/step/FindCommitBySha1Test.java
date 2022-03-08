@@ -1,37 +1,31 @@
 package io.dangernoodle.grt.workflow.step;
 
-import static io.dangernoodle.grt.Constants.TAG;
+import static io.dangernoodle.grt.Constants.SHA1;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHCommit;
-import org.kohsuke.github.GHRepository;
-import org.kohsuke.github.GHTag;
 import org.mockito.Mock;
 
 
-public class FindCommitByTagTest extends AbstractGithubStepTest
+public class FindCommitBySha1Test extends AbstractGithubStepTest
 {
-    private static final String REPO_TAG = "repo-1.0.0";
-
     @Mock
     private GHCommit mockCommit;
 
-    @Mock
-    private GHTag mockTag;
-
     @Test
-    public void testCommitForTagNotFound()
+    public void testCommitForSha1NotFound() throws Exception
     {
         givenContextContainsKey();
+        givenCommitNotFound();
         thenFindCommitThrowsException();
     }
 
@@ -56,7 +50,7 @@ public class FindCommitByTagTest extends AbstractGithubStepTest
     public void testFindBySuccess() throws Exception
     {
         givenContextContainsKey();
-        givenTagHasCommit();
+        givenCommitIsFound();
         whenExecuteStep();
         thenStatusIsContinue();
         thenCommitAddedToContext();
@@ -65,14 +59,17 @@ public class FindCommitByTagTest extends AbstractGithubStepTest
     @Override
     protected AbstractGithubStep createStep()
     {
-        return new FindCommitBy.Tag(mockClient)
-        {
-            @Override
-            Stream<GHTag> getTagStream(GHRepository ghRepo) throws IOException
-            {
-                return Stream.of(mockTag);
-            }
-        };
+        return new FindCommitBy.Sha1(mockClient);
+    }
+
+    private void givenCommitIsFound() throws Exception
+    {
+        when(mockGHRepository.getCommit(COMMIT)).thenReturn(mockCommit);
+    }
+
+    private void givenCommitNotFound() throws IOException
+    {
+        doThrow(IOException.class).when(mockGHRepository).getCommit(COMMIT);
     }
 
     private void givenContextContainsCommit()
@@ -82,14 +79,8 @@ public class FindCommitByTagTest extends AbstractGithubStepTest
 
     private void givenContextContainsKey()
     {
-        when(mockContext.contains(TAG)).thenReturn(true);
-        when(mockContext.get(TAG)).thenReturn(REPO_TAG);
-    }
-
-    private void givenTagHasCommit()
-    {
-        when(mockTag.getName()).thenReturn(REPO_TAG);
-        when(mockTag.getCommit()).thenReturn(mockCommit);
+        when(mockContext.contains(SHA1)).thenReturn(true);
+        when(mockContext.get(SHA1)).thenReturn(COMMIT);
     }
 
     private void thenCommitAddedToContext()

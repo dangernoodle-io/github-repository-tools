@@ -16,7 +16,7 @@ import org.mockito.Mock;
 import io.dangernoodle.grt.Constants;
 
 
-public class CreateOrUpdateReferenceTest extends AbstractGithubWorkflowStepTest
+public class CreateOrUpdateReferenceTest extends AbstractGithubStepTest
 {
     private static final String REF_NAME = "ref/name";
 

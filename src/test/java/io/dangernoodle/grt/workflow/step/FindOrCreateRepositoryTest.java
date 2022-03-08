@@ -10,7 +10,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 
-public class FindOrCreateRepositoryTest extends AbstractGithubWorkflowStepTest
+public class FindOrCreateRepositoryTest extends AbstractGithubStepTest
 {
     private boolean create = true;
 

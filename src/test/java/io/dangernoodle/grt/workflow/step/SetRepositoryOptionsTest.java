@@ -15,7 +15,7 @@ import org.mockito.Mock;
 import io.dangernoodle.grt.Repository.Settings;
 
 
-public class SetRepositoryOptionsTest extends AbstractGithubWorkflowStepTest
+public class SetRepositoryOptionsTest extends AbstractGithubStepTest
 {
     @Mock
     private GHRepository.Updater mockUpdateBuilder;

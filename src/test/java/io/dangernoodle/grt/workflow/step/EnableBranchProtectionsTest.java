@@ -21,7 +21,7 @@ import io.dangernoodle.grt.StatusCheck;
 import io.dangernoodle.grt.statuscheck.RepositoryStatusCheck;
 
 
-public class EnableBranchProtectionsTest extends AbstractGithubWorkflowStepTest
+public class EnableBranchProtectionsTest extends AbstractGithubStepTest
 {
     private String branchName;
 

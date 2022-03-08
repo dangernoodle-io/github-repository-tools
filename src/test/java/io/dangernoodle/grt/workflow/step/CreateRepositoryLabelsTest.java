@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import io.dangernoodle.grt.Repository.Settings.Color;
 
 
-public class CreateRepositoryLabelsTest extends AbstractGithubWorkflowStepTest
+public class CreateRepositoryLabelsTest extends AbstractGithubStepTest
 {
     @Mock
     private GHLabel mockGHLabel;

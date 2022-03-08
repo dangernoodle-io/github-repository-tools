@@ -16,7 +16,7 @@ import org.kohsuke.github.GHHook;
 import org.mockito.Mock;
 
 
-public class ClearWebhooksTest extends AbstractGithubWorkflowStepTest
+public class ClearWebhooksTest extends AbstractGithubStepTest
 {
     @Mock
     private GHHook mockHook;

@@ -18,7 +18,7 @@ import io.dangernoodle.grt.util.GithubClient;
 import io.dangernoodle.grt.util.JsonTransformer;
 
 
-public abstract class AbstractGithubWorkflowStepTest
+public abstract class AbstractGithubStepTest
 {
     protected static final String COMMIT = "3ac68f50226751ae44654497a38e220437ee677";
 

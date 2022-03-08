@@ -16,7 +16,7 @@ import org.kohsuke.github.GHBranch;
 import org.mockito.Mock;
 
 
-public class CreateRepositoryBranchesTest extends AbstractGithubWorkflowStepTest
+public class CreateRepositoryBranchesTest extends AbstractGithubStepTest
 {
     private Map<String, GHBranch> existingBranches;
 
