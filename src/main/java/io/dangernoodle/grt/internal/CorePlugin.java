@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -33,6 +34,8 @@ import io.dangernoodle.grt.cli.RepositoryCommand;
 import io.dangernoodle.grt.cli.UpdateRefCommand;
 import io.dangernoodle.grt.cli.ValidateCommand;
 import io.dangernoodle.grt.cli.exector.DefinitionExecutor;
+import io.dangernoodle.grt.cli.exector.ValidatingExecutor;
+import io.dangernoodle.grt.cli.exector.ValidationExecutor;
 import io.dangernoodle.grt.credentials.ChainedCredentials;
 import io.dangernoodle.grt.credentials.EnvironmentCredentials;
 import io.dangernoodle.grt.credentials.JsonCredentials;
@@ -42,11 +45,10 @@ import io.dangernoodle.grt.statuscheck.RepositoryStatusCheck;
 import io.dangernoodle.grt.util.GithubClient;
 import io.dangernoodle.grt.util.JsonTransformer;
 import io.dangernoodle.grt.util.PathToXConverter;
-import io.dangernoodle.grt.workflow.ChainedWorkflow;
 import io.dangernoodle.grt.workflow.CommandWorkflow;
 import io.dangernoodle.grt.workflow.LifecycleWorkflow;
 import io.dangernoodle.grt.workflow.StepWorkflow;
-import io.dangernoodle.grt.workflow.ValidatorWorkflow;
+import io.dangernoodle.grt.workflow.ValidationWorkflow;
 import io.dangernoodle.grt.workflow.step.AddTeamsAndCollaborators;
 import io.dangernoodle.grt.workflow.step.ClearWebhooks;
 import io.dangernoodle.grt.workflow.step.CreateOrUpdateReference;
@@ -86,18 +88,15 @@ public class CorePlugin implements Plugin
     {
         @Provides
         public Workflow<Path> commandWorkflow(Arguments arguments, RepositoryFactory factory, Set<Workflow<Repository>> workflows,
-                Set<Workflow.Lifecycle> lifecycles, ValidatorWorkflow validator)
+                Set<Workflow.Lifecycle> lifecycles)
         {
             String command = arguments.getCommand();
 
             // only workflow 'provides' methods annotated with '@ProvidesIntoSet' will appear here
             CommandWorkflow delegate = new CommandWorkflow(command, arguments.ignoreErrors(), workflows);
-
             PathToXConverter<Repository> converter = new PathToXConverter<>(delegate, path -> factory.load(path));
-            LifecycleWorkflow<Path> lifecycle = new LifecycleWorkflow<>(command, converter, lifecycles);
-            
-            // TODO: refactor - the validator needs to be wrapped by the lifecycle when chained
-            return VALIDATE.equals(command) ? lifecycle : new ChainedWorkflow<>(false, List.of(validator, lifecycle));
+
+            return new LifecycleWorkflow<>(command, converter, lifecycles);
         }
 
         @Provides
@@ -127,7 +126,7 @@ public class CorePlugin implements Plugin
         {
             GitHubBuilder builder = new GitHubBuilder();
             builder.withOAuthToken(credentials.getGithubToken())
-                   .withConnector(new OkHttpGitHubConnector(okHttp));                   
+                   .withConnector(new OkHttpGitHubConnector(okHttp));
 
             return GithubClient.createClient(builder);
         }
@@ -183,10 +182,22 @@ public class CorePlugin implements Plugin
         }
 
         @Provides
-        public ValidatorWorkflow validatorWorkflow(Arguments arguments, JsonTransformer transformer)
+        public ValidatingExecutor validatingExecutor(Injector injector)
+        {
+            return new ValidatingExecutor(injector);
+        }
+        
+        @Provides
+        public ValidationExecutor validatorExecutor(Arguments arguments, ValidationWorkflow workflow)
+        {
+            return new ValidationExecutor(arguments.getDefinitionsRoot(), workflow);
+        }
+
+        @Provides
+        public ValidationWorkflow validatorWorkflow(Arguments arguments, JsonTransformer transformer)
         {
             boolean detailed = VALIDATE.equals(arguments.getCommand());
-            return new ValidatorWorkflow(arguments.getConfiguration(), transformer, detailed);
+            return new ValidationWorkflow(arguments.getConfiguration(), transformer, detailed);
         }
 
         @Override
@@ -212,7 +223,7 @@ public class CorePlugin implements Plugin
         {
             return new StepWorkflow<>(name, List.of(steps));
         }
-       
+
         private <T> List<T> toList(T first, Set<T> others)
         {
             List<T> list = new ArrayList<>(others);

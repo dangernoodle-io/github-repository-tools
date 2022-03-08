@@ -5,12 +5,13 @@ import static io.dangernoodle.grt.Constants.FILTER_OPT;
 import static io.dangernoodle.grt.Constants.WILDCARD;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import com.google.inject.Injector;
 
 import io.dangernoodle.grt.cli.exector.CommandExecutor;
-import io.dangernoodle.grt.cli.exector.DefinitionExecutor;
+import io.dangernoodle.grt.cli.exector.ValidatingExecutor;
 import io.dangernoodle.grt.util.CommandArguments;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Mixin;
@@ -95,18 +96,16 @@ public abstract class Command implements Callable<Void>
             {
                 String definition = defOrAll.getDefintion();
 
-//                if (WILDCARD.equals(definition) && filter != null)
-//                {
-//                    return filter + WILDCARD;
-//                }
-
-                return definition;
+                return Optional.ofNullable(filter)
+                               .filter(filter -> WILDCARD.equals(definition))
+                               .map(filter -> filter + "/" + WILDCARD)
+                               .orElse(definition);
             }
 
             @Override
             protected Class<? extends CommandExecutor> getExecutor()
             {
-                return DefinitionExecutor.class;
+                return ValidatingExecutor.class;
             }
         }
 
@@ -132,7 +131,7 @@ public abstract class Command implements Callable<Void>
             @Override
             protected Class<? extends CommandExecutor> getExecutor()
             {
-                return DefinitionExecutor.class;
+                return ValidatingExecutor.class;
             }
         }
     }

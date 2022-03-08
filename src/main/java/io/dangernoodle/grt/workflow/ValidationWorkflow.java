@@ -21,9 +21,9 @@ import io.dangernoodle.grt.util.JsonTransformer;
 import io.dangernoodle.grt.util.JsonValidationException;
 
 
-public class ValidatorWorkflow implements Workflow<Path>
+public class ValidationWorkflow implements Workflow<Path>
 {
-    private static final Logger logger = LoggerFactory.getLogger(ValidatorWorkflow.class);
+    private static final Logger logger = LoggerFactory.getLogger(ValidationWorkflow.class);
 
     private Path configuration;
 
@@ -39,7 +39,7 @@ public class ValidatorWorkflow implements Workflow<Path>
 
     private final Map<String, List<Path>> names;
 
-    public ValidatorWorkflow(Path configuration, JsonTransformer jsonTransformer, boolean detailedReport)
+    public ValidationWorkflow(Path configuration, JsonTransformer jsonTransformer, boolean detailedReport)
     {
         this.configuration = configuration;
         this.detailedReport = detailedReport;

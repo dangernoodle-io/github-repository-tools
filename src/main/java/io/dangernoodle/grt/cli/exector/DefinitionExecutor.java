@@ -23,7 +23,7 @@ public class DefinitionExecutor extends CommandExecutor
     @Override
     public void execute(Command command) throws Exception
     {
-        String definition = getDefinition(command);
+        String definition = ((Command.Definition) command).getDefinition();
 
         try
         {
@@ -45,13 +45,8 @@ public class DefinitionExecutor extends CommandExecutor
         }
     }
 
-    DefinitionFileVisitor visitor(String definition)
+    private DefinitionFileVisitor visitor(String definition)
     {
         return new DefinitionFileVisitor(definition);
-    }
-
-    protected String getDefinition(Command command)
-    {
-        return ((Command.Definition) command).getDefinition();
     }
 }
