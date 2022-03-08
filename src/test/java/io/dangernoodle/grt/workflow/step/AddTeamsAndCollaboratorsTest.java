@@ -131,12 +131,12 @@ public class AddTeamsAndCollaboratorsTest extends AbstractGithubStepTest
 
     private void thenTeamIsAdded() throws IOException
     {
-        verify(mockGHTeam).add(mockGHRepository, GHOrganization.RolePermission.PULL);
+        verify(mockGHTeam).add(mockGHRepository, GHOrganization.Permission.PULL);
     }
 
     private void thenTeamIsNotAdded() throws IOException
     {
-        verify(mockGHTeam, times(0)).add(eq(mockGHRepository), any(GHOrganization.RolePermission.class));
+        verify(mockGHTeam, times(0)).add(eq(mockGHRepository), any(GHOrganization.Permission.class));
     }
 
     private void thenUserIsNotAdded() throws IOException

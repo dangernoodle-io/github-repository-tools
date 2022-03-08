@@ -92,24 +92,25 @@ public class AddTeamsAndCollaborators extends AbstractGithubStep
         }
     }
 
-    private GHOrganization.RolePermission mapToOrgPermission(Permission permission)
+    private GHOrganization.Permission mapToOrgPermission(Permission permission)
     {
         String value = permission.toString();
 
         switch (value)
         {
             case "admin":
-                return GHOrganization.RolePermission.ADMIN;
+                return GHOrganization.Permission.ADMIN;
             case "read":
             case "pull":
-                return GHOrganization.RolePermission.PULL;
+                return GHOrganization.Permission.PULL;
             case "push":
             case "write":
-                return GHOrganization.RolePermission.PUSH;
+                return GHOrganization.Permission.PUSH;
             case "triage":
-                return GHOrganization.RolePermission.TRIAGE;
+                return GHOrganization.Permission.TRIAGE;
             default:
-                return new GHOrganization.RolePermission(value);
+                throw new IllegalStateException("failed to find permission mapping");
+                //return new GHOrganization.RolePermission(value);
         }
     }
 }

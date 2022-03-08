@@ -19,7 +19,7 @@
   <properties>
     <emoji-java.version>5.1.1</emoji-java.version>
     <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
-    <github-api.version>1.303-SNAPSHOT</github-api.version>
+    <github-api.version>1.302</github-api.version>
     <guice.version>5.1.0</guice.version>
     <hamcrest.version>2.0.0.0</hamcrest.version>
     <jcolor.version>5.2.0</jcolor.version>
