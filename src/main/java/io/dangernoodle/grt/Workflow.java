@@ -1,102 +1,83 @@
 package io.dangernoodle.grt;
 
+import static io.dangernoodle.grt.Constants.ENABLE_AUTO_ADD_WORKFLOW;
+import static io.dangernoodle.grt.Constants.WILDCARD;
+
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.jboss.weld.exceptions.IllegalStateException;
 import org.kohsuke.github.GHRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
-public interface Workflow
+/**
+ * @since 0.9.0
+ */
+public interface Workflow<T>
 {
-    void execute(Repository project, Context context) throws Exception;
+    void execute(T object, Context context) throws Exception;
 
-    String getName();
-
-    /**
-     * @since 0.8.0
-     */
-    default boolean includeInRepositoryWorkflow()
+    default String getName()
     {
-        return true;
+        return getClass().getName();
     }
 
-    /**
-     * @since 0.8.0
-     */
-    public abstract static class Basic implements Workflow
+    default void postExecution()
     {
-        protected final Logger logger;
+        // no-op
+    }
 
-        protected Basic()
-        {
-            this.logger = LoggerFactory.getLogger(getClass());
-        }
-
-        @Override
-        public final void execute(Repository repository, Context context) throws Exception
-        {
-            Collection<Workflow.Step> steps = createSteps();
-
-            for (Workflow.Step step : steps)
-            {
-                String stepName = step.getClass().getSimpleName();
-
-                logger.trace("executing step [{}]", stepName);
-                Status status = step.execute(repository, context);
-
-                if (status != Status.CONTINUE)
-                {
-                    logger.debug("[{}] workflow interrupted by [{}], aborting", getName(), stepName);
-                    return;
-                }
-            }
-        }
-
-        protected abstract Collection<Workflow.Step> createSteps();
+    default void preExecution() throws Exception
+    {
+        // no-op
     }
 
     public static class Context
     {
-        private final Map<String, Object> args;
+        private final Map<Object, Object> context;
 
-        private final Map<Class<?>, Object> context;
-
-        public Context(Map<String, Object> args)
+        public Context(Map<Object, Object> initial)
         {
-            this.args = new HashMap<>(args);
-            this.context = new HashMap<>();
+            this.context = new HashMap<>(initial);
         }
 
         public void add(Object object)
         {
-            context.put(object.getClass(), object);
+            add(object.getClass(), object);
+        }
+
+        public void add(Object name, Object object)
+        {
+            context.put(name, object);
+        }
+
+        public boolean contains(Object name)
+        {
+            return context.containsKey(name) && context.get(name) != null;
+        }
+
+        public <T> T get(Class<T> clazz) throws IllegalStateException
+        {
+            return get((Object) clazz);
+        }
+
+        public <T> T get(Class<T> clazz, T dflt)
+        {
+            return get((Object) clazz, dflt);
         }
 
         @SuppressWarnings("unchecked")
-        public <T> T get(Class<T> clazz)
+        public <T> T get(Object name) throws IllegalStateException
         {
-            return (T) context.get(clazz);
-        }
-
-        /**
-         * @since 0.8.0
-         */
-        @SuppressWarnings("unchecked")
-        public <T> T getArg(String name)
-        {
-            return (T) Optional.ofNullable(args.get(name))
-                               .orElseThrow(() -> new IllegalStateException(("argument [" + name + "] not found in context")));
+            return (T) getOptional(name).orElseThrow(() -> illegalState(name));
         }
 
         @SuppressWarnings("unchecked")
-        public <T> T getArg(String name, T deflt)
+        public <T> T get(Object name, T dflt)
         {
-            return args.containsKey(name) ? (T) args.get(name) : deflt;
+            return (T) getOptional(name).orElse(dflt);
         }
 
         /**
@@ -107,21 +88,42 @@ public interface Workflow
             return get(GHRepository.class);
         }
 
-        /**
-         * @since 0.6.0
-         */
-        public boolean isArchived()
+        public <T> Optional<T> getOptional(Class<T> clazz)
         {
-            return getGHRepository().isArchived();
+            return getOptional((Object) clazz);
+        }
+
+        @SuppressWarnings("unchecked")
+        public <T> Optional<T> getOptional(Object name)
+        {
+            return (Optional<T>) Optional.ofNullable(context.get(name));
+        }
+
+        /**
+         * @since 0.9.0
+         */
+        public boolean isAutoAddWorkflowEnabled()
+        {
+            return get(ENABLE_AUTO_ADD_WORKFLOW, true);
+        }
+
+        private IllegalStateException illegalState(Object name)
+        {
+            return new IllegalStateException("argument [" + name.toString() + "] not found in context");
         }
     }
 
     /**
-     * @since 0.6.0
+     * @since 0.9.0
      */
-    public interface PrePost
+    public interface Lifecycle
     {
-        default void postExecution() throws Exception
+        default Collection<String> getCommands()
+        {
+            return List.of(WILDCARD);
+        }
+
+        default void postExecution()
         {
             // no-op
         }
@@ -141,8 +143,8 @@ public interface Workflow
         SKIP;
     }
 
-    public interface Step
+    public interface Step<T>
     {
-        Workflow.Status execute(Repository repository, Context context) throws Exception;
+        Workflow.Status execute(T object, Context context) throws Exception;
     }
 }

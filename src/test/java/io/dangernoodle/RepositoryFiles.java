@@ -6,8 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-import io.dangernoodle.grt.utils.JsonTransformer;
-import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
+import io.dangernoodle.grt.util.JsonTransformer;
+import io.dangernoodle.grt.util.JsonTransformer.JsonObject;
 
 
 public enum RepositoryFiles

@@ -1,90 +1,41 @@
 package io.dangernoodle.grt.cli;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
+import static io.dangernoodle.grt.Constants.CLEAR_WEBHOOKS;
+import static io.dangernoodle.grt.Constants.CLEAR_WEBHOOKS_OPT;
+import static io.dangernoodle.grt.Constants.IGNORE_ERRORS_OPT;
+import static io.dangernoodle.grt.Constants.REPOSITORY;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
+import java.util.Map;
 
-import io.dangernoodle.grt.Repository;
-import io.dangernoodle.grt.internal.FileLoader;
-import io.dangernoodle.grt.internal.WorkflowExecutor;
-import io.dangernoodle.grt.utils.RepositoryMerger;
+import com.google.inject.Injector;
+
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 
-@Parameters(commandNames = "repository", resourceBundle = "GithubRepositoryTools", commandDescriptionKey = "repository")
-public class RepositoryCommand implements CommandLineParser.Command
+@Command(name = REPOSITORY)
+public class RepositoryCommand extends io.dangernoodle.grt.Command.Definition.All
 {
-    @Parameter(descriptionKey = "all", names = "--all")
-    private static boolean all;
+    @Option(names = CLEAR_WEBHOOKS_OPT)
+    private boolean clearWebhooks;
 
-    @Parameter(descriptionKey = "ignoreErrors", names = "--ignoreErrors")
-    private static boolean ignoreErrors;
+    @Option(names = IGNORE_ERRORS_OPT)
+    private boolean igoreErrors;
 
-    @Parameter(descriptionKey = "clearWebhooks", names = "--clearWebhooks")
-    private static boolean clearWebhooks;
-
-    @Parameter(descriptionKey = "name", required = true)
-    private static String name;
-
-    @Override
-    public Class<? extends Executor> getCommandExectorClass()
+    public RepositoryCommand(Injector injector)
     {
-        return Executor.class;
+        super(injector);
     }
 
-    public static class Executor extends CommandLineExecutor.RepositoryExecutor
+    @Override
+    public boolean ignoreErrors()
     {
-        private final WorkflowExecutor workflowExecutor;
+        return igoreErrors;
+    }
 
-        public Executor(WorkflowExecutor workflowExecutor, RepositoryMerger repositoryMerger, FileLoader fileLoader)
-        {
-            super(fileLoader, repositoryMerger);
-            this.workflowExecutor = workflowExecutor;
-        }
-
-        @Override
-        protected void execute(Repository repository) throws Exception
-        {
-            workflowExecutor.execute(repository,
-                    Collections.singletonMap("clearWebhooks", clearWebhooks));
-        }
-
-        @Override
-        protected Collection<File> getRepositories() throws IOException
-        {
-            if (all)
-            {
-                return fileLoader.loadRepositories(name);
-            }
-
-            return super.getRepositories();
-        }
-
-        @Override
-        protected String getRepositoryName()
-        {
-            return name;
-        }
-
-        @Override
-        protected boolean isIgnoreErrors()
-        {
-            return ignoreErrors;
-        }
-
-        @Override
-        protected void postExecution() throws Exception
-        {
-            workflowExecutor.postExecution();
-        }
-
-        @Override
-        protected void preExecution() throws Exception
-        {
-            workflowExecutor.preExecution();
-        }
+    @Override
+    public Map<Object, Object> toArgMap()
+    {
+        return Map.of(CLEAR_WEBHOOKS, clearWebhooks);
     }
 }

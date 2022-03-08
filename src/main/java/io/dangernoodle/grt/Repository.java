@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import io.dangernoodle.grt.utils.JsonTransformer.JsonArray;
-import io.dangernoodle.grt.utils.JsonTransformer.JsonObject;
-import io.dangernoodle.grt.utils.JsonTransformer.JsonObject.Deserializer;
+import io.dangernoodle.grt.util.JsonTransformer.JsonArray;
+import io.dangernoodle.grt.util.JsonTransformer.JsonObject;
+import io.dangernoodle.grt.util.JsonTransformer.JsonObject.Deserializer;
 
 
 /**
@@ -120,6 +120,16 @@ public class Repository
     /**
      * @since 0.9.0
      */
+    public Map<String, JsonArray> getWorkflows()
+    {
+        return Optional.ofNullable(workflows)
+                       .map(Collections::unmodifiableMap)
+                       .orElse(Collections.emptyMap());
+    }
+
+    /**
+     * @since 0.9.0
+     */
     public Collection<String> getWorkflows(String command)
     {
         if (REPOSITORY.equals(command) && json.has("workflow"))
@@ -134,11 +144,10 @@ public class Repository
     /**
      * @since 0.9.0
      */
-    public Map<String, JsonArray> getWorkflows()
+    public boolean isArchived()
     {
-        return Optional.ofNullable(workflows)
-                       .map(Collections::unmodifiableMap)
-                       .orElse(Collections.emptyMap());
+        return Optional.ofNullable(settings.isArchived())
+                       .orElse(false);
     }
 
     /**
@@ -253,7 +262,7 @@ public class Repository
                 @Override
                 public Permission apply(String value)
                 {
-                    return Permission.valueOf(value);
+                    return new Permission(value);
                 }
             });
         }
@@ -265,7 +274,7 @@ public class Repository
                 @Override
                 public Color apply(String value)
                 {
-                    return Color.from(value);
+                    return new Color(value);
                 }
             });
         }
@@ -277,7 +286,7 @@ public class Repository
                 @Override
                 public Permission apply(String value)
                 {
-                    return Permission.valueOf(value);
+                    return new Permission(value);
                 }
             });
         }
@@ -526,9 +535,10 @@ public class Repository
         {
             private final String color;
 
-            private Color(String color)
+            public Color(String color)
             {
-                this.color = color;
+                // TODO: validate color is valid hex as well...
+                this.color = color.startsWith("#") ? color.substring(1) : color;
             }
 
             @Override
@@ -553,22 +563,39 @@ public class Repository
             {
                 return color;
             }
-
-            public static Color from(String color)
-            {
-                // TODO: validate color is valid hex as well...
-                color = color.startsWith("#") ? color.substring(1) : color;
-
-                return new Color(color);
-            }
         }
 
-        public static enum Permission
+        public static class Permission
         {
-            admin,
-            developer,
-            read,
-            write;
+            private final String permission;
+
+            public Permission(String permission)
+            {
+                this.permission = permission;
+            }
+
+            @Override
+            public boolean equals(Object obj)
+            {
+                if (obj == null || getClass() != obj.getClass())
+                {
+                    return false;
+                }
+
+                return Objects.equals(this.permission, ((Permission) obj).permission);
+            }
+
+            @Override
+            public int hashCode()
+            {
+                return Objects.hash(permission);
+            }
+
+            @Override
+            public String toString()
+            {
+                return permission;
+            }
         }
     }
 }

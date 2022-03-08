@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -16,17 +17,20 @@
   <description>github repository tools</description>
 
   <properties>
+    <emoji-java.version>5.1.1</emoji-java.version>
     <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
-    <github-api.version>1.122</github-api.version>
+    <github-api.version>1.302</github-api.version>
+    <guice.version>5.1.0</guice.version>
     <hamcrest.version>2.0.0.0</hamcrest.version>
+    <jcolor.version>5.2.0</jcolor.version>
     <jcommander.version>1.78</jcommander.version>
     <json-schema.version>1.8.0</json-schema.version>
     <junit.version>5.6.0</junit.version>
     <logback.version>1.2.3</logback.version>
     <mockito.version>3.2.4</mockito.version>
     <okhttp.version>4.8.0</okhttp.version>
+    <picocli.version>4.6.3</picocli.version>
     <slf4j.version>1.7.25</slf4j.version>
-    <weld-se.version>3.1.3.Final</weld-se.version>
   </properties>
 
   <build>
@@ -53,9 +57,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.beust</groupId>
-      <artifactId>jcommander</artifactId>
-      <version>${jcommander.version}</version>
+      <groupId>com.diogonunes</groupId>
+      <artifactId>JColor</artifactId>
+      <version>${jcolor.version}</version>
     </dependency>
     <dependency>
       <groupId>com.github.everit-org.json-schema</groupId>
@@ -63,14 +67,23 @@
       <version>${json-schema.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp</artifactId>
       <version>${okhttp.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jboss.weld.se</groupId>
-      <artifactId>weld-se-core</artifactId>
-      <version>${weld-se.version}</version>
+      <groupId>com.vdurmont</groupId>
+      <artifactId>emoji-java</artifactId>
+      <version>${emoji-java.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>info.picocli</groupId>
+      <artifactId>picocli</artifactId>
+      <version>${picocli.version}</version>
     </dependency>
     <dependency>
       <groupId>org.kohsuke</groupId>
@@ -122,6 +135,13 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <groupId>com.google.inject</groupId>
+        <artifactId>guice-bom</artifactId>
+        <version>${guice.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -136,14 +156,6 @@
     <system>GitHub</system>
     <url>https://github.com/dangernoodle-io/github-repository-tools/issues</url>
   </issueManagement>
-
-  <repositories>
-    <repository>
-      <id>bintray-cbeust-maven</id>
-      <name>bintray</name>
-      <url>https://dl.bintray.com/cbeust/maven</url>
-    </repository>
-  </repositories>
 
   <profiles>
     <profile>
@@ -180,7 +192,8 @@
             <artifactId>jacoco-maven-plugin</artifactId>
             <configuration>
               <excludes>
-                <exlude>**/internal/ProducerFactory.class</exlude>
+                <exlude>**/internal/CorePlugin.class</exlude>
+                <exlude>**/internal/CorePlugin$CoreModule.class</exlude>
               </excludes>
             </configuration>
           </plugin>
@@ -236,7 +249,8 @@
                 </filter>
               </filters>
               <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                <transformer
+                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>io.dangernoodle.grt.main.GithubRepositoryTools</mainClass>
                 </transformer>
               </transformers>
