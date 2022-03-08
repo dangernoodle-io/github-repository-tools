@@ -13,7 +13,6 @@ import io.dangernoodle.grt.Workflow;
 
 /**
  * Executes one or more <code>Workflow</code>s for a command.
- * <p>
  * 
  * <pre>
  * {
@@ -23,7 +22,6 @@ import io.dangernoodle.grt.Workflow;
  *   }
  * }
  * </pre>
- * </p>
  * 
  * @since 0.9.0
  */
