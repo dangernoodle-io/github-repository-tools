@@ -20,18 +20,18 @@ public class JsonCredentials implements Credentials
     }
 
     @Override
-    public String getAuthToken(String key)
+    public String getCredentials(String key)
     {
         return json.getString(key);
     }
 
     @Override
-    public Map<String, String> getNameValue(String key)
+    public Map<String, Object> getNameValue(String key)
     {
-        return json.getMap(key, new Deserializer<String>()
+        return json.getMap(key, new Deserializer<>()
         {
             @Override
-            public String apply(String value)
+            public Object apply(String value)
             {
                 return value;
             }

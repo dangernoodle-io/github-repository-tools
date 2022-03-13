@@ -69,7 +69,7 @@ public class JsonCredentialsTest
 
     private void thenCredentialsMapIsFound()
     {
-        Map<String, String> map = credentials.getNameValue("map");
+        Map<String, Object> map = credentials.getNameValue("map");
 
         assertNotNull(map);
         assertEquals("user", "user");
@@ -82,7 +82,7 @@ public class JsonCredentialsTest
 
     private void thenGithubTokenIsFound()
     {
-        assertEquals("oauth-token", credentials.getGithubToken());
+        assertEquals("oauth-token", credentials.getGithubOAuthToken());
     }
 
     private void whenLoadCredentials() throws FileNotFoundException
