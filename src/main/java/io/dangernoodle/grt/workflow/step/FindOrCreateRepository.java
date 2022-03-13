@@ -7,7 +7,7 @@ import org.kohsuke.github.GHRepository;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.Workflow.Status;
-import io.dangernoodle.grt.util.GithubClient;
+import io.dangernoodle.grt.client.GithubClient;
 
 
 public class FindOrCreateRepository extends AbstractGithubStep
@@ -35,7 +35,7 @@ public class FindOrCreateRepository extends AbstractGithubStep
         Delegate delegate = createDelegate(organization);
 
         GHRepository ghRepo = delegate.get(name, organization);
-        
+
         if (ghRepo == null)
         {
             if (!create)
@@ -54,9 +54,9 @@ public class FindOrCreateRepository extends AbstractGithubStep
         return Status.CONTINUE;
     }
 
-    private Delegate createDelegate(String organization) throws IOException
+    private Delegate createDelegate(String organization)
     {
-        return organization.equals(client.getCurrentLogin()) ? createUserDelegate() : createOrgDelegate();
+        return !organization.equals(client.getCurrentLogin()) ? createOrgDelegate() : createUserDelegate();
     }
 
     private Delegate createOrgDelegate()

@@ -11,7 +11,7 @@ import org.kohsuke.github.GHRepository;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.Workflow.Status;
-import io.dangernoodle.grt.util.GithubClient;
+import io.dangernoodle.grt.client.GithubClient;
 
 
 public class ClearWebhooks extends AbstractGithubStep

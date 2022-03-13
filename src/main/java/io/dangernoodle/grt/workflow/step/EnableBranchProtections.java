@@ -18,7 +18,7 @@ import io.dangernoodle.grt.Repository.Settings.Branches.Protection.RequiredCheck
 import io.dangernoodle.grt.StatusCheck;
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.Workflow.Status;
-import io.dangernoodle.grt.util.GithubClient;
+import io.dangernoodle.grt.client.GithubClient;
 
 
 public class EnableBranchProtections extends AbstractGithubStep

@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow;
-import io.dangernoodle.grt.util.GithubClient;
+import io.dangernoodle.grt.client.GithubClient;
 
 
 /**
