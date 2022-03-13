@@ -39,7 +39,7 @@ public class EnvironmentCredentials implements Credentials
     public EnvironmentCredentials(Map<String, String> tokens)
     {
         // no mapper if no name/value pairs
-        this(tokens, null, null);
+        this(tokens, Collections.emptyMap(), Function.identity());
     }
 
     public EnvironmentCredentials(Map<String, String> tokens, Map<String, Collection<String>> credentials, Function<String, String> mapper)
@@ -47,37 +47,38 @@ public class EnvironmentCredentials implements Credentials
         this.tokens = new HashMap<>(tokens);
         this.tokens.put(GITHUB, GRT_GITHUB_OAUTH);
 
-        this.nameValue = Optional.ofNullable(credentials)
-                                 .map(map -> new HashMap<>(credentials))
-                                 .orElse(null);
-
         this.mapper = mapper;
+        this.nameValue = new HashMap<>(credentials);
     }
 
     @Override
-    public String getAuthToken(String key)
+    public String getCredentials(String key)
     {
-        return Optional.ofNullable(getEnvironmentVariable(get(key, tokens)))
+        return Optional.ofNullable(getEnvironmentVariable(tokens.get(key)))
+                       .map(Object::toString)
                        .orElse(null);
     }
 
     @Override
-    public Map<String, String> getNameValue(String key)
+    public Map<String, Object> getNameValue(String key)
     {
-        Collection<String> names = get(key, nameValue);
-        return names.stream()
-                    .collect(Collectors.toMap(this::mapKey, this::getEnvironmentVariable));
+        return Optional.ofNullable(nameValue.get(key))
+                       .map(names -> names.stream()
+                                          .collect(Collectors.toMap(this::mapKey, this::getEnvironmentVariable)))
+                       .orElse(null);
     }
 
-    String getEnvironmentVariable(String name)
+    String systemGetEnv(String name)
     {
         return System.getenv(name);
     }
 
-    private <T> T get(String key, Map<String, T> map)
+    private Object getEnvironmentVariable(String name)
     {
-        return Optional.ofNullable(map.get(key))
-                       .orElseThrow(() -> new IllegalStateException("environment variable name not found for key [" + key + "]"));
+        return Optional.ofNullable(name)
+                       .map(this::systemGetEnv)
+                       .orElse(null);
+
     }
 
     private String mapKey(String key)

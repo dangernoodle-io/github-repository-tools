@@ -1,6 +1,7 @@
 package io.dangernoodle.grt.credentials;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,16 +21,18 @@ public class ChainedCredentialsTest
 {
     private static final String KEY = "key";
 
-    private static final Map<String, String> MAP = Collections.emptyMap();
+    private static final Map<String, Object> MAP = Collections.emptyMap();
 
     private static final String TOKEN = "token";
 
     private ChainedCredentials chain;
 
-    private Map<String, String> map;
+    private Map<String, Object> map;
 
     @Mock
     private Credentials mockCredentials;
+
+    private boolean runAsApp;
 
     private String token;
 
@@ -59,21 +62,35 @@ public class ChainedCredentialsTest
         thenCredentialsChecked();
     }
 
+    @Test
+    public void testRunaAsApp()
+    {
+        givenRunAsApp();
+        whenCheckRunAsApp();
+        thenRunAsApp();
+    }
+
     private void givenCredentials()
     {
         when(mockCredentials.getNameValue(KEY)).thenReturn(null)
                                                .thenReturn(MAP);
     }
 
+    private void givenRunAsApp()
+    {
+        when(mockCredentials.runAsApp()).thenReturn(false)
+                                        .thenReturn(true);
+    }
+
     private void givenTokenCreds()
     {
-        when(mockCredentials.getAuthToken(KEY)).thenReturn(null)
-                                               .thenReturn(TOKEN);
+        when(mockCredentials.getCredentials(KEY)).thenReturn(null)
+                                                 .thenReturn(TOKEN);
     }
 
     private void thenAuthTokenChecked()
     {
-        verify(mockCredentials, times(2)).getAuthToken(KEY);
+        verify(mockCredentials, times(2)).getCredentials(KEY);
     }
 
     private void thenCredentialsChecked()
@@ -86,14 +103,24 @@ public class ChainedCredentialsTest
         assertEquals(MAP, map);
     }
 
+    private void thenRunAsApp()
+    {
+        assertTrue(runAsApp);
+    }
+
     private void thenTokenIsCorrect()
     {
         assertEquals(TOKEN, token);
     }
 
+    private void whenCheckRunAsApp()
+    {
+        runAsApp = chain.runAsApp();
+    }
+
     private void whenGetAuthToken()
     {
-        token = chain.getAuthToken(KEY);
+        token = chain.getCredentials(KEY);
     }
 
     private void whenGetCredentials()

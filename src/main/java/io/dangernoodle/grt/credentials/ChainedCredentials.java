@@ -26,15 +26,28 @@ public class ChainedCredentials implements Credentials
     }
 
     @Override
-    public String getAuthToken(String key)
+    public String getCredentials(String key)
     {
-        return findCredentials(credentials -> credentials.getAuthToken(key));
+        return findCredentials(credentials -> credentials.getCredentials(key));
     }
 
     @Override
-    public Map<String, String> getNameValue(String key)
+    public Map<String, Object> getNameValue(String key)
     {
         return findCredentials(credentials -> credentials.getNameValue(key));
+    }
+
+    @Override
+    public boolean runAsApp()
+    {
+        /*
+         * 'findAny' is a cheat to allow the cli to indicate 'runAsApp' but have the credentials supplied via another
+         * provider
+         */
+        return credentials.stream()
+                          .filter(Credentials::runAsApp)
+                          .findAny()
+                          .isPresent();
     }
 
     private <T> T findCredentials(Function<Credentials, T> function)

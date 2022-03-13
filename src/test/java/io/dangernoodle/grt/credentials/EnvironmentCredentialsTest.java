@@ -1,7 +1,7 @@
 package io.dangernoodle.grt.credentials;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import io.dangernoodle.grt.Constants;
 
 public class EnvironmentCredentialsTest
 {
-    private Map<String, String> actualNameValue;
+    private Map<String, Object> actualNameValue;
 
     private String actualToken;
 
@@ -49,9 +49,8 @@ public class EnvironmentCredentialsTest
         thenTokenIsCorrect();
 
         givenATokenThatDoesntExist();
-        assertThrows(IllegalStateException.class, () -> {
-            whenGetAuthToken();
-        });
+        whenGetAuthToken();
+        thenTokenIsNull();
     }
 
     @Test
@@ -103,16 +102,21 @@ public class EnvironmentCredentialsTest
         assertEquals(expectedToken, actualToken);
     }
 
+    private void thenTokenIsNull()
+    {
+        assertNull(actualToken);
+    }
+
     private void whenGetAuthToken()
     {
         actualToken = new EnvironmentCredentials(tokens)
         {
             @Override
-            String getEnvironmentVariable(String name)
+            String systemGetEnv(String name)
             {
                 return name;
             }
-        }.getAuthToken(name);
+        }.getCredentials(name);
     }
 
     private void whenGetNameValue()
@@ -120,7 +124,7 @@ public class EnvironmentCredentialsTest
         actualNameValue = new EnvironmentCredentials(nameValue, Function.identity())
         {
             @Override
-            String getEnvironmentVariable(String name)
+            String systemGetEnv(String name)
             {
                 return name;
             }
