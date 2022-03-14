@@ -1,10 +1,11 @@
 package io.dangernoodle;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 
 import io.dangernoodle.grt.util.JsonTransformer;
 import io.dangernoodle.grt.util.JsonTransformer.JsonObject;
@@ -34,21 +35,21 @@ public enum RepositoryFiles
         this.jsonFile = this.toString();
     }
 
-    public File getFile()
+    public Path getPath() throws URISyntaxException
     {
-        return new File(find(file -> getClass().getResource(file)).getFile());
+        return Path.of(find().toURI());
     }
 
-    public JsonObject toJsonObject() throws IOException
+    public JsonObject toJsonObject() throws IOException, URISyntaxException
     {
-        return new JsonTransformer().deserialize(getFile());
+        return new JsonTransformer().deserialize(getPath());
     }
 
-    private <T> T find(Function<String, T> function)
+    private URL find()
     {
         return dirs.stream()
                    .map(dir -> String.format("%s/%s.json", dir, jsonFile))
-                   .map(function::apply)
+                   .map(path -> getClass().getResource(path))
                    .filter(file -> file != null)
                    .findFirst()
                    .orElseThrow(() -> new RuntimeException("failed to find json file for " + this));
