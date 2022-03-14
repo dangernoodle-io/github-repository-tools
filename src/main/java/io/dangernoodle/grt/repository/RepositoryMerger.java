@@ -1,7 +1,7 @@
 package io.dangernoodle.grt.repository;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,10 +37,10 @@ public class RepositoryMerger
         return new RepositoryBuilder(transformer);
     }
 
-    public Repository merge(File overrides, File defaults) throws IOException
+    public Repository merge(Path overrides, Path defaults) throws IOException
     {
-        Repository deRepo = new Repository(transformer.validate(defaults));
-        Repository ovRepo = new Repository(transformer.validate(overrides));
+        Repository deRepo = new Repository(transformer.deserialize(defaults));
+        Repository ovRepo = new Repository(transformer.deserialize(overrides));
 
         return merge(ovRepo, deRepo);
     }

@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ public class SchemaValidationTest
     }
 
     @Test
-    public void testNullBranchProtection()
+    public void testNullBranchProtection() throws Exception
     {
         givenNullBranchProtection();
         whenValidateJson();
@@ -69,11 +70,11 @@ public class SchemaValidationTest
         assertThat(exception, nullValue());
     }
 
-    private void whenValidateJson()
+    private void whenValidateJson() throws URISyntaxException
     {
         try
         {
-            transformer.validate(toValidate.getFile());
+            transformer.validate(toValidate.getPath());
         }
         catch (IOException e)
         {

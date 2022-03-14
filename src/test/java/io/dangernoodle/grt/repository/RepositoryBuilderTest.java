@@ -40,6 +40,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -92,7 +93,7 @@ public class RepositoryBuilderTest
         builder.disableBranchProtection("master");
     }
 
-    private void givenARepository() throws IOException
+    private void givenARepository() throws IOException, URISyntaxException
     {
         expected = new Repository(RepositoryFiles.mockRepository.toJsonObject());
 
