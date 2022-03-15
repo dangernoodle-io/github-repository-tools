@@ -37,6 +37,15 @@ public class JsonCredentialsTest
     }
 
     @Test
+    public void testEmptyCredentials() throws Exception
+    {
+        givenEmptyCredentialsFile();
+        givenACredentialsFile();
+        whenLoadCredentials();
+        thenGithubTokenMissing();
+    }
+
+    @Test
     public void testGithubApp() throws Exception
     {
         givenACredentialsFile();
@@ -61,7 +70,7 @@ public class JsonCredentialsTest
         givenNoCredentialsFile();
         thenIOExceptionThrown();
     }
-
+    
     @Test
     public void testRunAsApp() throws Exception
     {
@@ -74,11 +83,16 @@ public class JsonCredentialsTest
         when(mockTransformer.deserialize(file.getPath())).thenReturn(file.toJsonObject());
     }
 
+    private void givenEmptyCredentialsFile()
+    {
+        file = RepositoryFiles.emptyCredentials;
+    }
+
     private void givenNoCredentialsFile() throws IOException, URISyntaxException
     {
         when(mockTransformer.deserialize(file.getPath())).thenThrow(new IOException());
     }
-
+    
     private void thenCredentialsAreLoaded()
     {
         assertNotNull(credentials);
@@ -92,19 +106,24 @@ public class JsonCredentialsTest
         assertEquals("user", "user");
     }
 
-    private void thenIOExceptionThrown()
-    {
-        assertThrows(IOException.class, this::whenLoadCredentials);
-    }
-
     private void thenGithubTokenIsFound()
     {
         assertEquals("oauth-token", credentials.getGithubOAuthToken());
     }
 
+    private void thenGithubTokenMissing()
+    {
+        assertThrows(IllegalStateException.class, () -> credentials.getGithubOAuthToken());
+    }
+
     private void thenGithupAppNotFound()
     {
         assertThrows(IllegalStateException.class, () -> credentials.getGithubApp());
+    }
+
+    private void thenIOExceptionThrown()
+    {
+        assertThrows(IOException.class, this::whenLoadCredentials);
     }
 
     private void thenRunAsAppIsFalse()

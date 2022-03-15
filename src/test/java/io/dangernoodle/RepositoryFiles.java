@@ -15,6 +15,7 @@ public enum RepositoryFiles
 {
     branchProtectionOnly,
     credentials,
+    emptyCredentials,
     mockRepository,
     noBranches,
     nullBranchProtection,
