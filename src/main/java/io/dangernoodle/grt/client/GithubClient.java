@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.util;
+package io.dangernoodle.grt.client;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -7,13 +7,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import org.kohsuke.github.GHCreateRepositoryBuilder;
-import org.kohsuke.github.GHMyself;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHTeam;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
-import org.kohsuke.github.GitHubBuilder;
 
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings;
@@ -31,9 +29,12 @@ public class GithubClient
 
     private final Map<String, GHRepository> repositories;
 
-    GithubClient(GitHub github)
+    private GHUser currentUser;
+
+    GithubClient(GitHub github, GHUser currentUser)
     {
         this.github = github;
+        this.currentUser = currentUser;
 
         this.collaborators = createMap();
         this.repositories = createMap();
@@ -54,16 +55,14 @@ public class GithubClient
         return createRepository(repository, name -> github.createRepository(name));
     }
 
-    public String getCurrentLogin() throws IOException
+    public GHUser getCurrentUser()
     {
-        return github.getMyself().getLogin();
+        return currentUser;
     }
 
-    public GHMyself getMyself() throws IOException
+    public String getCurrentLogin()
     {
-        return (GHMyself) computeIfAbsent(collaborators, GHMyself.class.getName(), n -> {
-            return github.getMyself();
-        });
+        return getCurrentUser().getLogin();
     }
 
     public GHOrganization getOrganization(String name) throws IOException
@@ -73,7 +72,7 @@ public class GithubClient
 
     public GHRepository getRepository(String repository) throws IOException
     {
-        return computeIfAbsent(repositories, repository, name -> getMyself().getRepository(name));
+        return computeIfAbsent(repositories, repository, name -> currentUser.getRepository(name));
     }
 
     public GHRepository getRepository(String organization, String repository) throws IOException
@@ -141,14 +140,6 @@ public class GithubClient
 
             return builder.create();
         });
-    }
-
-    public static GithubClient createClient(GitHubBuilder builder) throws IOException
-    {
-        GitHub github = builder.build();
-        github.checkApiUrlValidity();
-
-        return new GithubClient(builder.build());
     }
 
     @FunctionalInterface
