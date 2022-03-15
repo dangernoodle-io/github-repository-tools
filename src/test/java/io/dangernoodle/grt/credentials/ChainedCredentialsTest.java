@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +42,7 @@ public class ChainedCredentialsTest
     {
         MockitoAnnotations.initMocks(this);
 
-        chain = new ChainedCredentials(mockCredentials, mockCredentials);
+        chain = new ChainedCredentials(List.of(mockCredentials, mockCredentials));
     }
 
     @Test

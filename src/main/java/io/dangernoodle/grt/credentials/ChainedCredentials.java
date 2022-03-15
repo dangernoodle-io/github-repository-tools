@@ -1,7 +1,6 @@
 package io.dangernoodle.grt.credentials;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -9,6 +8,8 @@ import io.dangernoodle.grt.Credentials;
 
 
 /**
+ * Chains together multiple <code>Credentials</code> providers, returning the first entry found.
+ * 
  * @since 0.8.0
  */
 public class ChainedCredentials implements Credentials
@@ -18,11 +19,6 @@ public class ChainedCredentials implements Credentials
     public ChainedCredentials(Collection<Credentials> credentials)
     {
         this.credentials = credentials;
-    }
-
-    public ChainedCredentials(Credentials... credentials)
-    {
-        this(List.of(credentials));
     }
 
     @Override

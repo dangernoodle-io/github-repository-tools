@@ -28,8 +28,6 @@ import io.dangernoodle.grt.util.JsonTransformer.JsonObject.Deserializer;
  * 
  * This provider is intended to be run last when used in conjunction with the <code>ChainedCredentials</code> provider.
  * </p>
- * 
- * @since 0.8.0
  */
 public class JsonCredentials implements Credentials
 {

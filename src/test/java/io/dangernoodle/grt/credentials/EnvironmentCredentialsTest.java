@@ -1,18 +1,16 @@
 package io.dangernoodle.grt.credentials;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import io.dangernoodle.grt.Constants;
 
 
 public class EnvironmentCredentialsTest
@@ -36,20 +34,24 @@ public class EnvironmentCredentialsTest
     }
 
     @Test
-    public void testGetAuthToken()
+    public void testRunAsUser()
+    {
+        assertFalse(new EnvironmentCredentials().runAsApp());
+    }
+
+    @Test
+    public void testGetCredentials()
     {
         givenTokenCredentials();
-        givenGithubTokenWanted();
-
-        whenGetAuthToken();
+        whenGetCredentials();
         thenTokenIsCorrect();
 
         givenOtherTokenWanted();
-        whenGetAuthToken();
+        whenGetCredentials();
         thenTokenIsCorrect();
 
         givenATokenThatDoesntExist();
-        whenGetAuthToken();
+        whenGetCredentials();
         thenTokenIsNull();
     }
 
@@ -64,12 +66,6 @@ public class EnvironmentCredentialsTest
     private void givenATokenThatDoesntExist()
     {
         name = "doesnotexist";
-    }
-
-    private void givenGithubTokenWanted()
-    {
-        name = Constants.GITHUB;
-        expectedToken = EnvironmentCredentials.GRT_GITHUB_OAUTH;
     }
 
     private void givenNameValues()
@@ -107,12 +103,12 @@ public class EnvironmentCredentialsTest
         assertNull(actualToken);
     }
 
-    private void whenGetAuthToken()
+    private void whenGetCredentials()
     {
         actualToken = new EnvironmentCredentials(tokens)
         {
             @Override
-            String systemGetEnv(String name)
+            protected Object getEnvironmentVariable(String name)
             {
                 return name;
             }
@@ -121,10 +117,10 @@ public class EnvironmentCredentialsTest
 
     private void whenGetNameValue()
     {
-        actualNameValue = new EnvironmentCredentials(nameValue, Function.identity())
+        actualNameValue = new EnvironmentCredentials(nameValue, k -> k)
         {
             @Override
-            String systemGetEnv(String name)
+            protected Object getEnvironmentVariable(String name)
             {
                 return name;
             }
