@@ -32,7 +32,7 @@ public class SleepingAbuseLimitHandlerTest
             void napTime(int delay) throws InterruptedException
             {
                 actualDelay = delay;
-                super.napTime(delay);
+                super.napTime(0);
             }
         };
     }
