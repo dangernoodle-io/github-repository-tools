@@ -28,6 +28,11 @@ public enum RepositoryFiles
         dirs = Arrays.asList("/test-files", "/repositories");
     }
 
+    public static Path dummyPemPath() throws URISyntaxException
+    {
+        return Path.of(RepositoryFiles.class.getResource("/dummy-key.pem").toURI());
+    }
+    
     public final String jsonFile;
 
     private RepositoryFiles()

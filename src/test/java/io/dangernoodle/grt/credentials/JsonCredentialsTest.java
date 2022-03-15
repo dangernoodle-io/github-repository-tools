@@ -1,12 +1,13 @@
 package io.dangernoodle.grt.credentials;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -36,11 +37,20 @@ public class JsonCredentialsTest
     }
 
     @Test
-    public void testLoadCredentials() throws Exception
+    public void testGithubApp() throws Exception
     {
         givenACredentialsFile();
         whenLoadCredentials();
-        theCredentialsAreLoaded();
+        thenCredentialsAreLoaded();
+        thenGithupAppNotFound();
+    }
+
+    @Test
+    public void testGithubOAuthToken() throws Exception
+    {
+        givenACredentialsFile();
+        whenLoadCredentials();
+        thenCredentialsAreLoaded();
         thenGithubTokenIsFound();
         thenCredentialsMapIsFound();
     }
@@ -49,20 +59,27 @@ public class JsonCredentialsTest
     public void testNullCredentials() throws Exception
     {
         givenNoCredentialsFile();
-        thenFileNotFoundExceptionThrow();
+        thenIOExceptionThrown();
     }
 
-    private void givenACredentialsFile() throws IOException
+    @Test
+    public void testRunAsApp() throws Exception
     {
-        when(mockTransformer.deserialize(file.getFile())).thenReturn(file.toJsonObject());
+        whenLoadCredentials();
+        thenRunAsAppIsFalse();
     }
 
-    private void givenNoCredentialsFile() throws IOException
+    private void givenACredentialsFile() throws IOException, URISyntaxException
     {
-        when(mockTransformer.deserialize(file.getFile())).thenThrow(new FileNotFoundException());
+        when(mockTransformer.deserialize(file.getPath())).thenReturn(file.toJsonObject());
     }
 
-    private void theCredentialsAreLoaded()
+    private void givenNoCredentialsFile() throws IOException, URISyntaxException
+    {
+        when(mockTransformer.deserialize(file.getPath())).thenThrow(new IOException());
+    }
+
+    private void thenCredentialsAreLoaded()
     {
         assertNotNull(credentials);
     }
@@ -75,9 +92,9 @@ public class JsonCredentialsTest
         assertEquals("user", "user");
     }
 
-    private void thenFileNotFoundExceptionThrow()
+    private void thenIOExceptionThrown()
     {
-        assertThrows(FileNotFoundException.class, this::whenLoadCredentials);
+        assertThrows(IOException.class, this::whenLoadCredentials);
     }
 
     private void thenGithubTokenIsFound()
@@ -85,8 +102,18 @@ public class JsonCredentialsTest
         assertEquals("oauth-token", credentials.getGithubOAuthToken());
     }
 
-    private void whenLoadCredentials() throws FileNotFoundException
+    private void thenGithupAppNotFound()
     {
-        credentials = new JsonCredentials(mockTransformer.deserialize(file.getFile()));
+        assertThrows(IllegalStateException.class, () -> credentials.getGithubApp());
+    }
+
+    private void thenRunAsAppIsFalse()
+    {
+        assertFalse(credentials.runAsApp());
+    }
+
+    private void whenLoadCredentials() throws IOException, URISyntaxException
+    {
+        credentials = new JsonCredentials(mockTransformer.deserialize(file.getPath()));
     }
 }
