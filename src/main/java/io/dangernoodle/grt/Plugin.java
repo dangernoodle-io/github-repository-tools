@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.google.inject.Module;
 
+
 /**
  * @since 0.9.0
  */
@@ -25,6 +26,6 @@ public interface Plugin
 
     default Optional<String> getResourceBundle()
     {
-        return Optional.of(getClass().getName());
+        return Optional.of(getClass().getSimpleName());
     }
 }

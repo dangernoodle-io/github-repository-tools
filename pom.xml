@@ -17,20 +17,19 @@
   <description>github repository tools</description>
 
   <properties>
-    <emoji-java.version>5.1.1</emoji-java.version>
+    <bouncycastle.version>1.70</bouncycastle.version>
     <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
-    <github-api.version>1.302</github-api.version>
+    <github-api.version>1.303</github-api.version>
     <guice.version>5.1.0</guice.version>
     <hamcrest.version>2.0.0.0</hamcrest.version>
-    <jcolor.version>5.2.0</jcolor.version>
-    <jcommander.version>1.78</jcommander.version>
+    <jjwt.version>0.11.2</jjwt.version>
     <json-schema.version>1.8.0</json-schema.version>
     <junit.version>5.6.0</junit.version>
     <logback.version>1.2.3</logback.version>
     <mockito.version>3.2.4</mockito.version>
     <okhttp.version>4.8.0</okhttp.version>
     <picocli.version>4.6.3</picocli.version>
-    <slf4j.version>1.7.25</slf4j.version>
+    <slf4j.version>1.7.36</slf4j.version>
   </properties>
 
   <build>
@@ -46,6 +45,12 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
           <configuration>
+            <archive>
+              <manifest>              
+                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                <mainClass>io.dangernoodle.grt.main.GithubRepositoryTools</mainClass>
+              </manifest>
+            </archive>
             <excludes>
               <exclude>**/logback.xml</exclude>
             </excludes>
@@ -56,11 +61,6 @@
   </build>
 
   <dependencies>
-    <dependency>
-      <groupId>com.diogonunes</groupId>
-      <artifactId>JColor</artifactId>
-      <version>${jcolor.version}</version>
-    </dependency>
     <dependency>
       <groupId>com.github.everit-org.json-schema</groupId>
       <artifactId>org.everit.json.schema</artifactId>
@@ -76,19 +76,34 @@
       <version>${okhttp.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.vdurmont</groupId>
-      <artifactId>emoji-java</artifactId>
-      <version>${emoji-java.version}</version>
-    </dependency>
-    <dependency>
       <groupId>info.picocli</groupId>
       <artifactId>picocli</artifactId>
       <version>${picocli.version}</version>
     </dependency>
     <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-api</artifactId>
+      <version>${jjwt.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk15on</artifactId>
+      <version>${bouncycastle.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpkix-jdk15on</artifactId>
+      <version>${bouncycastle.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.kohsuke</groupId>
       <artifactId>github-api</artifactId>
       <version>${github-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
+      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -116,6 +131,18 @@
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>${logback.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-impl</artifactId>
+      <version>${jjwt.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-jackson</artifactId>
+      <version>${jjwt.version}</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>

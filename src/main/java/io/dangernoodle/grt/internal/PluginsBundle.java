@@ -9,9 +9,14 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 class PluginsBundle extends ResourceBundle
 {
+    private static final Logger logger = LoggerFactory.getLogger(PluginsBundle.class);
+
     private final Collection<ResourceBundle> bundles;
 
     PluginsBundle(Collection<ResourceBundle> bundles)
@@ -41,11 +46,11 @@ class PluginsBundle extends ResourceBundle
 
     private static class PluginsControl extends Control
     {
-        private final Collection<String> bundles;
+        private final Collection<String> names;
 
-        PluginsControl(Collection<String> bundles)
+        PluginsControl(Collection<String> names)
         {
-            this.bundles = bundles;
+            this.names = names;
         }
 
         @Override
@@ -57,9 +62,15 @@ class PluginsBundle extends ResourceBundle
 
         private List<ResourceBundle> collectBundles(ClassLoader loader, Locale locale)
         {
-            return bundles.stream()
-                          .map(bundle -> ResourceBundle.getBundle(bundle, locale, loader))
-                          .collect(Collectors.toList());
+            return names.stream()
+                        .map(name -> loadBundle(name, locale, loader))
+                        .collect(Collectors.toList());
+        }
+
+        private ResourceBundle loadBundle(String name, Locale locale, ClassLoader loader)
+        {
+            logger.debug("loading resource bundle for [{}]", name);
+            return ResourceBundle.getBundle(name, locale, loader);
         }
     }
 

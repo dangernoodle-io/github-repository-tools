@@ -1,6 +1,11 @@
 package io.dangernoodle.grt;
 
+import static io.dangernoodle.grt.Constants.ALL_OPT;
+import static io.dangernoodle.grt.Constants.IGNORE_ERRORS_OPT;
+import static io.dangernoodle.grt.Constants.ROOT_DIR_OPT;
+
 import java.nio.file.Path;
+import java.util.Optional;
 
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParseResult;
@@ -11,34 +16,46 @@ import picocli.CommandLine.ParseResult;
  */
 public interface Arguments
 {
-    static final String IGNORE_ERRORS = "--ignoreErrors";
-
-    static final String ROOT_DIR = "--rootDir";
-
-    static final String SILENT = "--slient";
+    default boolean enabledForAll()
+    {
+        return getOption(ALL_OPT, false);
+    }
 
     String getCommand();
 
-    default Path getConfiguration()
+    default Path getConfigurationPath()
     {
         return getRoot().resolve("github-repository-tools.json");
     }
 
-    default Path getCredentials()
+    default Path getCredentialsPath()
     {
         return getRoot().resolve("credentials.json");
     }
 
-    default Path getDefinitionsRoot()
+    default Path getDefinitionsRootPath()
     {
         return getRoot().resolve("repositories");
     }
 
-    Path getRoot();
+    default <T> T getOption(String name)
+    {
+        return getOption(name, null);
+    }
 
-    boolean ignoreErrors();
+    <T> T getOption(String name, T dflt);
 
-    boolean isSilent();
+    default Path getRoot()
+    {
+        return getOption(ROOT_DIR_OPT);
+    }
+
+    boolean hasOption(String name);
+
+    default boolean ignoreErrors()
+    {
+        return getOption(IGNORE_ERRORS_OPT, false);
+    }
 
     public static class ArgumentsBuilder implements Arguments
     {
@@ -54,28 +71,23 @@ public interface Arguments
         }
 
         @Override
-        public Path getRoot()
+        public <T> T getOption(String name, T dflt)
         {
-            return Path.of((String) command.matchedOption(ROOT_DIR)
-                                           .getValue());
+            return Optional.ofNullable(subcommand.matchedOptionValue(name, dflt))
+                           .or(() -> Optional.ofNullable(command.matchedOptionValue(name, dflt)))
+                           .orElse(null);
         }
 
         @Override
-        public boolean ignoreErrors()
+        public boolean hasOption(String name)
         {
-            return subcommand.matchedOptionValue(IGNORE_ERRORS, false);
+            return command.hasMatchedOption(name) || subcommand.hasMatchedOption(name);
         }
 
         public void initialize(ParseResult parseResult)
         {
             this.command = parseResult;
             this.subcommand = getSubcommand(parseResult);
-        }
-
-        @Override
-        public boolean isSilent()
-        {
-            return subcommand.matchedOptionValue(SILENT, false);
         }
 
         private ParseResult getSubcommand(ParseResult parseResult)

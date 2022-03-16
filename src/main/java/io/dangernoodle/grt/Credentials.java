@@ -1,6 +1,7 @@
 package io.dangernoodle.grt;
 
 import static io.dangernoodle.grt.Constants.GITHUB;
+import static io.dangernoodle.grt.Constants.GITHUB_APP;
 
 import java.util.Map;
 import java.util.Optional;
@@ -8,31 +9,30 @@ import java.util.Optional;
 
 public interface Credentials
 {
-    public static final Credentials NULL = new Credentials()
+    String getCredentials(String key);
+
+    default String getGithubOAuthToken() throws IllegalStateException
     {
-        @Override
-        public String getAuthToken(String key)
-        {
-            return null;
-        }
+        return Optional.ofNullable(getCredentials(GITHUB))
+                       .orElseThrow(() -> new IllegalStateException("github oauth token not found!"));
+    }
 
-        @Override
-        public Map<String, String> getNameValue(String key)
-        {
-            return null;
-        }
-    };
-
-    String getAuthToken(String key);
-
-    default String getGithubToken() throws IllegalStateException
+    default Map<String, Object> getGithubApp() throws IllegalStateException
     {
-        return Optional.ofNullable(getAuthToken(GITHUB))
-                       .orElseThrow(() -> new IllegalStateException("github oauth token not found"));
+        return Optional.ofNullable(getNameValue(GITHUB_APP))
+                       .orElseThrow(() -> new IllegalStateException("github app credentials not found!"));
     }
 
     /**
-     * @since 0.8.0
+     * @since 0.9.0
      */
-    Map<String, String> getNameValue(String key);
+    Map<String, Object> getNameValue(String key);
+
+    /**
+     * @since 0.9.0
+     */
+    default boolean runAsApp()
+    {
+        return false;
+    }
 }

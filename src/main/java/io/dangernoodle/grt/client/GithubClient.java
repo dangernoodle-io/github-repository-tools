@@ -31,7 +31,7 @@ public class GithubClient
 
     private GHUser currentUser;
 
-    GithubClient(GitHub github, GHUser currentUser)
+    public GithubClient(GitHub github, GHUser currentUser)
     {
         this.github = github;
         this.currentUser = currentUser;
