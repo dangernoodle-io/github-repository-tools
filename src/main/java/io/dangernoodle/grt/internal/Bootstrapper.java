@@ -18,18 +18,24 @@ import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.util.Modules;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.dangernoodle.grt.Command;
 import io.dangernoodle.grt.Plugin;
+import io.dangernoodle.grt.PluginManager;
+import io.dangernoodle.grt.main.GithubRepositoryTools;
 import io.dangernoodle.grt.repository.RepositoryFactory;
 import io.dangernoodle.grt.util.JsonTransformer.JsonObject;
-import io.dangernoodle.grt.util.PluginsManager;
 
 
 /**
  * @since 0.9.0
  */
-public class Bootstrapper implements PluginsManager
-{
+public class Bootstrapper implements PluginManager
+{    
+    private static final Logger logger = LoggerFactory.getLogger(Bootstrapper.class);
+    
     private final Injector injector;
 
     private final Collection<Plugin> plugins;
@@ -38,6 +44,8 @@ public class Bootstrapper implements PluginsManager
     {
         this.plugins = loadPlugins();
         this.injector = createInjector();
+        
+        logger.info("** github-repository-tools - {}", GithubRepositoryTools.class.getPackage().getImplementationVersion());
     }
 
     public Collection<Class<? extends Command>> getCommands()
@@ -97,7 +105,7 @@ public class Bootstrapper implements PluginsManager
         return new AbstractModule()
         {
             @Provides
-            public PluginsManager plugins()
+            public PluginManager plugins()
             {
                 return Bootstrapper.this;
             }

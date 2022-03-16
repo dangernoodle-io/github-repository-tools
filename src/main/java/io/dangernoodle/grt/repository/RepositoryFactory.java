@@ -55,6 +55,6 @@ public class RepositoryFactory
 
     private Repository createRepository(Path path) throws IOException
     {
-        return new Repository(transformer.deserialize(path.toFile()));
+        return new Repository(transformer.deserialize(path));
     }
 }

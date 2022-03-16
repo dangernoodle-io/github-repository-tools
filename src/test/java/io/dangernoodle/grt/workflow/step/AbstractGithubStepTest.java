@@ -12,9 +12,9 @@ import org.mockito.MockitoAnnotations;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Workflow;
 import io.dangernoodle.grt.Workflow.Status;
+import io.dangernoodle.grt.client.GithubClient;
 import io.dangernoodle.grt.repository.RepositoryBuilder;
 import io.dangernoodle.grt.repository.RepositoryMerger;
-import io.dangernoodle.grt.util.GithubClient;
 import io.dangernoodle.grt.util.JsonTransformer;
 
 

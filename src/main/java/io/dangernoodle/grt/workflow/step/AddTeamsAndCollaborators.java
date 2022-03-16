@@ -13,7 +13,7 @@ import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings.Permission;
 import io.dangernoodle.grt.Workflow.Context;
 import io.dangernoodle.grt.Workflow.Status;
-import io.dangernoodle.grt.util.GithubClient;
+import io.dangernoodle.grt.client.GithubClient;
 
 
 public class AddTeamsAndCollaborators extends AbstractGithubStep
@@ -92,6 +92,27 @@ public class AddTeamsAndCollaborators extends AbstractGithubStep
         }
     }
 
+//    private GHOrganization.RolePermission mapToOrgPermission(Permission permission)
+//    {
+//        String value = permission.toString();
+//
+//        switch (value)
+//        {
+//            case "admin":
+//                return GHOrganization.RolePermission.ADMIN;
+//            case "read":
+//            case "pull":
+//                return GHOrganization.RolePermission.PULL;
+//            case "push":
+//            case "write":
+//                return GHOrganization.RolePermission.PUSH;
+//            case "triage":
+//                return GHOrganization.RolePermission.TRIAGE;
+//            default:
+//                return new GHOrganization.RolePermission(value);
+//        }
+//    }
+
     private GHOrganization.Permission mapToOrgPermission(Permission permission)
     {
         String value = permission.toString();
@@ -110,7 +131,6 @@ public class AddTeamsAndCollaborators extends AbstractGithubStep
                 return GHOrganization.Permission.TRIAGE;
             default:
                 throw new IllegalStateException("failed to find permission mapping");
-                //return new GHOrganization.RolePermission(value);
         }
     }
 }

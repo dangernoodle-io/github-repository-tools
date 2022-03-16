@@ -1,14 +1,12 @@
 package io.dangernoodle.grt.util;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,19 +42,14 @@ public class JsonTransformer
         this.schema = loadSchema();
     }
 
-    public JsonObject deserialize(File file) throws FileNotFoundException
+    public JsonObject deserialize(Path path) throws IOException
     {
-        return deserialize(new FileReader(file));
+        return deserialize(new InputStreamReader(Files.newInputStream(path)));
     }
 
-    public JsonObject deserialize(InputStream inputStream)
+    public JsonObject deserialize(Reader reader)
     {
-        return deserialize(new InputStreamReader(inputStream));
-    }
-
-    public JsonObject deserialize(Path path) throws FileNotFoundException
-    {
-        return deserialize(path.toFile());
+        return new JsonObject(loadJson(() -> reader));
     }
 
     public JsonObject deserialize(String json)
@@ -79,17 +72,17 @@ public class JsonTransformer
         return object == null ? JsonObject.NULL : new JsonObject(new JSONObject(object));
     }
 
-    public JsonObject validate(File file) throws FileNotFoundException, JsonValidationException
-    {
-        return validate(deserialize(file));
-    }
-
     /**
      * @since 0.9.0
      */
     public JsonObject validate(InputStream inputStream) throws JsonValidationException
     {
-        return validate(deserialize(new InputStreamReader(inputStream)));
+        return validate(new InputStreamReader(inputStream));
+    }
+
+    public JsonObject validate(Path path) throws IOException, JsonValidationException
+    {
+        return validate(deserialize(path));
     }
 
     /**
@@ -98,11 +91,6 @@ public class JsonTransformer
     public JsonObject validate(Reader reader) throws JsonValidationException
     {
         return validate(deserialize(reader));
-    }
-
-    private JsonObject deserialize(Reader reader)
-    {
-        return new JsonObject(loadJson(() -> reader));
     }
 
     private JSONObject loadJson(Supplier<Reader> supplier)

@@ -17,6 +17,8 @@ import io.dangernoodle.grt.Workflow;
 
 public class CompositeWorkflowTest
 {
+    private CompositeWorkflow<Object> composite;
+
     private boolean ignoreErrors;
 
     @Mock
@@ -26,8 +28,6 @@ public class CompositeWorkflowTest
     private Workflow<Object> mockWorkflow;
 
     private Object object;
-
-    private CompositeWorkflow<Object> composite;
 
     @BeforeEach
     public void beforeEach()

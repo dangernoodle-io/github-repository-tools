@@ -13,9 +13,9 @@ import io.dangernoodle.grt.cli.ValidateCommand;
  */
 public class ValidatingExecutor extends CommandExecutor
 {
-    private final ValidateCommand validator;
-
     private final DefinitionExecutor delegate;
+
+    private final ValidateCommand validator;
 
     public ValidatingExecutor(Injector injector)
     {

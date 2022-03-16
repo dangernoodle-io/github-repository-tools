@@ -1,10 +1,9 @@
 package io.dangernoodle.grt.internal;
 
-import static io.dangernoodle.grt.Constants.REPOSITORY;
-import static io.dangernoodle.grt.Constants.UPDATE_REF;
 import static io.dangernoodle.grt.Constants.VALIDATE;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +19,7 @@ import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.multibindings.ProvidesIntoSet;
 
-import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.connector.GitHubConnector;
 import org.kohsuke.github.extras.okhttp3.OkHttpGitHubConnector;
 
 import io.dangernoodle.grt.Arguments;
@@ -36,28 +35,20 @@ import io.dangernoodle.grt.cli.ValidateCommand;
 import io.dangernoodle.grt.cli.exector.DefinitionExecutor;
 import io.dangernoodle.grt.cli.exector.ValidatingExecutor;
 import io.dangernoodle.grt.cli.exector.ValidationExecutor;
+import io.dangernoodle.grt.client.GithubClient;
+import io.dangernoodle.grt.client.GithubClientFactory;
 import io.dangernoodle.grt.credentials.ChainedCredentials;
 import io.dangernoodle.grt.credentials.EnvironmentCredentials;
+import io.dangernoodle.grt.credentials.GithubCliCredentials;
 import io.dangernoodle.grt.credentials.JsonCredentials;
 import io.dangernoodle.grt.repository.RepositoryFactory;
 import io.dangernoodle.grt.statuscheck.CommandStatusCheck;
 import io.dangernoodle.grt.statuscheck.RepositoryStatusCheck;
-import io.dangernoodle.grt.util.GithubClient;
 import io.dangernoodle.grt.util.JsonTransformer;
 import io.dangernoodle.grt.util.PathToXConverter;
 import io.dangernoodle.grt.workflow.CommandWorkflow;
 import io.dangernoodle.grt.workflow.LifecycleWorkflow;
-import io.dangernoodle.grt.workflow.StepWorkflow;
 import io.dangernoodle.grt.workflow.ValidationWorkflow;
-import io.dangernoodle.grt.workflow.step.AddTeamsAndCollaborators;
-import io.dangernoodle.grt.workflow.step.ClearWebhooks;
-import io.dangernoodle.grt.workflow.step.CreateOrUpdateReference;
-import io.dangernoodle.grt.workflow.step.CreateRepositoryBranches;
-import io.dangernoodle.grt.workflow.step.CreateRepositoryLabels;
-import io.dangernoodle.grt.workflow.step.EnableBranchProtections;
-import io.dangernoodle.grt.workflow.step.FindCommitBy;
-import io.dangernoodle.grt.workflow.step.FindOrCreateRepository;
-import io.dangernoodle.grt.workflow.step.SetRepositoryOptions;
 import okhttp3.OkHttpClient;
 
 
@@ -100,35 +91,48 @@ public class CorePlugin implements Plugin
         }
 
         @Provides
-        public CommandWorkflow commandWorkflow(Arguments arguments, Set<Workflow<Repository>> workflows)
-        {
-            // only workflow 'provides' methods annotated with '@ProvidesIntoSet' will appear here
-            return new CommandWorkflow(arguments.getCommand(), arguments.ignoreErrors(), workflows);
-        }
-
-        @Provides
         @Singleton
-        public Credentials credentials(Arguments arguments, Set<Credentials> credentials, JsonTransformer jsonTransformer)
+        public Credentials credentials(Arguments arguments, JsonTransformer transformer, Set<Credentials> additional)
             throws IOException
         {
-            Credentials json = new JsonCredentials(jsonTransformer.deserialize(arguments.getCredentials()));
-            return new ChainedCredentials(toList(json, credentials));
+            List<Credentials> credentials = new ArrayList<>(additional);
+
+            // command line credentials take precedence
+            credentials.add(0, new GithubCliCredentials(arguments));
+
+            // json credentials are checked last
+            Path path = arguments.getCredentialsPath();
+            if (Files.exists(path))
+            {
+                credentials.add(new JsonCredentials(transformer.deserialize(arguments.getCredentialsPath())));
+            }
+
+            return new ChainedCredentials(credentials);
         }
 
         @Provides
         public DefinitionExecutor definitionExecutor(Arguments arguments, Workflow<Path> workflow)
         {
-            return new DefinitionExecutor(arguments.getDefinitionsRoot(), workflow);
+            return new DefinitionExecutor(arguments.getDefinitionsRootPath(), workflow);
         }
 
         @Provides
-        public GithubClient githubClient(Credentials credentials, OkHttpClient okHttp) throws IOException
+        @Singleton
+        public GithubClient githubClient(GithubClientFactory factory) throws IOException
         {
-            GitHubBuilder builder = new GitHubBuilder();
-            builder.withOAuthToken(credentials.getGithubToken())
-                   .withConnector(new OkHttpGitHubConnector(okHttp));
+            return factory.create();
+        }
 
-            return GithubClient.createClient(builder);
+        @Provides
+        public GithubClientFactory githubClientFactory(Arguments arguments, Credentials credentials, GitHubConnector connector)
+        {
+            return new GithubClientFactory(credentials, connector, arguments.enabledForAll());
+        }
+
+        @Provides
+        public GitHubConnector githubConnector(OkHttpClient okHttp)
+        {
+            return new OkHttpGitHubConnector(okHttp);
         }
 
         @Provides
@@ -148,21 +152,13 @@ public class CorePlugin implements Plugin
         @Provides
         public RepositoryFactory repositoryFactory(Arguments arguments, JsonTransformer jsonTransformer) throws IOException
         {
-            return new RepositoryFactory(arguments.getConfiguration(), jsonTransformer);
+            return new RepositoryFactory(arguments.getConfigurationPath(), jsonTransformer);
         }
 
         @ProvidesIntoSet
         public Workflow<Repository> repositoryWorkflow(GithubClient client, StatusCheck statusCheck)
         {
-            return createStepWorkflow(REPOSITORY,
-                    new FindOrCreateRepository(client),
-                    new SetRepositoryOptions(client),
-                    new CreateRepositoryLabels(client),
-                    new AddTeamsAndCollaborators(client),
-                    new CreateRepositoryBranches(client),
-                    new EnableBranchProtections(client, statusCheck),
-                    // optional step enabled by a command line argument
-                    new ClearWebhooks(client));
+            return DefaultWorkflows.repositoryWorkflow(client, statusCheck);
         }
 
         @Provides
@@ -174,11 +170,7 @@ public class CorePlugin implements Plugin
         @ProvidesIntoSet
         public Workflow<Repository> updateRefWorkflow(GithubClient client)
         {
-            return createStepWorkflow(UPDATE_REF,
-                    new FindOrCreateRepository(client, false),
-                    new FindCommitBy.Tag(client),
-                    new FindCommitBy.Sha1(client),
-                    new CreateOrUpdateReference(client));
+            return DefaultWorkflows.updateRefWorkflow(client);
         }
 
         @Provides
@@ -186,18 +178,18 @@ public class CorePlugin implements Plugin
         {
             return new ValidatingExecutor(injector);
         }
-        
+
         @Provides
         public ValidationExecutor validatorExecutor(Arguments arguments, ValidationWorkflow workflow)
         {
-            return new ValidationExecutor(arguments.getDefinitionsRoot(), workflow);
+            return new ValidationExecutor(arguments.getDefinitionsRootPath(), workflow);
         }
 
         @Provides
         public ValidationWorkflow validatorWorkflow(Arguments arguments, JsonTransformer transformer)
         {
             boolean detailed = VALIDATE.equals(arguments.getCommand());
-            return new ValidationWorkflow(arguments.getConfiguration(), transformer, detailed);
+            return new ValidationWorkflow(arguments.getConfigurationPath(), transformer, detailed);
         }
 
         @Override
@@ -205,7 +197,7 @@ public class CorePlugin implements Plugin
         {
             Multibinder.newSetBinder(binder(), Credentials.class)
                        // this will create the default that is added
-                       .addBinding().to(EnvironmentCredentials.class);
+                       .addBinding().to(EnvironmentCredentials.Github.class);
 
             Multibinder.newSetBinder(binder(), StatusCheck.class)
                        // this will create the default that is added
@@ -216,20 +208,6 @@ public class CorePlugin implements Plugin
 
             bind(Arguments.ArgumentsBuilder.class).in(Singleton.class);
             bind(Arguments.class).to(Arguments.ArgumentsBuilder.class);
-        }
-
-        @SafeVarargs
-        private <T> StepWorkflow<T> createStepWorkflow(String name, Workflow.Step<T>... steps)
-        {
-            return new StepWorkflow<>(name, List.of(steps));
-        }
-
-        private <T> List<T> toList(T first, Set<T> others)
-        {
-            List<T> list = new ArrayList<>(others);
-            list.add(0, first);
-
-            return list;
         }
     }
 }

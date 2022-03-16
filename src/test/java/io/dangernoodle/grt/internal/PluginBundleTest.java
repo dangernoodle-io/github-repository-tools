@@ -25,9 +25,7 @@ public class PluginBundleTest
 
     private void givenBundlesToMerge()
     {
-        ResourceBundle.getBundle("io.dangernoodle.TestPlugin");
-        
-        bundles = List.of("GithubRepositoryTools", "io.dangernoodle.TestPlugin");
+        bundles = List.of("GithubRepositoryTools", "TestPlugin");
     }
 
     private void thenBundlesMerged()

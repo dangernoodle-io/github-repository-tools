@@ -1,14 +1,19 @@
 package io.dangernoodle.grt.main;
 
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.LogManager;
 import java.util.stream.Collectors;
 
 import com.google.inject.Injector;
 
+import org.slf4j.bridge.SLF4JBridgeHandler;
+
 import io.dangernoodle.grt.Arguments.ArgumentsBuilder;
 import io.dangernoodle.grt.internal.Bootstrapper;
 import picocli.CommandLine;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Help;
 import picocli.CommandLine.IFactory;
@@ -20,8 +25,17 @@ import picocli.CommandLine.ParseResult;
 @Command(name = "grt")
 public class GithubRepositoryTools
 {
+    static
+    {
+        LogManager.getLogManager().reset();
+        SLF4JBridgeHandler.install();
+    }
+
+    @ArgGroup(exclusive = false)
+    private BotApp botApp;
+
     @Option(names = "--rootDir", required = true)
-    private String rootDir;
+    private Path rootDir;
 
     public static void main(String... args) throws Exception
     {
@@ -43,10 +57,7 @@ public class GithubRepositoryTools
 
     private static IFactory createCommandFactory(Injector injector)
     {
-        /*
-         * this factory is only used by picocli to create commands and other object it needs, so it's safe to fall back
-         * to the default factory
-         */
+        // only used by picocli to create commands and other object it needs, so it's safe to fall back to the default
         return new IFactory()
         {
             @Override
@@ -73,7 +84,6 @@ public class GithubRepositoryTools
             @Override
             public Map<String, Help> subcommands()
             {
-
                 return super.subcommands().entrySet()
                                           .stream()
                                           .sorted(Map.Entry.comparingByKey())
@@ -92,5 +102,26 @@ public class GithubRepositoryTools
         }
 
         return new CommandLine.RunLast().execute(parseResult);
+    }
+
+    private static class BotApp
+    {
+        @Option(names = "--appId", required = true)
+        private String appId;
+
+        @ArgGroup(exclusive = true)
+        private Auth auth;
+
+        @Option(names = "--installId", required = true)
+        private String installId;
+
+        private static class Auth
+        {
+            @Option(names = "--appKey")
+            private Path privateKey;
+
+            @Option(names = "--appToken")
+            private String token;
+        }
     }
 }

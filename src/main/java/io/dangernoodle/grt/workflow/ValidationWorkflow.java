@@ -82,7 +82,7 @@ public class ValidationWorkflow implements Workflow<Path>
     @Override
     public void postExecution()
     {
-        logger.info("** validation complete - {} errors found!", errors.size());
+        logger.info("validation complete - {} errors found!", errors.size());
 
         if (!errors.isEmpty())
         {
@@ -93,7 +93,7 @@ public class ValidationWorkflow implements Workflow<Path>
     @Override
     public void preExecution()
     {
-        logger.info("** starting definition file validation...");
+        logger.info("starting definition file validation...");
 
         try
         {

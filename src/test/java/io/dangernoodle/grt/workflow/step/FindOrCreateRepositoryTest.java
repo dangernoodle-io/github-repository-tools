@@ -101,7 +101,7 @@ public class FindOrCreateRepositoryTest extends AbstractGithubStepTest
         repoBuilder.setOrganization("organization");
     }
 
-    private void givenAUser() throws IOException
+    private void givenAUser()
     {
         repoBuilder.setOrganization("user");
         when(mockClient.getCurrentLogin()).thenReturn("user");

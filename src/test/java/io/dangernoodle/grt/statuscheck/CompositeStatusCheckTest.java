@@ -26,6 +26,8 @@ public class CompositeStatusCheckTest
 
     private Collection<String> actual;
 
+    private CompositeStatusCheck composite;
+
     private Collection<String> expected;
 
     @Mock
@@ -38,8 +40,6 @@ public class CompositeStatusCheckTest
     private StatusCheck mockCheck3;
 
     private Repository mockRepository;
-
-    private CompositeStatusCheck composite;
 
     @BeforeEach
     public void beforeEach()

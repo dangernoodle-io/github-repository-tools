@@ -1,5 +1,16 @@
 package io.dangernoodle.grt.util;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.Security;
+import java.security.spec.PKCS8EncodedKeySpec;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
 import org.kohsuke.github.GHCommit;
 
 
@@ -8,6 +19,26 @@ import org.kohsuke.github.GHCommit;
  */
 public final class GithubRepositoryToolsUtils
 {
+    static
+    {
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
+    /**
+     * @since 0.9.0
+     */
+    public static PrivateKey readPrivateKey(Reader reader) throws GeneralSecurityException, IOException
+    {
+        try (PemReader pemReader = new PemReader(reader))
+        {
+            PemObject pemObject = pemReader.readPemObject();
+            byte[] content = pemObject.getContent();
+
+            return KeyFactory.getInstance("RSA")
+                             .generatePrivate(new PKCS8EncodedKeySpec(content));
+        }
+    }
+
     /**
      * @since 0.9.0
      */

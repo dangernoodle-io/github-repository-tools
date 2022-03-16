@@ -1,7 +1,6 @@
 package io.dangernoodle.grt.credentials;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -9,6 +8,8 @@ import io.dangernoodle.grt.Credentials;
 
 
 /**
+ * Chains together multiple <code>Credentials</code> providers, returning the first entry found.
+ * 
  * @since 0.8.0
  */
 public class ChainedCredentials implements Credentials
@@ -20,21 +21,29 @@ public class ChainedCredentials implements Credentials
         this.credentials = credentials;
     }
 
-    public ChainedCredentials(Credentials... credentials)
+    @Override
+    public String getCredentials(String key)
     {
-        this(List.of(credentials));
+        return findCredentials(credentials -> credentials.getCredentials(key));
     }
 
     @Override
-    public String getAuthToken(String key)
-    {
-        return findCredentials(credentials -> credentials.getAuthToken(key));
-    }
-
-    @Override
-    public Map<String, String> getNameValue(String key)
+    public Map<String, Object> getNameValue(String key)
     {
         return findCredentials(credentials -> credentials.getNameValue(key));
+    }
+
+    @Override
+    public boolean runAsApp()
+    {
+        /*
+         * 'findAny' is a cheat to allow the cli to indicate 'runAsApp' but have the credentials supplied via another
+         * provider
+         */
+        return credentials.stream()
+                          .filter(Credentials::runAsApp)
+                          .findAny()
+                          .isPresent();
     }
 
     private <T> T findCredentials(Function<Credentials, T> function)

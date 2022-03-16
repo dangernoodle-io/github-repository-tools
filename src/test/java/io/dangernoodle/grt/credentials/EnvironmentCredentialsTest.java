@@ -1,23 +1,21 @@
 package io.dangernoodle.grt.credentials;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.dangernoodle.grt.Constants;
-
 
 public class EnvironmentCredentialsTest
 {
-    private Map<String, String> actualNameValue;
+    private Map<String, Object> actualNameValue;
 
     private String actualToken;
 
@@ -36,22 +34,19 @@ public class EnvironmentCredentialsTest
     }
 
     @Test
-    public void testGetAuthToken()
+    public void testGetCredentials()
     {
         givenTokenCredentials();
-        givenGithubTokenWanted();
-
-        whenGetAuthToken();
+        whenGetCredentials();
         thenTokenIsCorrect();
 
         givenOtherTokenWanted();
-        whenGetAuthToken();
+        whenGetCredentials();
         thenTokenIsCorrect();
 
         givenATokenThatDoesntExist();
-        assertThrows(IllegalStateException.class, () -> {
-            whenGetAuthToken();
-        });
+        whenGetCredentials();
+        thenTokenIsNull();
     }
 
     @Test
@@ -62,15 +57,15 @@ public class EnvironmentCredentialsTest
         thenNameValueMapIsCorrect();
     }
 
+    @Test
+    public void testRunAsUser()
+    {
+        assertFalse(new EnvironmentCredentials().runAsApp());
+    }
+
     private void givenATokenThatDoesntExist()
     {
         name = "doesnotexist";
-    }
-
-    private void givenGithubTokenWanted()
-    {
-        name = Constants.GITHUB;
-        expectedToken = EnvironmentCredentials.GRT_GITHUB_OAUTH;
     }
 
     private void givenNameValues()
@@ -103,24 +98,29 @@ public class EnvironmentCredentialsTest
         assertEquals(expectedToken, actualToken);
     }
 
-    private void whenGetAuthToken()
+    private void thenTokenIsNull()
+    {
+        assertNull(actualToken);
+    }
+
+    private void whenGetCredentials()
     {
         actualToken = new EnvironmentCredentials(tokens)
         {
             @Override
-            String getEnvironmentVariable(String name)
+            protected Object getEnvironmentVariable(String name)
             {
                 return name;
             }
-        }.getAuthToken(name);
+        }.getCredentials(name);
     }
 
     private void whenGetNameValue()
     {
-        actualNameValue = new EnvironmentCredentials(nameValue, Function.identity())
+        actualNameValue = new EnvironmentCredentials(nameValue, k -> k)
         {
             @Override
-            String getEnvironmentVariable(String name)
+            protected Object getEnvironmentVariable(String name)
             {
                 return name;
             }

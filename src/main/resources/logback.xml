@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <configuration debug="false">
 
-  <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+  <appender name="console" class="ch.qos.logback.core.ConsoleAppender">  
     <encoder>
-      <pattern>%yellow([%thread]) %highlight(%-5level) %msg %throwable{25}%n</pattern>
+      <pattern>%highlight(%-5level) %msg %throwable{25}%n</pattern>
     </encoder>
   </appender>
 
-  <root level="${default.logback.level}:-info">
+  <root level="${default.logback.level:-info}">
     <appender-ref ref="console" />
   </root>
 

@@ -63,9 +63,9 @@ import io.dangernoodle.grt.util.JsonTransformer.JsonObject;
 
 public class RepositoryMergerTest
 {
-    private static final JsonTransformer transformer = new JsonTransformer();
-
     private static final Permission admin = new Permission("admin");
+
+    private static final JsonTransformer transformer = new JsonTransformer();
 
     private static final Permission write = new Permission("write");
 

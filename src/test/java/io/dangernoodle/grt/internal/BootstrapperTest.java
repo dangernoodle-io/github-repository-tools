@@ -17,10 +17,10 @@ import io.dangernoodle.grt.Plugin;
 
 public class BootstrapperTest
 {
+    private Bootstrapper bootstrapper;
+
     @Mock
     private Plugin mockPlugin;
-
-    private Bootstrapper bootstrapper;
 
     @BeforeEach
     public void beforeEach()

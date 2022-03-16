@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.util;
+package io.dangernoodle.grt.client;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -15,6 +15,7 @@ import org.kohsuke.github.GHCreateRepositoryBuilder;
 import org.kohsuke.github.GHMyself;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -22,13 +23,12 @@ import org.mockito.MockitoAnnotations;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.Repository.Settings;
 import io.dangernoodle.grt.repository.RepositoryBuilder;
+import io.dangernoodle.grt.util.JsonTransformer;
 
 
 public class GithubClientTest
 {
     private GithubClient client;
-
-    private GHMyself ghMyself;
 
     private GHOrganization ghOrg;
 
@@ -49,10 +49,13 @@ public class GithubClientTest
     @Mock
     private GHCreateRepositoryBuilder mockRepoBuilder;
 
+    @Mock
+    private GHUser mockUser;
+
     private RepositoryBuilder repoBuilder;
 
     private Repository repository;
-
+    
     @BeforeEach
     public void beforeEach() throws Exception
     {
@@ -60,7 +63,7 @@ public class GithubClientTest
         when(mockRepoBuilder.create()).thenReturn(mockRepo);
 
         repoBuilder = createBuilder();
-        client = new GithubClient(mockGithub);
+        client = new GithubClient(mockGithub, mockUser);
     }
 
     @Test
@@ -81,19 +84,6 @@ public class GithubClientTest
         thenUserCreateRepositoryInvoked();
         thenVerifyRepositoryBuilder();
         thenRepositoryIsReturned();
-    }
-
-    @Test
-    public void testGetMyself() throws Exception
-    {
-        givenMyself();
-        whenGetMyself();
-        thenMyselfIsReturned();
-        thenGithubMyselfInvoked();
-
-        whenGetMyself();
-        thenMyselfIsReturned();
-        thenGithubMyselfNotInvoked();
     }
 
     @Test
@@ -139,21 +129,6 @@ public class GithubClientTest
         when(mockGithub.createRepository("repository")).thenReturn(mockRepoBuilder);
     }
 
-    private void givenMyself() throws IOException
-    {
-        when(mockGithub.getMyself()).thenReturn(mockMyself);
-    }
-
-    private void thenGithubMyselfInvoked() throws IOException
-    {
-        verify(mockGithub).getMyself();
-    }
-
-    private void thenGithubMyselfNotInvoked()
-    {
-        verifyNoMoreInteractions(mockGithub);
-    }
-
     private void thenGithubOrganizationInvoked() throws IOException
     {
         verify(mockGithub).getOrganization(any());
@@ -162,11 +137,6 @@ public class GithubClientTest
     private void thenGithubOrganizationNotInvoked()
     {
         verifyNoMoreInteractions(mockGithub);
-    }
-
-    private void thenMyselfIsReturned()
-    {
-        assertThat(ghMyself, equalTo(mockMyself));
     }
 
     private void thenOrganizationIsReturned()
@@ -209,11 +179,6 @@ public class GithubClientTest
     {
         repository = repoBuilder.build();
         ghRepo = client.createUserRepository(repository);
-    }
-
-    private void whenGetMyself() throws IOException
-    {
-        ghMyself = client.getMyself();
     }
 
     private void whenGetOrganization() throws IOException
