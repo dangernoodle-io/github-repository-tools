@@ -15,6 +15,13 @@ import io.dangernoodle.grt.util.JsonTransformer.JsonObject.Deserializer;
  * <p>
  * Credentials found in a <code>credentials.json</code> stored under the supplied root directory are automatically
  * loaded upon startup.
+ * </p>
+ * <p>
+ * This provider is intended to be run last when used in conjunction with the <code>ChainedCredentials</code> provider.
+ * </p>
+ * <p>
+ * Example <code>credentials.json</code>:
+ * </p>
  * 
  * <pre>
  * {
@@ -25,9 +32,6 @@ import io.dangernoodle.grt.util.JsonTransformer.JsonObject.Deserializer;
  *     }
  * }
  * </pre>
- * 
- * This provider is intended to be run last when used in conjunction with the <code>ChainedCredentials</code> provider.
- * </p>
  */
 public class JsonCredentials implements Credentials
 {
