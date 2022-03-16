@@ -11,16 +11,16 @@ public interface Credentials
 {
     String getCredentials(String key);
 
-    default String getGithubOAuthToken() throws IllegalStateException
-    {
-        return Optional.ofNullable(getCredentials(GITHUB))
-                       .orElseThrow(() -> new IllegalStateException("github oauth token not found!"));
-    }
-
     default Map<String, Object> getGithubApp() throws IllegalStateException
     {
         return Optional.ofNullable(getNameValue(GITHUB_APP))
                        .orElseThrow(() -> new IllegalStateException("github app credentials not found!"));
+    }
+
+    default String getGithubOAuthToken() throws IllegalStateException
+    {
+        return Optional.ofNullable(getCredentials(GITHUB))
+                       .orElseThrow(() -> new IllegalStateException("github oauth token not found!"));
     }
 
     /**

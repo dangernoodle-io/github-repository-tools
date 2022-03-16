@@ -44,6 +44,11 @@ class PluginsBundle extends ResourceBundle
                       .orElse(null);
     }
 
+    static ResourceBundle merge(Collection<String> bundles)
+    {
+        return ResourceBundle.getBundle("grt", Locale.getDefault(), new PluginsControl(bundles));
+    }
+
     private static class PluginsControl extends Control
     {
         private final Collection<String> names;
@@ -72,10 +77,5 @@ class PluginsBundle extends ResourceBundle
             logger.debug("loading resource bundle for [{}]", name);
             return ResourceBundle.getBundle(name, locale, loader);
         }
-    }
-
-    static ResourceBundle merge(Collection<String> bundles)
-    {
-        return ResourceBundle.getBundle("grt", Locale.getDefault(), new PluginsControl(bundles));
     }
 }

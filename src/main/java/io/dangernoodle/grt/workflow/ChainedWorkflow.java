@@ -28,16 +28,16 @@ public class ChainedWorkflow<T> implements Workflow<T>
 
     private final Collection<Workflow<T>> workflows;
 
-    @SafeVarargs
-    public ChainedWorkflow(boolean ignoreErrors, Workflow<T>... workflows)
-    {
-        this(ignoreErrors, List.of(workflows));
-    }
-
     public ChainedWorkflow(boolean ignoreErrors, Collection<Workflow<T>> workflows)
     {
         this.workflows = workflows;
         this.ignoreErrors = ignoreErrors;
+    }
+
+    @SafeVarargs
+    public ChainedWorkflow(boolean ignoreErrors, Workflow<T>... workflows)
+    {
+        this(ignoreErrors, List.of(workflows));
     }
 
     @Override

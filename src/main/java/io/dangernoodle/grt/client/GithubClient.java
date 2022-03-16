@@ -23,13 +23,13 @@ public class GithubClient
 
     private final Map<String, GHUser> collaborators;
 
+    private GHUser currentUser;
+
     private final Map<String, GHOrganization> organizations;
 
     private final Map<GHOrganization, Map<String, GHTeam>> orgTeams;
 
     private final Map<String, GHRepository> repositories;
-
-    private GHUser currentUser;
 
     public GithubClient(GitHub github, GHUser currentUser)
     {
@@ -55,14 +55,14 @@ public class GithubClient
         return createRepository(repository, name -> github.createRepository(name));
     }
 
-    public GHUser getCurrentUser()
-    {
-        return currentUser;
-    }
-
     public String getCurrentLogin()
     {
         return getCurrentUser().getLogin();
+    }
+
+    public GHUser getCurrentUser()
+    {
+        return currentUser;
     }
 
     public GHOrganization getOrganization(String name) throws IOException

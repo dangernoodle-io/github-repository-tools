@@ -29,13 +29,8 @@ public enum RepositoryFiles
         dirs = Arrays.asList("/test-files", "/repositories");
     }
 
-    public static Path dummyPemPath() throws URISyntaxException
-    {
-        return Path.of(RepositoryFiles.class.getResource("/dummy-key.pem").toURI());
-    }
-    
     public final String jsonFile;
-
+    
     private RepositoryFiles()
     {
         this.jsonFile = this.toString();
@@ -59,5 +54,10 @@ public enum RepositoryFiles
                    .filter(file -> file != null)
                    .findFirst()
                    .orElseThrow(() -> new RuntimeException("failed to find json file for " + this));
+    }
+
+    public static Path dummyPemPath() throws URISyntaxException
+    {
+        return Path.of(RepositoryFiles.class.getResource("/dummy-key.pem").toURI());
     }
 }

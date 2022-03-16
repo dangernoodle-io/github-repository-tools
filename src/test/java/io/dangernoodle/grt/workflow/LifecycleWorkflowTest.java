@@ -1,7 +1,6 @@
 package io.dangernoodle.grt.workflow;
 
 import static io.dangernoodle.grt.Constants.WILDCARD;
-
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

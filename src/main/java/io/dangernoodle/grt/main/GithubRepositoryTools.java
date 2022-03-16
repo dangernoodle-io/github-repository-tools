@@ -31,32 +31,11 @@ public class GithubRepositoryTools
         SLF4JBridgeHandler.install();
     }
 
-    @Option(names = "--rootDir", required = true)
-    private Path rootDir;
-
     @ArgGroup(exclusive = false)
     private BotApp botApp;
 
-    private static class BotApp
-    {
-        @ArgGroup(exclusive = true)
-        private Auth auth;
-
-        @Option(names = "--appId", required = true)
-        private String appId;
-
-        @Option(names = "--installId", required = true)
-        private String installId;
-
-        private static class Auth
-        {
-            @Option(names = "--appToken")
-            private String token;
-
-            @Option(names = "--appKey")
-            private Path privateKey;
-        }
-    }
+    @Option(names = "--rootDir", required = true)
+    private Path rootDir;
 
     public static void main(String... args) throws Exception
     {
@@ -123,5 +102,26 @@ public class GithubRepositoryTools
         }
 
         return new CommandLine.RunLast().execute(parseResult);
+    }
+
+    private static class BotApp
+    {
+        @Option(names = "--appId", required = true)
+        private String appId;
+
+        @ArgGroup(exclusive = true)
+        private Auth auth;
+
+        @Option(names = "--installId", required = true)
+        private String installId;
+
+        private static class Auth
+        {
+            @Option(names = "--appKey")
+            private Path privateKey;
+
+            @Option(names = "--appToken")
+            private String token;
+        }
     }
 }

@@ -34,12 +34,6 @@ public class EnvironmentCredentialsTest
     }
 
     @Test
-    public void testRunAsUser()
-    {
-        assertFalse(new EnvironmentCredentials().runAsApp());
-    }
-
-    @Test
     public void testGetCredentials()
     {
         givenTokenCredentials();
@@ -61,6 +55,12 @@ public class EnvironmentCredentialsTest
         givenNameValues();
         whenGetNameValue();
         thenNameValueMapIsCorrect();
+    }
+
+    @Test
+    public void testRunAsUser()
+    {
+        assertFalse(new EnvironmentCredentials().runAsApp());
     }
 
     private void givenATokenThatDoesntExist()

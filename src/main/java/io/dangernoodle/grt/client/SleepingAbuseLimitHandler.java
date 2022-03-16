@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
  */
 public class SleepingAbuseLimitHandler extends GitHubAbuseLimitHandler
 {
-    private static final Logger logger = LoggerFactory.getLogger(SleepingAbuseLimitHandler.class);
-
     static final String RETRY_AFTER = "Retry-After";
+
+    private static final Logger logger = LoggerFactory.getLogger(SleepingAbuseLimitHandler.class);
 
     @Override
     public void onError(GitHubConnectorResponse response) throws IOException

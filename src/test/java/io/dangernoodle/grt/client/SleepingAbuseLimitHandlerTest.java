@@ -15,9 +15,9 @@ import org.mockito.MockitoAnnotations;
 
 public class SleepingAbuseLimitHandlerTest
 {
-    private SleepingAbuseLimitHandler handler;
-
     private int actualDelay;
+
+    private SleepingAbuseLimitHandler handler;
 
     @Mock
     private GitHubConnectorResponse mockResponse;
@@ -45,6 +45,11 @@ public class SleepingAbuseLimitHandlerTest
         thenNapWouldHappen();
     }
 
+    private void givenResponseHasHeader()
+    {
+        when(mockResponse.header(RETRY_AFTER)).thenReturn("1");
+    }
+
     private void thenNapWouldHappen()
     {
         assertEquals(mockResponse.header(RETRY_AFTER), String.valueOf(actualDelay));
@@ -53,10 +58,5 @@ public class SleepingAbuseLimitHandlerTest
     private void whenOnError() throws IOException
     {
         handler.onError(mockResponse);
-    }
-
-    private void givenResponseHasHeader()
-    {
-        when(mockResponse.header(RETRY_AFTER)).thenReturn("1");
     }
 }

@@ -10,9 +10,9 @@ public class PercentRateLimitChecker extends RateLimitChecker
 {
     private static final Logger logger = LoggerFactory.getLogger(PercentRateLimitChecker.class);
 
-    private final double limit;
-
     private final boolean block;
+
+    private final double limit;
 
     public PercentRateLimitChecker(boolean block)
     {

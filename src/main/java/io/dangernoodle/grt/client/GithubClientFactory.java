@@ -76,17 +76,11 @@ public class GithubClientFactory
         return new GithubClient(github, user);
     }
 
-    // visible for testing
-    GitHubBuilder createGithubBuilder()
-    {
-        return new GitHubBuilder();
-    }
-    
     protected GitHubAbuseLimitHandler abuseLimitHandler()
     {
         return new SleepingAbuseLimitHandler();
     }
-
+    
     protected AuthorizationProvider authorizationProvider() throws IOException
     {
         if (appInstall == null)
@@ -102,6 +96,12 @@ public class GithubClientFactory
     protected RateLimitChecker rateLimitChecker()
     {
         return new PercentRateLimitChecker(all);
+    }
+
+    // visible for testing
+    GitHubBuilder createGithubBuilder()
+    {
+        return new GitHubBuilder();
     }
 
     private JWTTokenProvider createJwtProvider(Map<String, Object> githubApp) throws GeneralSecurityException, IOException

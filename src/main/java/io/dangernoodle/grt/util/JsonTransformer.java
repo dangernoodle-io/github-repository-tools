@@ -72,17 +72,17 @@ public class JsonTransformer
         return object == null ? JsonObject.NULL : new JsonObject(new JSONObject(object));
     }
 
-    public JsonObject validate(Path path) throws IOException, JsonValidationException
-    {
-        return validate(deserialize(path));
-    }
-
     /**
      * @since 0.9.0
      */
     public JsonObject validate(InputStream inputStream) throws JsonValidationException
     {
         return validate(new InputStreamReader(inputStream));
+    }
+
+    public JsonObject validate(Path path) throws IOException, JsonValidationException
+    {
+        return validate(deserialize(path));
     }
 
     /**

@@ -32,6 +32,15 @@ public class PercentRateLimiterCheckerTest
     }
 
     @Test
+    public void testLimited() throws Exception
+    {
+        givenBlockableRecord();
+        givenBlockingEnabled();
+        whenCheckRateLimit();
+        thenRateLimited();
+    }
+
+    @Test
     public void testNotLimited() throws Exception
     {
         givenAnOkRecord();
@@ -44,25 +53,17 @@ public class PercentRateLimiterCheckerTest
     }
 
     @Test
-    public void testLimited() throws Exception
-    {
-        givenBlockableRecord();
-        givenBlockingEnabled();
-        whenCheckRateLimit();
-        thenRateLimited();
-    }
-
-    private void thenRateLimited()
-    {
-        assertTrue(actualDelay >= 0);
-    }
-
-    @Test
     public void testNotLimitedBlocking() throws Exception
     {
         givenBlockableRecord();
         whenCheckRateLimit();
         thenNotRateLimited();
+    }
+
+    private void givenAnOkRecord()
+    {
+        when(mockRecord.getLimit()).thenReturn(100);
+        when(mockRecord.getRemaining()).thenReturn(100);
     }
 
     private void givenBlockableRecord()
@@ -73,12 +74,6 @@ public class PercentRateLimiterCheckerTest
         when(mockRecord.getResetDate()).thenReturn(new Date());
     }
 
-    private void givenAnOkRecord()
-    {
-        when(mockRecord.getLimit()).thenReturn(100);
-        when(mockRecord.getRemaining()).thenReturn(100);
-    }
-
     private void givenBlockingEnabled()
     {
         block = true;
@@ -87,6 +82,11 @@ public class PercentRateLimiterCheckerTest
     private void thenNotRateLimited()
     {
         assertFalse(limited);
+    }
+
+    private void thenRateLimited()
+    {
+        assertTrue(actualDelay >= 0);
     }
 
     private void whenCheckRateLimit() throws InterruptedException
