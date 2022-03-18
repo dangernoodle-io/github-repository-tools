@@ -92,45 +92,29 @@ public class AddTeamsAndCollaborators extends AbstractGithubStep
         }
     }
 
-//    private GHOrganization.RolePermission mapToOrgPermission(Permission permission)
-//    {
-//        String value = permission.toString();
-//
-//        switch (value)
-//        {
-//            case "admin":
-//                return GHOrganization.RolePermission.ADMIN;
-//            case "read":
-//            case "pull":
-//                return GHOrganization.RolePermission.PULL;
-//            case "push":
-//            case "write":
-//                return GHOrganization.RolePermission.PUSH;
-//            case "triage":
-//                return GHOrganization.RolePermission.TRIAGE;
-//            default:
-//                return new GHOrganization.RolePermission(value);
-//        }
-//    }
-
-    private GHOrganization.Permission mapToOrgPermission(Permission permission)
+    private GHOrganization.RepositoryRole mapToOrgPermission(Permission permission)
     {
         String value = permission.toString();
 
         switch (value)
         {
             case "admin":
-                return GHOrganization.Permission.ADMIN;
+                return toRole(GHOrganization.Permission.ADMIN);
             case "read":
             case "pull":
-                return GHOrganization.Permission.PULL;
+                return toRole(GHOrganization.Permission.PULL);
             case "push":
             case "write":
-                return GHOrganization.Permission.PUSH;
+                return toRole(GHOrganization.Permission.PUSH);
             case "triage":
-                return GHOrganization.Permission.TRIAGE;
+                return toRole(GHOrganization.Permission.TRIAGE);
             default:
-                throw new IllegalStateException("failed to find permission mapping");
+                return GHOrganization.RepositoryRole.custom(value);
         }
+    }
+
+    private GHOrganization.RepositoryRole toRole(GHOrganization.Permission perm)
+    {
+        return GHOrganization.RepositoryRole.from(perm);
     }
 }
