@@ -7,21 +7,21 @@ import java.util.Map;
 
 import com.google.inject.Injector;
 
-import io.dangernoodle.grt.util.CommandArguments.Ref;
-import io.dangernoodle.grt.util.CommandArguments.Sha1orTag;
+import io.dangernoodle.grt.cli.options.ReferenceOption;
+import io.dangernoodle.grt.cli.options.Sha1OrTagOption;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
 
 @Command(name = UPDATE_REF)
-public class UpdateRefCommand extends io.dangernoodle.grt.Command.Definition.Only
+public class UpdateRefCommand extends DefinitionOnlyCommand
 {
     @Mixin
-    private Ref ref;
+    private ReferenceOption ref;
 
     @ArgGroup(exclusive = true, multiplicity = "1")
-    private Sha1orTag sha1orTag;
+    private Sha1OrTagOption sha1orTag;
 
     public UpdateRefCommand(Injector injector)
     {

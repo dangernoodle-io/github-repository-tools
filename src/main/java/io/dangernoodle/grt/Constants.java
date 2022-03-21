@@ -14,8 +14,6 @@ public final class Constants
 
     public static final String APP_OPT = "--app";
 
-    public static final String APP_TOKEN_OPT = "--appToken";
-
     public static final String CLEAR_WEBHOOKS = "clearWebhooks";
 
     public static final String CLEAR_WEBHOOKS_OPT = "--clearWebhooks";
@@ -28,6 +26,8 @@ public final class Constants
 
     public static final String GITHUB_APP = "github-app";
 
+    public static final String GRT = "grt";
+    
     public static final String GRT_GITHUB_APP_ID = "GRT_GITHUB_APP_ID";
 
     public static final String GRT_GITHUB_APP_KEY = "GRT_GITHUB_APP_KEY";

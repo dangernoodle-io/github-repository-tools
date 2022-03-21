@@ -23,7 +23,7 @@ public class DefinitionExecutor extends CommandExecutor
     @Override
     public void execute(Command command) throws Exception
     {
-        String definition = ((Command.Definition) command).getDefinition();
+        String definition = command.getDefinition();
 
         try
         {
