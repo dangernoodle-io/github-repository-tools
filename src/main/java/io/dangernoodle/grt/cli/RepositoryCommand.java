@@ -14,7 +14,7 @@ import picocli.CommandLine.Option;
 
 
 @Command(name = REPOSITORY)
-public class RepositoryCommand extends io.dangernoodle.grt.Command.Definition.All
+public class RepositoryCommand extends DefinitionOrAllCommand
 {
     @Option(names = CLEAR_WEBHOOKS_OPT)
     private boolean clearWebhooks;

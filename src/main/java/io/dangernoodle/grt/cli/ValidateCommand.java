@@ -8,14 +8,13 @@ import java.util.Map;
 
 import com.google.inject.Injector;
 
-import io.dangernoodle.grt.Command.Definition;
 import io.dangernoodle.grt.cli.exector.CommandExecutor;
 import io.dangernoodle.grt.cli.exector.ValidationExecutor;
 import picocli.CommandLine.Command;
 
 
 @Command(name = VALIDATE)
-public class ValidateCommand extends io.dangernoodle.grt.Command implements Definition
+public class ValidateCommand extends io.dangernoodle.grt.Command
 {
     public ValidateCommand(Injector injector)
     {

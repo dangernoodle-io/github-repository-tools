@@ -1,5 +1,7 @@
 package io.dangernoodle.grt.main;
 
+import static io.dangernoodle.grt.Constants.*;
+
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -12,6 +14,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import io.dangernoodle.grt.Arguments.ArgumentsBuilder;
 import io.dangernoodle.grt.internal.Bootstrapper;
+import io.dangernoodle.grt.internal.CredentialsOption;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -22,7 +25,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
 
 
-@Command(name = "grt")
+@Command(name = GRT)
 public class GithubRepositoryTools
 {
     static
@@ -31,10 +34,10 @@ public class GithubRepositoryTools
         SLF4JBridgeHandler.install();
     }
 
-    @ArgGroup(exclusive = false)
-    private BotApp botApp;
+    @ArgGroup
+    private CredentialsOption credentials;
 
-    @Option(names = "--rootDir", required = true)
+    @Option(names = ROOT_DIR_OPT, required = true)
     private Path rootDir;
 
     public static void main(String... args) throws Exception
@@ -46,7 +49,8 @@ public class GithubRepositoryTools
 
         CommandLine commandLine = new CommandLine(new GithubRepositoryTools(), createCommandFactory(injector));
         commandLine.setHelpFactory(createHelpFactory())
-                   .setResourceBundle(plugins.getResourceBundle());
+                   .setResourceBundle(plugins.getResourceBundle())
+                   .setUsageHelpLongOptionsMaxWidth(25);
 
         plugins.getCommands()
                .forEach(commandLine::addSubcommand);
@@ -91,7 +95,6 @@ public class GithubRepositoryTools
                                                   (oldValue, newValue) -> oldValue, LinkedHashMap::new));
             }
         };
-
     }
 
     private static int executionStrategy(ParseResult parseResult, ArgumentsBuilder arguments)
@@ -104,24 +107,4 @@ public class GithubRepositoryTools
         return new CommandLine.RunLast().execute(parseResult);
     }
 
-    private static class BotApp
-    {
-        @Option(names = "--appId", required = true)
-        private String appId;
-
-        @ArgGroup(exclusive = true)
-        private Auth auth;
-
-        @Option(names = "--installId", required = true)
-        private String installId;
-
-        private static class Auth
-        {
-            @Option(names = "--appKey")
-            private Path privateKey;
-
-            @Option(names = "--appToken")
-            private String token;
-        }
-    }
 }
