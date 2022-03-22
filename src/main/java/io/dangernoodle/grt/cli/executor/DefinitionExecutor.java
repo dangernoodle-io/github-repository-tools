@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.cli.exector;
+package io.dangernoodle.grt.cli.executor;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
@@ -29,10 +29,7 @@ public class DefinitionExecutor extends CommandExecutor
         {
             workflow.preExecution();
 
-            int count = visitor(definition).visit(root, path -> {
-                logger.debug("definition file [{}]", path);
-                workflow.execute(path, new Workflow.Context(command.toArgMap()));
-            });
+            int count = visitor(definition).visit(root, path -> executeWorkflow(path, command));
 
             if (count == 0)
             {
@@ -45,7 +42,14 @@ public class DefinitionExecutor extends CommandExecutor
         }
     }
 
-    private DefinitionFileVisitor visitor(String definition)
+    void executeWorkflow(Path path, Command command) throws Exception
+    {
+        logger.debug("definition file [{}]", path);
+        workflow.execute(path, new Workflow.Context(command.toArgMap()));
+    }
+
+    // visible for
+    DefinitionFileVisitor visitor(String definition)
     {
         return new DefinitionFileVisitor(definition);
     }

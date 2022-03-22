@@ -3,8 +3,8 @@ package io.dangernoodle.grt.cli;
 import com.google.inject.Injector;
 
 import io.dangernoodle.grt.Command;
-import io.dangernoodle.grt.cli.exector.CommandExecutor;
-import io.dangernoodle.grt.cli.exector.ValidatingExecutor;
+import io.dangernoodle.grt.cli.executor.CommandExecutor;
+import io.dangernoodle.grt.cli.executor.ValidatingExecutor;
 import picocli.CommandLine.Parameters;
 
 

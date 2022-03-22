@@ -8,8 +8,8 @@ import java.util.Map;
 
 import com.google.inject.Injector;
 
-import io.dangernoodle.grt.cli.exector.CommandExecutor;
-import io.dangernoodle.grt.cli.exector.ValidationExecutor;
+import io.dangernoodle.grt.cli.executor.CommandExecutor;
+import io.dangernoodle.grt.cli.executor.ValidationExecutor;
 import picocli.CommandLine.Command;
 
 
