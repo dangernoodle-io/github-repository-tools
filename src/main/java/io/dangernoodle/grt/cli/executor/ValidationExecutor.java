@@ -1,4 +1,4 @@
-package io.dangernoodle.grt.cli.exector;
+package io.dangernoodle.grt.cli.executor;
 
 import java.nio.file.Path;
 
