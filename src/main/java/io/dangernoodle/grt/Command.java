@@ -3,7 +3,10 @@ package io.dangernoodle.grt;
 import static io.dangernoodle.grt.Constants.ENABLE_AUTO_ADD_WORKFLOW;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.inject.Injector;
 
@@ -41,7 +44,7 @@ public abstract class Command implements Callable<Void>
     }
 
     public abstract String getDefinition();
-    
+
     public boolean ignoreErrors()
     {
         return false;
@@ -70,5 +73,14 @@ public abstract class Command implements Callable<Void>
     protected Class<? extends CommandExecutor> getExecutor()
     {
         return ValidatingExecutor.class;
+    }
+
+    @SafeVarargs
+    protected final Map<Object, Object> merge(Map<Object, Object>... maps)
+    {
+        return Stream.of(maps)
+                     .map(Map::entrySet)
+                     .flatMap(Set::stream)
+                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }
