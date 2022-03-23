@@ -36,6 +36,6 @@ public class RepositoryCommand extends DefinitionOrAllCommand
     @Override
     public Map<Object, Object> toArgMap()
     {
-        return Map.of(CLEAR_WEBHOOKS, clearWebhooks);
+        return merge(super.toArgMap(), Map.of(CLEAR_WEBHOOKS, clearWebhooks));
     }
 }

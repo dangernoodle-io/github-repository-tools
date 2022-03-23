@@ -2,7 +2,6 @@ package io.dangernoodle.grt.cli;
 
 import static io.dangernoodle.grt.Constants.UPDATE_REF;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.google.inject.Injector;
@@ -31,10 +30,6 @@ public class UpdateRefCommand extends DefinitionOnlyCommand
     @Override
     public Map<Object, Object> toArgMap()
     {
-        HashMap<Object, Object> args = new HashMap<>(super.toArgMap());
-        args.putAll(ref.toArgMap());
-        args.putAll(sha1orTag.toArgMap());
-
-        return args;
+        return merge(super.toArgMap(), ref.toArgMap(), sha1orTag.toArgMap());
     }
 }

@@ -1,9 +1,9 @@
 package io.dangernoodle.grt.cli;
 
-import static io.dangernoodle.grt.Constants.*;
+import static io.dangernoodle.grt.Constants.ALL_OPT;
+import static io.dangernoodle.grt.Constants.FILTER_OPT;
+import static io.dangernoodle.grt.Constants.WILDCARD;
 
-import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 
 import com.google.inject.Injector;
@@ -19,12 +19,12 @@ import picocli.CommandLine.Parameters;
  * 
  * @since 0.9.0
  */
-public abstract class DefinitionOrAllCommand extends Command
+public class DefinitionOrAllCommand extends Command
 {
     @ArgGroup(exclusive = true, multiplicity = "1")
     private DefOrAll defOrAll;
 
-    public DefinitionOrAllCommand(Injector injector)
+    protected DefinitionOrAllCommand(Injector injector)
     {
         super(injector);
     }
@@ -32,18 +32,10 @@ public abstract class DefinitionOrAllCommand extends Command
     @Override
     public String getDefinition()
     {
-        String definition = defOrAll.definition;
-
-        return Optional.ofNullable(defOrAll.mutual.filter)
-                       .filter(filter -> WILDCARD.equals(definition))
-                       .map(filter -> filter + "/" + WILDCARD)
-                       .orElse(definition);
-    }
-
-    @Override
-    public Map<Object, Object> toArgMap()
-    {
-        return Collections.emptyMap();
+        return Optional.ofNullable(defOrAll.definition)
+                       .orElseGet(() -> Optional.ofNullable(defOrAll.all.filter)
+                                                .map(filter -> filter + "/" + WILDCARD)
+                                                .orElse(WILDCARD));
     }
 
     private static class DefOrAll
@@ -51,13 +43,13 @@ public abstract class DefinitionOrAllCommand extends Command
         @Parameters(index = "0")
         private String definition;
 
-        @ArgGroup
-        private Mutual mutual;
+        @ArgGroup(exclusive = false)
+        private All all;
 
-        private class Mutual
+        private static class All
         {
             @Option(names = ALL_OPT)
-            private boolean all;
+            private boolean enabled;
 
             @Option(names = FILTER_OPT, required = false)
             private String filter;
