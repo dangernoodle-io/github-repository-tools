@@ -46,7 +46,7 @@ class PluginsBundle extends ResourceBundle
 
     static ResourceBundle merge(Collection<String> bundles)
     {
-        return ResourceBundle.getBundle("grt", Locale.getDefault(), new PluginsControl(bundles));
+        return ResourceBundle.getBundle("merged", Locale.getDefault(), new PluginsControl(bundles));
     }
 
     private static class PluginsControl extends Control

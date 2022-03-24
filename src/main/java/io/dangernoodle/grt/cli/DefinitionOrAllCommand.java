@@ -1,6 +1,9 @@
 package io.dangernoodle.grt.cli;
 
+import static io.dangernoodle.grt.Constants.ALL;
 import static io.dangernoodle.grt.Constants.ALL_OPT;
+import static io.dangernoodle.grt.Constants.DEFINITION;
+import static io.dangernoodle.grt.Constants.FILTER;
 import static io.dangernoodle.grt.Constants.FILTER_OPT;
 import static io.dangernoodle.grt.Constants.WILDCARD;
 
@@ -40,7 +43,7 @@ public class DefinitionOrAllCommand extends Command
 
     private static class DefOrAll
     {
-        @Parameters(index = "0")
+        @Parameters(descriptionKey = DEFINITION, index = "0")
         private String definition;
 
         @ArgGroup(exclusive = false)
@@ -48,10 +51,10 @@ public class DefinitionOrAllCommand extends Command
 
         private static class All
         {
-            @Option(names = ALL_OPT)
+            @Option(names = ALL_OPT, descriptionKey = ALL)
             private boolean enabled;
 
-            @Option(names = FILTER_OPT, required = false)
+            @Option(names = FILTER_OPT, descriptionKey = FILTER, required = false)
             private String filter;
         }
     }

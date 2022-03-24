@@ -23,7 +23,7 @@ public class ReferenceOption extends CommandOption
 {
     private String ref;
 
-    @Option(names = REF_OPT, required = true)
+    @Option(names = REF_OPT, descriptionKey = REF, required = true)
     public void setRef(String ref)
     {
         this.ref = Optional.of(ref)

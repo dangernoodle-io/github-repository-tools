@@ -2,8 +2,12 @@ package io.dangernoodle.grt;
 
 public final class Constants
 {
+    public static final String ALL = "all";
+    
     public static final String ALL_OPT = "--all";
 
+    public static final String APP = "app";
+   
     public static final String APP_ID = "appId";
 
     public static final String APP_ID_OPT = "--appId";
@@ -18,8 +22,12 @@ public final class Constants
 
     public static final String CLEAR_WEBHOOKS_OPT = "--clearWebhooks";
 
+    public static final String DEFINITION = "definiton";
+    
     public static final String ENABLE_AUTO_ADD_WORKFLOW = "enableAutoAddWorkflow";
 
+    public static final String FILTER = "filter";
+    
     public static final String FILTER_OPT = "--filter";
 
     public static final String GITHUB = "github";
@@ -42,6 +50,8 @@ public final class Constants
 
     public static final String INSTALL_ID_OPT = "--installId";
 
+    public static final String OAUTH = "oauth";
+    
     public static final String OAUTH_OPT = "--oauth";
 
     public static final String PASSWORD = "password";
@@ -54,6 +64,8 @@ public final class Constants
 
     public static final String REPOSITORY = "repository";
 
+    public static final String ROOT_DIR = "rootDir";
+    
     public static final String ROOT_DIR_OPT = "--rootDir";
 
     public static final String SHA1 = "sha1";

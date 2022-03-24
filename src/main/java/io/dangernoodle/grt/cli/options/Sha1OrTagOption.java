@@ -27,7 +27,7 @@ public class Sha1OrTagOption extends CommandOption
 {
     private Map<Object, Object> args = new HashMap<>();
 
-    @Option(names = SHA1_OPT)
+    @Option(names = SHA1_OPT, descriptionKey = SHA1)
     public void setSha1(String sha1) throws ParameterException
     {
         args.put(SHA1, Optional.of(sha1)
@@ -35,7 +35,7 @@ public class Sha1OrTagOption extends CommandOption
                                .orElseThrow(() -> createParameterException("sha1 length must be >= 12")));
     }
 
-    @Option(names = TAG_OPT)
+    @Option(names = TAG_OPT, descriptionKey = TAG)
     public void setTag(String tag)
     {
         args.put(TAG, tag);

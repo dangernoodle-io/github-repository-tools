@@ -1,6 +1,8 @@
 package io.dangernoodle.grt.main;
 
-import static io.dangernoodle.grt.Constants.*;
+import static io.dangernoodle.grt.Constants.GRT;
+import static io.dangernoodle.grt.Constants.ROOT_DIR;
+import static io.dangernoodle.grt.Constants.ROOT_DIR_OPT;
 
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -37,7 +39,7 @@ public class GithubRepositoryTools
     @ArgGroup
     private CredentialsOption credentials;
 
-    @Option(names = ROOT_DIR_OPT, required = true)
+    @Option(names = ROOT_DIR_OPT, descriptionKey = ROOT_DIR, required = true)
     private Path rootDir;
 
     public static void main(String... args) throws Exception
