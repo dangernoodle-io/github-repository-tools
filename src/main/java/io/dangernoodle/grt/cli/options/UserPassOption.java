@@ -22,10 +22,10 @@ import picocli.CommandLine.Option;
  */
 public class UserPassOption extends CommandOption
 {
-    @Option(names = PASSWORD_OPT, arity = "0..1", interactive = true, required = true)
+    @Option(names = PASSWORD_OPT, arity = "0..1", descriptionKey = PASSWORD, interactive = true, required = true)
     private char[] password;
 
-    @Option(names = USERNAME_OPT, required = true)
+    @Option(names = USERNAME_OPT, descriptionKey = USERNAME, required = true)
     private String username;
 
     public char[] getPassword()

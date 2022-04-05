@@ -1,5 +1,7 @@
 package io.dangernoodle.grt.cli;
 
+import static io.dangernoodle.grt.Constants.DEFINITION;
+
 import com.google.inject.Injector;
 
 import io.dangernoodle.grt.Command;
@@ -13,7 +15,7 @@ import picocli.CommandLine.Parameters;
  */
 public class DefinitionOnlyCommand extends Command
 {
-    @Parameters(index = "0")
+    @Parameters(descriptionKey = DEFINITION, index = "0")
     private String definition;
 
     protected DefinitionOnlyCommand(Injector injector)

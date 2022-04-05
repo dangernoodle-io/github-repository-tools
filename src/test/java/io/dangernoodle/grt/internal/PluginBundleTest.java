@@ -31,6 +31,8 @@ public class PluginBundleTest
     private void thenBundlesMerged()
     {
         assertTrue(bundle.getKeys().hasMoreElements());
+        
+        assertEquals("Application id", bundle.getString("appId"));
         assertEquals("test", bundle.getString("this.is.a.test.key"));
         assertEquals("Remove any existing webhooks associated with the repository", bundle.getString("grt.repository.clearWebhooks"));
     }
