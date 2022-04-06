@@ -67,7 +67,9 @@ public class EnvironmentCredentials implements Credentials
     @Override
     public String getCredentials(String key)
     {
-        return Optional.ofNullable(getEnvironmentVariable(tokens.get(key)))
+        return Optional.ofNullable(tokens.get(key))
+                       .filter(name -> name != null)
+                       .map(this::getEnvironmentVariable)
                        .map(Object::toString)
                        .orElse(null);
     }

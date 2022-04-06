@@ -43,7 +43,11 @@ public class EnvironmentCredentialsTest
         givenOtherTokenWanted();
         whenGetCredentials();
         thenTokenIsCorrect();
+    }
 
+    @Test
+    public void testTokenNotDefined()
+    {
         givenATokenThatDoesntExist();
         whenGetCredentials();
         thenTokenIsNull();
@@ -110,6 +114,11 @@ public class EnvironmentCredentialsTest
             @Override
             protected Object getEnvironmentVariable(String name)
             {
+                if (name == null)
+                {
+                    throw new NullPointerException();
+                }
+
                 return name;
             }
         }.getCredentials(name);
