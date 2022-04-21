@@ -57,8 +57,10 @@ public class GithubRepositoryTools
         plugins.getCommands()
                .forEach(commandLine::addSubcommand);
 
-        commandLine.setExecutionStrategy(parseResult -> executionStrategy(parseResult, arguments))
-                   .execute(args);
+        int exit = commandLine.setExecutionStrategy(parseResult -> executionStrategy(parseResult, arguments))
+                              .execute(args);
+
+        System.exit(exit);
     }
 
     private static IFactory createCommandFactory(Injector injector)
@@ -108,5 +110,4 @@ public class GithubRepositoryTools
 
         return new CommandLine.RunLast().execute(parseResult);
     }
-
 }
