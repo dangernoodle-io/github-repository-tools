@@ -1,5 +1,11 @@
 ## ChangeLog
 
+* **0.9.0**
+  - Major refactor - dropped `jcommander` and `weld` in favor of `picocli` and `guice`
+  - Added GithubApp support
+  - Allow workflows to be defined per command
+  - Update `github-api` to `1.306`
+
 * **0.8.0**
   - support 'find only' in the `FindOrCreateRepository` step
   - `exit 1` if an unexpected error occurs
