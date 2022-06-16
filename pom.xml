@@ -19,7 +19,7 @@
   <properties>
     <bouncycastle.version>1.70</bouncycastle.version>
     <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
-    <github-api.version>1.305</github-api.version>
+    <github-api.version>1.306</github-api.version>
     <guice.version>5.1.0</guice.version>
     <hamcrest.version>2.0.0.0</hamcrest.version>
     <jjwt.version>0.11.2</jjwt.version>
