@@ -1,6 +1,6 @@
 ## ChangeLog
 
-* **0.9.1**
+* **0.9.3**
   - changed 'UserPassOption' to be a '@Mixin'
 
 * **0.9.0**
