@@ -5,6 +5,7 @@ import static io.dangernoodle.grt.Constants.PASSWORD_OPT;
 import static io.dangernoodle.grt.Constants.USERNAME;
 import static io.dangernoodle.grt.Constants.USERNAME_OPT;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import picocli.CommandLine.Option;
@@ -14,7 +15,7 @@ import picocli.CommandLine.Option;
  * Represents a <code>username</code> and <code>password</code> as mutually dependent options.
  *
  * <pre>
- * &#64;ArgGroup(exclusive = false, multiplicity = "1")
+ * &#64;Mixin
  * private UserPassOption userPass;
  * </pre>
  * 
@@ -22,20 +23,26 @@ import picocli.CommandLine.Option;
  */
 public class UserPassOption extends CommandOption
 {
-    @Option(names = PASSWORD_OPT, arity = "0..1", descriptionKey = PASSWORD, interactive = true, required = true)
+    @Option(names = PASSWORD_OPT, descriptionKey = PASSWORD, interactive = true, required = true)
     private char[] password;
 
-    @Option(names = USERNAME_OPT, descriptionKey = USERNAME, required = true)
-    private String username;
+    @Option(names = USERNAME_OPT, descriptionKey = USERNAME, interactive = true, required = true, echo = true)
+    private char[] username;
 
-    public char[] getPassword()
+    public void destroy()
     {
-        return password;
+        Arrays.fill(password, ' ');
+        Arrays.fill(username, ' ');
+    }
+
+    public String getPassword()
+    {
+        return String.valueOf(password);
     }
 
     public String getUsername()
     {
-        return username;
+        return String.valueOf(username);
     }
 
     @Override
