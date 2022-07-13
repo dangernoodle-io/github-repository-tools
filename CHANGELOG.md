@@ -1,5 +1,8 @@
 ## ChangeLog
 
+* **0.9.1**
+  - changed 'UserPassOption' to be a '@Mixin'
+
 * **0.9.0**
   - Major refactor - dropped `jcommander` and `weld` in favor of `picocli` and `guice`
   - Added GithubApp support
