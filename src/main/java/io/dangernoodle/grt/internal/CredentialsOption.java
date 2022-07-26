@@ -22,8 +22,11 @@ import picocli.CommandLine.Option;
 
 public class CredentialsOption extends CommandOption
 {
-    @ArgGroup(exclusive = true, multiplicity = "1")
-    private Exclusive ex;
+    @ArgGroup
+    private GithubApp app;
+
+    @Option(names = OAUTH_OPT, descriptionKey = OAUTH)
+    private String token;
 
     @Override
     public Map<Object, Object> toArgMap()
@@ -31,21 +34,15 @@ public class CredentialsOption extends CommandOption
         return Collections.emptyMap();
     }
 
-    private static class Exclusive
-    {
-        @ArgGroup
-        private GithubApp githubApp;
-
-        @Option(names = OAUTH_OPT, descriptionKey = OAUTH)
-        private String token;
-    }
-
     private static class GithubApp
     {
-        @ArgGroup(exclusive = true)
-        private Exclusive ex;
+        @ArgGroup(exclusive = false)
+        private Args args;
 
-        private static class App
+        @Option(names = APP_OPT, descriptionKey = APP)
+        private boolean isApp;
+
+        private static class Args
         {
             @Option(names = APP_ID_OPT, descriptionKey = APP_ID, required = true)
             private String appId;
@@ -55,15 +52,6 @@ public class CredentialsOption extends CommandOption
 
             @Option(names = APP_KEY_OPT, descriptionKey = APP_KEY)
             private Path privateKey;
-        }
-
-        private static class Exclusive
-        {
-            @ArgGroup
-            private App app;
-
-            @Option(names = APP_OPT, descriptionKey = APP)
-            private boolean isApp;
         }
     }
 }
