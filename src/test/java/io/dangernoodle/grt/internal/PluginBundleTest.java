@@ -25,7 +25,7 @@ public class PluginBundleTest
 
     private void givenBundlesToMerge()
     {
-        bundles = List.of("GithubRepositoryTools", "TestPlugin");
+        bundles = List.of("GithubRepositoryTools", "TestPlugin1");
     }
 
     private void thenBundlesMerged()
@@ -39,6 +39,6 @@ public class PluginBundleTest
 
     private void whenMergeBundles()
     {
-        bundle = PluginsBundle.merge(bundles);
+         bundle = PluginsBundle.merge(bundles);
     }
 }

@@ -4,11 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Iterator;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,8 +26,7 @@ public class DefinitionFileVisitorTest
     @Mock
     private Handler mockHandler;
 
-    @Mock
-    private Iterator<Path> mockIterator;
+    private Stream<Path> stream;
 
     private Path path;
 
@@ -46,9 +44,9 @@ public class DefinitionFileVisitorTest
         visitor = new DefinitionFileVisitor("mock")
         {
             @Override
-            Iterator<Path> iterator(Path root) throws IOException
+            Stream<Path> getDefinitions(Path root) throws IOException
             {
-                return mockIterator;
+                return stream;
             }
         };
     }
@@ -101,10 +99,7 @@ public class DefinitionFileVisitorTest
 
     private void givenAPathMatched()
     {
-        path = Path.of("matched");
-
-        when(mockIterator.hasNext()).thenReturn(true).thenReturn(false);
-        when(mockIterator.next()).thenReturn(path);
+        path = Path.of("/foo/bar/mock.json");
     }
 
     private void givenAWildCard()
@@ -121,7 +116,7 @@ public class DefinitionFileVisitorTest
 
     private void givenNoPathMatched()
     {
-        when(mockIterator.hasNext()).thenReturn(false);
+        path = Path.of("__this_should_not_match__");
     }
 
     private void thenPathDoesntMatch()
@@ -154,6 +149,8 @@ public class DefinitionFileVisitorTest
 
     private void whenVisitPath() throws Exception
     {
+        stream = Stream.of(path, Path.of("/some/random/path"));
+
         // root doesn't matter here
         count = visitor.visit(null, p -> visited = p);
     }

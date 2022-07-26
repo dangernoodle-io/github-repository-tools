@@ -1,5 +1,10 @@
 ## ChangeLog
 
+* **0.10.0-SNAPSHOT
+  - Support for plugins to provide json schema for validation
+  - Fixed GithubApp credentials
+  - Fixes recommended by Sonatype Lift
+
 * **0.9.3**
   - changed 'UserPassOption' to be a '@Mixin'
 

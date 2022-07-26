@@ -28,27 +28,27 @@ public class DefinitionFileVisitor
 
     public int visit(Path root, Handler handler) throws Exception
     {
-        int count = 0;
-        Iterator<Path> iterator = iterator(root);
-
-        while (iterator.hasNext())
+        try (Stream<Path> stream = getDefinitions(root))
         {
-            count++;
-            handler.accept(iterator.next());
-        }
+            Iterator<Path> iterator = stream.filter(matcher::matches)
+                                            .sorted()
+                                            .iterator();
 
-        return count;
+            int count = 0;
+            while (iterator.hasNext())
+            {
+                count++;
+                handler.accept(iterator.next());
+            }
+
+            return count;
+        }
     }
 
     // visible for testing
-    Iterator<Path> iterator(Path root) throws IOException
+    Stream<Path> getDefinitions(Path root) throws IOException
     {
-        try (Stream<Path> stream = Files.walk(root))
-        {
-            return stream.filter(matcher::matches)
-                         .sorted()
-                         .iterator();
-        }
+        return Files.walk(root);
     }
 
     // visible for testing

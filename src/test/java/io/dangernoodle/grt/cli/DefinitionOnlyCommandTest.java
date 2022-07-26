@@ -15,6 +15,17 @@ public class DefinitionOnlyCommandTest extends AbstractCommandTest<Command>
         thenDefinitionMatches();
         thenAutoAddToWorkflowEnabled();
     }
+    
+    @Test
+    public void testSchemaDisabled()
+    {
+        givenADefinition();
+        givenDisableSchema();
+        whenParseArguments();
+        thenDefinitionMatches();
+        thenAutoAddToWorkflowEnabled();
+        thenDisableSchemaEnabled();
+    }
 
     @Test
     public void testRequired()

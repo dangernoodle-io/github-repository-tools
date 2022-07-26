@@ -1,5 +1,8 @@
 package io.dangernoodle.grt;
 
+import java.util.Map;
+import java.util.Optional;
+
 import io.dangernoodle.grt.util.JsonTransformer.JsonObject;
 
 
@@ -9,4 +12,9 @@ import io.dangernoodle.grt.util.JsonTransformer.JsonObject;
 public interface PluginManager
 {
     JsonObject getDefaultPluginConfiguration(String name);
+
+    /**
+     * @since 0.10.0
+     */
+    Map<String, Optional<String>> getPluginSchemas();
 }

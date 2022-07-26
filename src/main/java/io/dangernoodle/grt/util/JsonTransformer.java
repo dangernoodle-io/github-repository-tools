@@ -1,14 +1,19 @@
 package io.dangernoodle.grt.util;
 
+import static io.dangernoodle.grt.Constants.PLUGINS;
+import static io.dangernoodle.grt.Constants.PROPERTIES;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -31,7 +36,9 @@ public class JsonTransformer
 {
     public static final Object NULL = JSONObject.NULL;
 
-    public static final String SCHEMA = "/repository-schema.json";
+    public static final String SCHEMA = "/schema/repository-schema.json";
+
+    public static final String PLUGIN = "/schema/empty-plugin-schema.json";
 
     private static final Logger logger = LoggerFactory.getLogger(JsonTransformer.class);
 
@@ -39,7 +46,12 @@ public class JsonTransformer
 
     public JsonTransformer()
     {
-        this.schema = loadSchema();
+        this(Collections.emptyMap());
+    }
+
+    public JsonTransformer(Map<String, Optional<String>> pluginSchemas)
+    {
+        this.schema = loadSchema(pluginSchemas);
     }
 
     public JsonObject deserialize(Path path) throws IOException
@@ -106,17 +118,44 @@ public class JsonTransformer
         }
     }
 
-    private Schema loadSchema()
+    private Schema loadSchema(Map<String, Optional<String>> pluginSchemas)
     {
-        return SchemaLoader.load(loadJson(() -> new InputStreamReader(getClass().getResourceAsStream(SCHEMA))));
+        JSONObject root = loadSchema(SCHEMA);
+        JSONObject plugins = root.getJSONObject(PROPERTIES)
+                                 .getJSONObject(PLUGINS)
+                                 .getJSONObject(PROPERTIES);
+
+        pluginSchemas.forEach((name, resource) -> plugins.put(name, loadPluginSchema(name, resource)));
+
+        if (logger.isTraceEnabled())
+        {
+            logger.trace("merged json schema: {}", prettyPrint(root.toString()));
+        }
+
+        return SchemaLoader.load(root);
     }
 
-    private void logViolations(ValidationException exception)
+    private JSONObject loadPluginSchema(String name, Optional<String> resource)
     {
-        logger.error("{}", exception.getMessage());
-        exception.getCausingExceptions()
-                 .stream()
-                 .forEach(this::logViolations);
+        String schema = resource.orElse(PLUGIN);
+        logger.debug("using schema [{}] for plugin [{}]", schema, name);
+
+        return loadJson(() -> new InputStreamReader(getClass().getResourceAsStream(schema)));
+    }
+
+    private JSONObject loadSchema(String resource)
+    {
+        return loadJson(() -> {
+            try
+            {
+                return new InputStreamReader(getClass().getResourceAsStream(resource), "UTF-8");
+            }
+            catch (UnsupportedEncodingException e)
+            {
+                // shouldn't happen
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private JsonObject validate(JsonObject object) throws JsonValidationException
@@ -128,7 +167,6 @@ public class JsonTransformer
         }
         catch (ValidationException e)
         {
-            logViolations(e);
             throw new JsonValidationException(e);
         }
     }

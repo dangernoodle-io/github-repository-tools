@@ -5,6 +5,8 @@ import static org.hamcrest.Matchers.nullValue;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +25,7 @@ public class SchemaValidationTest
     @BeforeEach
     public void beforeEach() throws Exception
     {
-        transformer = new JsonTransformer();
+        transformer = new JsonTransformer(Map.of("travis", Optional.empty(), "jenkins", Optional.empty()));
     }
 
     @Test

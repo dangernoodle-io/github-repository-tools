@@ -12,15 +12,19 @@ import java.util.stream.Collectors;
 
 import com.google.inject.Injector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import io.dangernoodle.grt.Arguments.ArgumentsBuilder;
 import io.dangernoodle.grt.internal.Bootstrapper;
 import io.dangernoodle.grt.internal.CredentialsOption;
+import io.dangernoodle.grt.util.SilentException;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Help;
+import picocli.CommandLine.IExecutionExceptionHandler;
 import picocli.CommandLine.IFactory;
 import picocli.CommandLine.IHelpFactory;
 import picocli.CommandLine.Option;
@@ -30,13 +34,15 @@ import picocli.CommandLine.ParseResult;
 @Command(name = GRT)
 public class GithubRepositoryTools
 {
+    private static final Logger logger = LoggerFactory.getLogger(GithubRepositoryTools.class);
+
     static
     {
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.install();
     }
 
-    @ArgGroup
+    @ArgGroup(exclusive = true)
     private CredentialsOption credentials;
 
     @Option(names = ROOT_DIR_OPT, descriptionKey = ROOT_DIR, required = true)
@@ -50,7 +56,8 @@ public class GithubRepositoryTools
         ArgumentsBuilder arguments = injector.getInstance(ArgumentsBuilder.class);
 
         CommandLine commandLine = new CommandLine(new GithubRepositoryTools(), createCommandFactory(injector));
-        commandLine.setHelpFactory(createHelpFactory())
+        commandLine.setExecutionExceptionHandler(createExceptionHandler())
+                   .setHelpFactory(createHelpFactory())
                    .setResourceBundle(plugins.getResourceBundle())
                    .setUsageHelpLongOptionsMaxWidth(25);
 
@@ -81,6 +88,19 @@ public class GithubRepositoryTools
                     return CommandLine.defaultFactory().create(cls);
                 }
             }
+        };
+    }
+
+    private static IExecutionExceptionHandler createExceptionHandler()
+    {
+        return (exception, commandLine, parseResult) -> {
+            if (exception instanceof SilentException)
+            {
+                logger.debug("swallowing SilentException: [{}]", exception.getMessage());
+                return commandLine.getCommandSpec().exitCodeOnExecutionException();
+            }
+
+            throw exception;
         };
     }
 
