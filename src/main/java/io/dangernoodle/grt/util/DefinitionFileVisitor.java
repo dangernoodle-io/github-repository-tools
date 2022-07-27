@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.Iterator;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,10 +43,12 @@ public class DefinitionFileVisitor
     // visible for testing
     Iterator<Path> iterator(Path root) throws IOException
     {
-        return Files.walk(root)
-                    .filter(matcher::matches)
-                    .sorted()
-                    .iterator();
+        try (Stream<Path> stream = Files.walk(root))
+        {
+            return stream.filter(matcher::matches)
+                         .sorted()
+                         .iterator();
+        }
     }
 
     // visible for testing
