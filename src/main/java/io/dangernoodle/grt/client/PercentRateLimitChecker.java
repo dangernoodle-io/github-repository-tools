@@ -40,6 +40,7 @@ public class PercentRateLimitChecker extends RateLimitChecker
             logger.warn("rate limit [{} ({}% of {})] reached, sleeping until", percent, this.limit * 100, limit,
                     record.getResetDate());
 
+            @SuppressWarnings("JavaUtilDate")
             long delay = Math.abs(record.getResetDate().getTime() - System.currentTimeMillis());
             napTime(delay);
 
@@ -52,7 +53,7 @@ public class PercentRateLimitChecker extends RateLimitChecker
 
         return slept;
     }
-    
+
     void napTime(long delay) throws InterruptedException
     {
         Thread.sleep(delay);

@@ -544,7 +544,7 @@ public class Repository
             @Override
             public boolean equals(Object obj)
             {
-                if (obj == null || getClass() != obj.getClass())
+                if (!(obj instanceof Color))
                 {
                     return false;
                 }
@@ -577,7 +577,7 @@ public class Repository
             @Override
             public boolean equals(Object obj)
             {
-                if (obj == null || getClass() != obj.getClass())
+                if (!(obj instanceof Permission))
                 {
                     return false;
                 }

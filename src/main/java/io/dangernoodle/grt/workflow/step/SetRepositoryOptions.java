@@ -53,6 +53,11 @@ public class SetRepositoryOptions extends AbstractGithubStep
         return Status.SKIP;
     }
 
+    private <T> boolean requiresUpdate(T obj1, T obj2)
+    {
+        return obj1 != null && !obj1.equals(obj2);
+    }
+
     private GHRepository updateRepositoryOptions(Repository repository, GHRepository ghRepo)
         throws IOException
     {
@@ -61,55 +66,55 @@ public class SetRepositoryOptions extends AbstractGithubStep
         GHRepository.Updater updater = ghRepo.update();
         Repository.Settings settings = repository.getSettings();
 
-        if (repository.getDescription() != ghRepo.getDescription())
+        if (requiresUpdate(repository.getDescription(), ghRepo.getDescription()))
         {
             update = true;
             updater.description(repository.getDescription());
         }
 
-        if (repository.getHomepage() != ghRepo.getHomepage())
+        if (requiresUpdate(repository.getHomepage(), ghRepo.getHomepage()))
         {
             update = true;
             updater.homepage(repository.getHomepage());
         }
 
-        if (settings.deleteBranchOnMerge() != ghRepo.isDeleteBranchOnMerge())
+        if (requiresUpdate(settings.deleteBranchOnMerge(), ghRepo.isDeleteBranchOnMerge()))
         {
             update = true;
             updater.deleteBranchOnMerge(settings.deleteBranchOnMerge());
         }
 
-        if (settings.enableMergeCommits() != ghRepo.isAllowMergeCommit())
+        if (requiresUpdate(settings.enableMergeCommits(), ghRepo.isAllowMergeCommit()))
         {
             update = true;
             updater.allowMergeCommit(settings.enableMergeCommits());
         }
 
-        if (settings.enableRebaseMerge() != ghRepo.isAllowRebaseMerge())
+        if (requiresUpdate(settings.enableRebaseMerge(), ghRepo.isAllowRebaseMerge()))
         {
             update = true;
             updater.allowRebaseMerge(settings.enableRebaseMerge());
         }
 
-        if (settings.enableSquashMerge() != ghRepo.isAllowSquashMerge())
+        if (requiresUpdate(settings.enableSquashMerge(), ghRepo.isAllowSquashMerge()))
         {
             update = true;
             updater.allowSquashMerge(settings.enableSquashMerge());
         }
 
-        if (settings.enableIssues() != ghRepo.hasIssues())
+        if (requiresUpdate(settings.enableIssues(), ghRepo.hasIssues()))
         {
             update = true;
             updater.issues(settings.enableIssues());
         }
 
-        if (settings.enableWiki() != ghRepo.hasWiki())
+        if (requiresUpdate(settings.enableWiki(), ghRepo.hasWiki()))
         {
             update = true;
             updater.wiki(settings.enableWiki());
         }
 
-        if (settings.isPrivate() != ghRepo.isPrivate())
+        if (requiresUpdate(settings.isPrivate(), ghRepo.isPrivate()))
         {
             update = true;
             updater.private_(settings.isPrivate());
