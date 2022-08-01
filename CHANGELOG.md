@@ -1,6 +1,6 @@
 ## ChangeLog
 
-* **0.10.0-SNAPSHOT
+* **0.10.1
   - Support for plugins to provide json schema for validation
   - Fixed GithubApp credentials
   - Fixes recommended by Sonatype Lift
