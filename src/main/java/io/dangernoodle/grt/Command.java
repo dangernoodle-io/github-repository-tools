@@ -43,6 +43,14 @@ public abstract class Command implements Callable<Void>
         return null;
     }
 
+    /**
+     * @since 0.10.0
+     */
+    public boolean disableSchema()
+    {
+        return false;
+    }
+    
     public abstract String getDefinition();
 
     public boolean ignoreErrors()

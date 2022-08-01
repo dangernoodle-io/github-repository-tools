@@ -24,6 +24,8 @@ public final class Constants
 
     public static final String DEFINITION = "definiton";
     
+    public static final String DISABLE_SCHEMA_OPT = "--disableSchema";
+    
     public static final String ENABLE_AUTO_ADD_WORKFLOW = "enableAutoAddWorkflow";
 
     public static final String FILTER = "filter";
@@ -57,7 +59,11 @@ public final class Constants
     public static final String PASSWORD = "password";
 
     public static final String PASSWORD_OPT = "--password";
+    
+    public static final String PLUGINS = "plugins";
 
+    public static final String PROPERTIES = "properties";
+    
     public static final String REF = "ref";
 
     public static final String REF_OPT = "--ref";

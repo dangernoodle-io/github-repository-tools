@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.ServiceLoader;
@@ -24,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import io.dangernoodle.grt.Command;
 import io.dangernoodle.grt.Plugin;
 import io.dangernoodle.grt.PluginManager;
-import io.dangernoodle.grt.main.GithubRepositoryTools;
 import io.dangernoodle.grt.repository.RepositoryFactory;
 import io.dangernoodle.grt.util.JsonTransformer.JsonObject;
 
@@ -33,9 +33,9 @@ import io.dangernoodle.grt.util.JsonTransformer.JsonObject;
  * @since 0.9.0
  */
 public class Bootstrapper implements PluginManager
-{    
+{
     private static final Logger logger = LoggerFactory.getLogger(Bootstrapper.class);
-    
+
     private final Injector injector;
 
     private final Collection<Plugin> plugins;
@@ -44,8 +44,10 @@ public class Bootstrapper implements PluginManager
     {
         this.plugins = loadPlugins();
         this.injector = createInjector();
-        
-        logger.info("** github-repository-tools - {}", GithubRepositoryTools.class.getPackage().getImplementationVersion());
+
+        Package pkg = getClass().getPackage();
+
+        logger.info("** {} - {}", pkg.getImplementationTitle(), pkg.getImplementationVersion());
     }
 
     public Collection<Class<? extends Command>> getCommands()
@@ -64,6 +66,14 @@ public class Bootstrapper implements PluginManager
     public Injector getInjector()
     {
         return injector;
+    }
+
+    @Override
+    public Map<String, Optional<String>> getPluginSchemas()
+    {
+        return plugins.stream()
+                      .filter(plugin -> !(plugin instanceof CorePlugin))
+                      .collect(Collectors.toMap(Plugin::getName, plugin -> plugin.getPluginSchema()));
     }
 
     public ResourceBundle getResourceBundle()
@@ -123,14 +133,14 @@ public class Bootstrapper implements PluginManager
 
     private Collection<Plugin> loadPlugins()
     {
-        // the 'core' plugin is always first
         ArrayList<Plugin> plugins = new ArrayList<>();
-        plugins.add(createCorePlugin());
-
         ServiceLoader.load(Plugin.class)
                      .stream()
                      .map(p -> p.get())
                      .forEach(plugins::add);
+
+        // the 'core' plugin is always first
+        plugins.add(0, createCorePlugin());
 
         return plugins;
     }

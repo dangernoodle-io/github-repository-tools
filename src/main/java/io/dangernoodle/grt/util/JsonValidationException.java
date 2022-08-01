@@ -15,6 +15,11 @@ public class JsonValidationException extends IOException
         super(cause);
     }
 
+    public int getErrorCount()
+    {
+        return ((ValidationException) getCause()).getViolationCount();
+    }
+
     public Collection<String> getValidationErrors()
     {
         return ((ValidationException) getCause()).getAllMessages();

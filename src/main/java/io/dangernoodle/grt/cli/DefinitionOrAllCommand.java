@@ -3,6 +3,7 @@ package io.dangernoodle.grt.cli;
 import static io.dangernoodle.grt.Constants.ALL;
 import static io.dangernoodle.grt.Constants.ALL_OPT;
 import static io.dangernoodle.grt.Constants.DEFINITION;
+import static io.dangernoodle.grt.Constants.DISABLE_SCHEMA_OPT;
 import static io.dangernoodle.grt.Constants.FILTER;
 import static io.dangernoodle.grt.Constants.FILTER_OPT;
 import static io.dangernoodle.grt.Constants.WILDCARD;
@@ -27,9 +28,18 @@ public class DefinitionOrAllCommand extends Command
     @ArgGroup(exclusive = true, multiplicity = "1")
     private DefOrAll defOrAll;
 
+    @Option(names = DISABLE_SCHEMA_OPT)
+    private boolean disableSchema;
+    
     protected DefinitionOrAllCommand(Injector injector)
     {
         super(injector);
+    }
+
+    @Override
+    public boolean disableSchema()
+    {
+        return disableSchema;
     }
 
     @Override
@@ -43,11 +53,11 @@ public class DefinitionOrAllCommand extends Command
 
     private static class DefOrAll
     {
-        @Parameters(descriptionKey = DEFINITION, index = "0")
-        private String definition;
-
         @ArgGroup(exclusive = false)
         private All all;
+
+        @Parameters(descriptionKey = DEFINITION, index = "0")
+        private String definition;
 
         private static class All
         {

@@ -6,20 +6,16 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 class PluginsBundle extends ResourceBundle
 {
-    private static final Logger logger = LoggerFactory.getLogger(PluginsBundle.class);
-
     private final Collection<ResourceBundle> bundles;
 
-    PluginsBundle(Collection<ResourceBundle> bundles)
+    private PluginsBundle(Collection<ResourceBundle> bundles)
     {
         this.bundles = bundles;
     }
@@ -46,7 +42,7 @@ class PluginsBundle extends ResourceBundle
 
     static ResourceBundle merge(Collection<String> bundles)
     {
-        return ResourceBundle.getBundle("merged", Locale.getDefault(), new PluginsControl(bundles));
+        return ResourceBundle.getBundle("grt", Locale.getDefault(), new PluginsControl(bundles));
     }
 
     private static class PluginsControl extends Control
@@ -74,8 +70,15 @@ class PluginsBundle extends ResourceBundle
 
         private ResourceBundle loadBundle(String name, Locale locale, ClassLoader loader)
         {
-            logger.debug("loading resource bundle for [{}]", name);
-            return ResourceBundle.getBundle(name, locale, loader);
+            try
+            {
+                return ResourceBundle.getBundle(name, locale, loader);
+            }
+            catch (MissingResourceException e)
+            {
+                // wrap and re-throw this so we can tell what bundle is actually missing
+                throw new IllegalStateException(e);
+            }
         }
     }
 }

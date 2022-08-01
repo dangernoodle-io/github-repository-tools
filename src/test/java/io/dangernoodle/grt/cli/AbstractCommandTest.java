@@ -1,5 +1,6 @@
 package io.dangernoodle.grt.cli;
 
+import static io.dangernoodle.grt.Constants.DISABLE_SCHEMA_OPT;
 import static io.dangernoodle.grt.Constants.ENABLE_AUTO_ADD_WORKFLOW;
 import static io.dangernoodle.grt.Constants.IGNORE_ERRORS_OPT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,14 +29,14 @@ public abstract class AbstractCommandTest<T extends Command>
     
     protected T command;
 
+    protected String expectedDef;
+
     @Mock
     protected Injector mockInjector;
 
     protected ParseResult parseResult;
-
-    private CommandLine commandLine;
     
-    protected String expectedDef;
+    private CommandLine commandLine;
 
     @BeforeEach
     public void beforeEach()
@@ -61,6 +62,11 @@ public abstract class AbstractCommandTest<T extends Command>
         args.add(expectedDef);
     }
     
+    protected void givenDisableSchema()
+    {
+        args.add(DISABLE_SCHEMA_OPT);
+    }
+    
     protected void givenIgnoreErrors()
     {
         args.add(IGNORE_ERRORS_OPT);
@@ -81,6 +87,11 @@ public abstract class AbstractCommandTest<T extends Command>
     protected void thenDefinitionMatches()
     {
         assertEquals(expectedDef, command.getDefinition());
+    }
+    
+    protected void thenDisableSchemaEnabled()
+    {
+        assertTrue(command.disableSchema());
     }
     
     protected void thenIgnoreErrorsDisabled()

@@ -1,5 +1,6 @@
 package io.dangernoodle.grt.internal;
 
+import static io.dangernoodle.grt.Constants.GRT;
 import static io.dangernoodle.grt.Constants.VALIDATE;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ import io.dangernoodle.grt.Arguments;
 import io.dangernoodle.grt.Command;
 import io.dangernoodle.grt.Credentials;
 import io.dangernoodle.grt.Plugin;
+import io.dangernoodle.grt.PluginManager;
 import io.dangernoodle.grt.Repository;
 import io.dangernoodle.grt.StatusCheck;
 import io.dangernoodle.grt.Workflow;
@@ -67,6 +69,19 @@ public class CorePlugin implements Plugin
     public Collection<Module> getModules()
     {
         return List.of(new CoreModule());
+    }
+
+    @Override
+    public String getName()
+    {
+        return GRT;
+    }
+
+    @Override
+    public Optional<String> getPluginSchema()
+    {
+        // we provide the 'root' schema, so filter ourselves out
+        return Optional.empty();
     }
 
     @Override
@@ -137,9 +152,9 @@ public class CorePlugin implements Plugin
 
         @Provides
         @Singleton
-        public JsonTransformer jsonTransformer()
+        public JsonTransformer jsonTransformer(PluginManager plugins)
         {
-            return new JsonTransformer();
+            return new JsonTransformer(plugins.getPluginSchemas());
         }
 
         @Provides

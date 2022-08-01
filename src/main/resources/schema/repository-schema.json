@@ -119,7 +119,10 @@
         },
         "plugins": {
             "description": "plugin configuration, with plugin name as json key",
-            "type": "object"
+            "type": "object",
+            "properties": {
+            },
+            "additionalProperties": false
         },
         "workflow": {
             "description": "workflow steps (deprecated)",
