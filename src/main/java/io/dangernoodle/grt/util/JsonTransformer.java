@@ -74,14 +74,14 @@ public class JsonTransformer
         return new JSONObject(json).toString(4);
     }
 
-    public JsonObject serialize(Map<?, ?> object)
-    {
-        return object == null ? JsonObject.NULL : new JsonObject(new JSONObject(object));
-    }
-
     public JsonObject serialize(Object object)
     {
-        return object == null ? JsonObject.NULL : new JsonObject(new JSONObject(object));
+        if (object == null)
+        {
+            return JsonObject.NULL;
+        }
+
+        return new JsonObject(object instanceof Map ? new JSONObject((Map<?, ?>) object) : new JSONObject(object));
     }
 
     /**
