@@ -6,14 +6,12 @@ import static io.dangernoodle.grt.Constants.GRT_GITHUB_APP_ID;
 import static io.dangernoodle.grt.Constants.GRT_GITHUB_APP_KEY;
 import static io.dangernoodle.grt.Constants.GRT_GITHUB_INSTALL_ID;
 import static io.dangernoodle.grt.Constants.GRT_GITHUB_OAUTH;
-import static io.dangernoodle.grt.Constants.INSTALL_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-import java.io.Reader;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +24,7 @@ import io.dangernoodle.grt.Credentials;
 
 public class GithubEnvCredentialsTest
 {
-    private Map<String, Object> actualNvp;
+    private Credentials.GithubApp githubApp;
 
     private String actualToken;
 
@@ -90,7 +88,7 @@ public class GithubEnvCredentialsTest
     private void givenAGithubApp()
     {
         when(mockEnv.get(GRT_GITHUB_APP_ID)).thenReturn(APP_ID);
-        when(mockEnv.get(GRT_GITHUB_INSTALL_ID)).thenReturn(INSTALL_ID);
+        when(mockEnv.get(GRT_GITHUB_INSTALL_ID)).thenReturn("1");
         when(mockEnv.get(GRT_GITHUB_APP_KEY)).thenReturn(APP_KEY);
     }
 
@@ -114,11 +112,9 @@ public class GithubEnvCredentialsTest
 
     private void thenAppCredsMatch()
     {
-        assertEquals(APP_ID, actualNvp.get(APP_ID));
-        assertEquals(INSTALL_ID, actualNvp.get(INSTALL_ID));
-
-        assertNotNull(actualNvp.get(APP_KEY));
-        assertTrue(actualNvp.get(APP_KEY) instanceof Reader);
+        assertEquals(APP_ID, githubApp.getAppId());
+        assertEquals(1L, githubApp.getInstallId());
+        assertNotNull(githubApp.getAppKey());
     }
 
     private void thenCredentialsMatch()
@@ -138,7 +134,7 @@ public class GithubEnvCredentialsTest
 
     private void whenGetGithubApp()
     {
-        actualNvp = credentials.getGithubApp();
+        githubApp = credentials.getGithubApp();
     }
 
     private void whenGetGithubToken()

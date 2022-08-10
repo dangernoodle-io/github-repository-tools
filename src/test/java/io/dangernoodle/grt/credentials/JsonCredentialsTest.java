@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,16 +60,15 @@ public class JsonCredentialsTest
         whenLoadCredentials();
         thenCredentialsAreLoaded();
         thenGithubTokenIsFound();
-        thenCredentialsMapIsFound();
     }
-
+    
     @Test
     public void testNullCredentials() throws Exception
     {
         givenNoCredentialsFile();
         thenIOExceptionThrown();
     }
-    
+
     @Test
     public void testRunAsApp() throws Exception
     {
@@ -78,6 +76,14 @@ public class JsonCredentialsTest
         thenRunAsAppIsFalse();
     }
 
+    @Test
+    public void testUserPass() throws Exception {
+        givenACredentialsFile();
+        whenLoadCredentials();
+        thenCredentialsAreLoaded();
+        thenUserPassIsReturned();
+    }
+    
     private void givenACredentialsFile() throws IOException, URISyntaxException
     {
         when(mockTransformer.deserialize(file.getPath())).thenReturn(file.toJsonObject());
@@ -92,20 +98,12 @@ public class JsonCredentialsTest
     {
         when(mockTransformer.deserialize(file.getPath())).thenThrow(new IOException());
     }
-    
+
     private void thenCredentialsAreLoaded()
     {
         assertNotNull(credentials);
     }
-
-    private void thenCredentialsMapIsFound()
-    {
-        Map<String, Object> map = credentials.getNameValue("map");
-
-        assertNotNull(map);
-        assertEquals("user", "user");
-    }
-
+    
     private void thenGithubTokenIsFound()
     {
         assertEquals("oauth-token", credentials.getGithubOAuthToken());
@@ -129,6 +127,11 @@ public class JsonCredentialsTest
     private void thenRunAsAppIsFalse()
     {
         assertFalse(credentials.runAsApp());
+    }
+
+    private void thenUserPassIsReturned()
+    {
+        assertNotNull(credentials.getUserPass("userpass"));
     }
 
     private void whenLoadCredentials() throws IOException, URISyntaxException

@@ -1,6 +1,10 @@
 ## ChangeLog
 
-* **0.10.1
+* **0.11.0-SNAPSHOT**
+  - Added 'Credentials.UserPass' for username/passwords
+  - Added 'Credentials.GithubApp' for GithubApps
+
+* **0.10.1**
   - Support for plugins to provide json schema for validation
   - Fixed GithubApp credentials
   - Fixes recommended by Sonatype Lift

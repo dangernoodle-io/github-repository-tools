@@ -3,10 +3,8 @@ package io.dangernoodle.grt.credentials;
 import static io.dangernoodle.RepositoryFiles.dummyPemPath;
 import static io.dangernoodle.grt.Constants.APP_ID;
 import static io.dangernoodle.grt.Constants.APP_ID_OPT;
-import static io.dangernoodle.grt.Constants.APP_KEY;
 import static io.dangernoodle.grt.Constants.APP_KEY_OPT;
 import static io.dangernoodle.grt.Constants.APP_OPT;
-import static io.dangernoodle.grt.Constants.INSTALL_ID;
 import static io.dangernoodle.grt.Constants.INSTALL_ID_OPT;
 import static io.dangernoodle.grt.Constants.OAUTH_OPT;
 import static io.dangernoodle.grt.Constants.USERNAME_OPT;
@@ -18,9 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-import java.io.Reader;
 import java.net.URISyntaxException;
-import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +29,7 @@ import io.dangernoodle.grt.Credentials;
 
 public class GithubCliCredentialsTest
 {
-    private Map<String, Object> actualNvp;
+    private Credentials.GithubApp githubApp;
 
     private String actualToken;
 
@@ -65,10 +61,10 @@ public class GithubCliCredentialsTest
     public void testGithubApp() throws Exception
     {
         checkAppCredsAreNull();
-        
+
         givenAppWithNoKey();
         checkAppCredsAreNull();
-        
+
         givenAGithubApp();
         whenGetGithubApp();
         thenAppCredsMatch();
@@ -112,12 +108,12 @@ public class GithubCliCredentialsTest
         when(mockArguments.hasOption(APP_ID_OPT)).thenReturn(true);
         when(mockArguments.hasOption(INSTALL_ID_OPT)).thenReturn(true);
         when(mockArguments.hasOption(APP_KEY_OPT)).thenReturn(true);
-        
+
         when(mockArguments.getOption(APP_ID_OPT)).thenReturn(APP_ID);
-        when(mockArguments.getOption(INSTALL_ID_OPT)).thenReturn(INSTALL_ID);
+        when(mockArguments.getOption(INSTALL_ID_OPT)).thenReturn("1");
         when(mockArguments.getOption(APP_KEY_OPT)).thenReturn(dummyPemPath());
     }
-    
+
     private void givenAGithubToken()
     {
         expectedToken = "github";
@@ -149,11 +145,9 @@ public class GithubCliCredentialsTest
 
     private void thenAppCredsMatch()
     {
-        assertEquals(APP_ID, actualNvp.get(APP_ID));
-        assertEquals(INSTALL_ID, actualNvp.get(INSTALL_ID));
-
-        assertNotNull(actualNvp.get(APP_KEY));
-        assertTrue(actualNvp.get(APP_KEY) instanceof Reader);
+        assertEquals(APP_ID, githubApp.getAppId());
+        assertEquals(1L, githubApp.getInstallId());
+        assertNotNull(githubApp.getAppKey());
     }
 
     private void thenCredentialsMatch()
@@ -178,7 +172,7 @@ public class GithubCliCredentialsTest
 
     private void whenGetGithubApp()
     {
-        actualNvp = credentials.getGithubApp();
+        githubApp = credentials.getGithubApp();
     }
 
     private void whenGetGithubToken()

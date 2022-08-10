@@ -83,7 +83,7 @@ public final class Constants
     public static final String TAG_OPT = "--tag";
 
     public static final String UPDATE_REF = "update-ref";
-
+    
     public static final String USERNAME = "username";
 
     public static final String USERNAME_OPT = "--username";
