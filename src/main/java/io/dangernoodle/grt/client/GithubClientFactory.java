@@ -1,14 +1,9 @@
 package io.dangernoodle.grt.client;
 
-import static io.dangernoodle.grt.Constants.APP_ID;
-import static io.dangernoodle.grt.Constants.APP_KEY;
-import static io.dangernoodle.grt.Constants.INSTALL_ID;
 import static io.dangernoodle.grt.util.GithubRepositoryToolsUtils.readPrivateKey;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.security.GeneralSecurityException;
-import java.util.Map;
 import java.util.Optional;
 
 import org.kohsuke.github.GHAppInstallation;
@@ -80,7 +75,7 @@ public class GithubClientFactory
     {
         return new SleepingAbuseLimitHandler();
     }
-    
+
     protected AuthorizationProvider authorizationProvider() throws IOException
     {
         if (appInstall == null)
@@ -104,26 +99,15 @@ public class GithubClientFactory
         return new GitHubBuilder();
     }
 
-    private JWTTokenProvider createJwtProvider(Map<String, Object> githubApp) throws GeneralSecurityException, IOException
-    {
-        String appId = githubApp.get(APP_ID).toString();
-        Reader reader = (Reader) githubApp.get(APP_KEY);
-
-        return new JWTTokenProvider(appId, readPrivateKey(reader));
-    }
-
-    private GHAppInstallation getAppInstall(Map<String, Object> map) throws IllegalStateException
+    private GHAppInstallation getAppInstall(Credentials.GithubApp creds) throws IllegalStateException
     {
         try
         {
-            long installId = Long.valueOf(map.get(INSTALL_ID).toString());
-            JWTTokenProvider jwtProvider = createJwtProvider(map);
-
-            return new GitHubBuilder().withAuthorizationProvider(jwtProvider)
+            return new GitHubBuilder().withAuthorizationProvider(new JWTTokenProvider(creds.getAppId(), readPrivateKey(creds.getAppKey())))
                                       .withConnector(connector)
                                       .build()
                                       .getApp()
-                                      .getInstallationById(installId);
+                                      .getInstallationById(creds.getInstallId());
         }
         catch (GeneralSecurityException | IOException e)
         {
@@ -141,7 +125,7 @@ public class GithubClientFactory
         return appInstall.getAccount();
     }
 
-    private Map<String, Object> getGitubApp()
+    private Credentials.GithubApp getGitubApp()
     {
         return credentials.runAsApp() ? credentials.getGithubApp() : null;
     }
